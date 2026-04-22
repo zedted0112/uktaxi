@@ -1,9 +1,9 @@
 import { Tabs } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 import { colors, fonts } from '../../src/theme';
 
-export default function UserTabs() {
+export default function DriverTabs() {
   return (
     <Tabs
       screenOptions={{
@@ -21,20 +21,25 @@ export default function UserTabs() {
         },
       }}
     >
-      <Tabs.Screen name="index" options={{
-        title: 'Home',
-        tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
-        tabBarButtonTestID: 'tab-home',
+      <Tabs.Screen name="publish" options={{
+        title: 'Publish',
+        tabBarIcon: ({ color, size }) => <Feather name="plus-circle" size={size} color={color} />,
+        tabBarButtonTestID: 'dtab-publish',
       }} />
-      <Tabs.Screen name="bookings" options={{
-        title: 'My Bookings',
-        tabBarIcon: ({ color, size }) => <Feather name="list" size={size} color={color} />,
-        tabBarButtonTestID: 'tab-bookings',
+      <Tabs.Screen name="rides" options={{
+        title: 'My Rides',
+        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="steering" size={size} color={color} />,
+        tabBarButtonTestID: 'dtab-rides',
+      }} />
+      <Tabs.Screen name="requests" options={{
+        title: 'Requests',
+        tabBarIcon: ({ color, size }) => <Feather name="inbox" size={size} color={color} />,
+        tabBarButtonTestID: 'dtab-requests',
       }} />
       <Tabs.Screen name="profile" options={{
         title: 'Profile',
         tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
-        tabBarButtonTestID: 'tab-profile',
+        tabBarButtonTestID: 'dtab-profile',
       }} />
     </Tabs>
   );
