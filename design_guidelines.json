@@ -1,0 +1,139 @@
+{
+  "app_name": "Uttarkashi Taxi Union Booking App",
+  "platform": "React Native (Expo) - Mobile Web App",
+  "theme": "Light Mint & Black Contrast",
+  "archetype": "Organic & Earthy with High-Contrast Swiss accents (Custom blend for Premium Mountain Travel)",
+  "colors": {
+    "background": "#F5F7F4",
+    "surface": "#FFFFFF",
+    "primary": "#111111",
+    "secondary": "#10B981",
+    "secondary_light": "#D1FAE5",
+    "text": {
+      "primary": "#111111",
+      "secondary": "#6B7280",
+      "inverse": "#FFFFFF",
+      "accent": "#059669"
+    },
+    "border": "#E5E7EB",
+    "status": {
+      "available": "#FFFFFF",
+      "selected": "#10B981",
+      "booked": "#D1D5DB"
+    }
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Playfair Display, serif",
+      "body": "Inter, sans-serif"
+    },
+    "sizes": {
+      "h1": "text-4xl (32px)",
+      "h2": "text-2xl (24px)",
+      "h3": "text-xl (20px)",
+      "body": "text-base (16px)",
+      "caption": "text-sm (14px)",
+      "tiny": "text-xs (12px)"
+    },
+    "instructions": "Use font families through Expo Fonts (e.g., useFonts hook for PlayfairDisplay_700Bold and Inter_400Regular). All headings must use the Serif font, maintaining strong tracking-tight properties. Only use sans-serif for body text, UI elements, and data."
+  },
+  "layout": {
+    "padding": {
+      "screen": "px-6 py-8",
+      "card": "p-5",
+      "chip": "px-4 py-2"
+    },
+    "border_radius": {
+      "sm": "rounded-md (6px)",
+      "md": "rounded-xl (12px)",
+      "lg": "rounded-2xl (16px)",
+      "full": "rounded-full (9999px)"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#10B981] rounded-full px-6 py-4 flex-row justify-center items-center shadow-sm",
+      "primary_text": "text-white font-semibold text-lg"
+    },
+    "cards": {
+      "ticket": "bg-[#111111] rounded-3xl p-6 shadow-md overflow-hidden flex-col gap-4",
+      "ticket_text": "text-white font-medium",
+      "ticket_heading": "text-white font-serif text-3xl",
+      "trip_item": "bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-sm mb-4 flex-row justify-between items-center",
+      "from_to_selector": "bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm flex-col gap-3"
+    },
+    "chips": {
+      "active": "bg-[#111111] rounded-full px-5 py-2",
+      "active_text": "text-white font-medium",
+      "inactive": "bg-white border border-[#E5E7EB] rounded-full px-5 py-2",
+      "inactive_text": "text-[#6B7280] font-medium"
+    },
+    "seat_picker": {
+      "container": "bg-white rounded-2xl p-6 border border-[#E5E7EB]",
+      "seat_available": "w-12 h-12 bg-white border-2 border-[#E5E7EB] rounded-lg items-center justify-center",
+      "seat_selected": "w-12 h-12 bg-[#10B981] border-2 border-[#10B981] rounded-lg items-center justify-center shadow-sm",
+      "seat_booked": "w-12 h-12 bg-[#F3F4F6] border-2 border-[#E5E7EB] rounded-lg items-center justify-center opacity-60",
+      "layout": "Grid mimicking a 7-seater SUV (Row 1: Driver + 1 Passenger, Row 2: 3 Passengers, Row 3: 2 Passengers)"
+    },
+    "bottom_tabs": {
+      "container": "bg-white border-t border-[#E5E7EB] pt-3 pb-8 px-6 flex-row justify-between",
+      "active_tint": "#10B981",
+      "inactive_tint": "#9CA3AF"
+    }
+  },
+  "screens": {
+    "home": "Features a prominent 'Book a Seat' big serif header. Contains a From/To selector card. Followed by a Horizontal ScrollView of date chips. Below is a vertical list of available trips (Uttarkashi ↔ Dehradun/Rishikesh) showing seats left, time, and green price tags.",
+    "find_taxi": "Search interface with route filters (Origin, Destination, Date, Passengers) and a 'Search Taxis' primary CTA button at the bottom.",
+    "trip_detail": "Details of the trip. Visual seat map using a 7-seater SUV layout. Cost summary fixed at the bottom with a 'Proceed to Book' sticky CTA.",
+    "ticket_confirmation": "The signature 'Black Card' screen. Full black card holding the booking reference, route, timings, and a barcode icon. Highly premium and high contrast.",
+    "my_bookings": "List of upcoming and past trips using standard white cards.",
+    "driver_dashboard": "Driver view listing passengers for their assigned trip, with a prominent 'Confirm Trip' button.",
+    "profile": "User details and preferences view."
+  },
+  "icons": {
+    "library": "@expo/vector-icons",
+    "examples": {
+      "home": "Feather name='home'",
+      "search": "Feather name='search'",
+      "bookings": "Feather name='list'",
+      "profile": "Feather name='user'",
+      "barcode": "MaterialCommunityIcons name='barcode-scan'",
+      "seat": "MaterialCommunityIcons name='car-seat'",
+      "arrow_right": "Feather name='arrow-right'",
+      "clock": "Feather name='clock'"
+    },
+    "rules": "Never use emojis. Always use @expo/vector-icons."
+  },
+  "testing": {
+    "rules": "All interactive and key informational elements MUST include a 'testID' attribute (since this is React Native, use testID instead of data-testid).",
+    "examples": [
+      "testID='home-book-seat-button'",
+      "testID='date-chip-2026-02-14'",
+      "testID='seat-picker-seat-3'"
+    ]
+  },
+  "media_urls": {
+    "himalayan_road": {
+      "url": "https://images.unsplash.com/photo-1738482223844-7ff598553cf7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwyfHxoaW1hbGF5YW4lMjByb2FkJTIwbW91bnRhaW58ZW58MHx8fHwxNzc2ODU0NjA4fDA&ixlib=rb-4.1.0&q=85",
+      "category": "hero_background",
+      "description": "Scenic view of a winding road in the mountains, used for empty states, profile banners, or header backgrounds."
+    },
+    "suv_mountain": {
+      "url": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxzdXYlMjBjYXIlMjBkcml2aW5nJTIwbW91bnRhaW58ZW58MHx8fHwxNzc2ODU0NjA4fDA&ixlib=rb-4.1.0&q=85",
+      "category": "vehicle_image",
+      "description": "White SUV driving on a highway with mountains. Used in trip detail views to showcase the vehicle type."
+    },
+    "driver_avatar": {
+      "url": "https://images.pexels.com/photos/16702626/pexels-photo-16702626.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "avatar",
+      "description": "Friendly smiling driver portrait for the driver profile or trip details showing the assigned driver."
+    }
+  },
+  "instructions_to_main_agent": {
+    "framework": "React Native (Expo) using expo-router. Use .js extension (not .tsx) as requested.",
+    "styling": "Use NativeWind (Tailwind for React Native) or standard React Native StyleSheet. The provided classes map directly to Tailwind/NativeWind. If NativeWind isn't configured, translate these classes to StyleSheet objects.",
+    "typography_loading": "Implement expo-font to load 'Playfair Display' (Serif) and 'Inter' (Sans). Handle loading state securely.",
+    "testing_attributes": "Use 'testID' (React Native standard) strictly instead of data-testid. Apply to all interactable UI.",
+    "routing": "Set up a bottom tab navigator for (Home, Find a Taxi, My Bookings, Profile) and separate stack screens for (TripDetail, SeatPicker, TicketConfirmation, DriverDashboard) using expo-router structure."
+  }
+}
