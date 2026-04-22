@@ -99,6 +99,7 @@ export const api = {
   register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+  demoAccounts: () => req<User[]>(`/demo/accounts`),
   listVehicles: () => req<Vehicle[]>(`/vehicles`),
   updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>
     req<User>(`/drivers/${encodeURIComponent(phone)}/vehicle`, { method: 'POST', body: JSON.stringify(payload) }),

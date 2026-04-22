@@ -77,7 +77,7 @@ export default function DriverProfile() {
 
         <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout} testID="driver-logout">
           <Feather name="log-out" size={16} color="#B91C1C" />
-          <Text style={styles.logoutTxt}>Sign Out</Text>
+          <Text style={styles.logoutTxt}>Sign Out / Switch Account</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

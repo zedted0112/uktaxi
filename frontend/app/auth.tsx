@@ -23,8 +23,23 @@ export default function Auth() {
   const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [demoAccts, setDemoAccts] = useState<import('../src/api').User[]>([]);
+  const [quickLoading, setQuickLoading] = useState<string | null>(null);
 
-  useEffect(() => { api.listVehicles().then(setVehicles).catch(() => {}); }, []);
+  useEffect(() => {
+    api.listVehicles().then(setVehicles).catch(() => {});
+    api.demoAccounts().then(setDemoAccts).catch(() => {});
+  }, []);
+
+  const quickSignIn = async (phone: string) => {
+    setQuickLoading(phone);
+    try {
+      const u = await api.me(phone);
+      await signIn(u);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'Failed to sign in');
+    } finally { setQuickLoading(null); }
+  };
 
   const formattedPhone = () => {
     const digits = phone.replace(/\D/g, '');
@@ -99,6 +114,49 @@ export default function Auth() {
 
         {step === 'phone' && (
           <View style={styles.card} testID="phone-step">
+            {demoAccts.length > 0 && (
+              <View style={styles.demoBox} testID="demo-box">
+                <View style={styles.demoHead}>
+                  <MaterialCommunityIcons name="flash-outline" size={16} color={colors.greenDark} />
+                  <Text style={styles.demoHeadTxt}>Demo · tap to sign in instantly</Text>
+                </View>
+                {demoAccts.map((a) => (
+                  <TouchableOpacity
+                    key={a.phone}
+                    style={styles.demoRow}
+                    disabled={quickLoading !== null}
+                    onPress={() => quickSignIn(a.phone)}
+                    testID={`demo-${a.phone.replace(/\D/g, '')}`}
+                  >
+                    <View style={[styles.demoAvatar, a.role === 'driver' && { backgroundColor: colors.black }]}>
+                      {a.role === 'driver' ? (
+                        <MaterialCommunityIcons name="steering" size={16} color="#fff" />
+                      ) : (
+                        <Feather name="user" size={16} color={colors.textPrimary} />
+                      )}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.demoName}>{a.name}</Text>
+                      <Text style={styles.demoMeta}>
+                        {a.role === 'driver'
+                          ? `${a.vehicle_type} • ${a.total_seats} seats`
+                          : 'Passenger'}
+                      </Text>
+                    </View>
+                    {quickLoading === a.phone ? (
+                      <ActivityIndicator color={colors.green} size="small" />
+                    ) : (
+                      <Feather name="arrow-right" size={16} color={colors.textMuted} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+                <View style={styles.dividerWrap}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerTxt}>OR SIGN IN WITH PHONE</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+              </View>
+            )}
             <Text style={styles.heading}>Welcome</Text>
             <Text style={styles.sub}>Enter your phone to continue</Text>
             <View style={styles.inputWrap}>
@@ -331,4 +389,14 @@ const styles = StyleSheet.create({
   vehicleIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   vehicleName: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary },
   vehicleMeta: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 2 },
+  demoBox: { marginBottom: 4 },
+  demoHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  demoHeadTxt: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.greenDark, letterSpacing: 0.6, textTransform: 'uppercase' },
+  demoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 10, backgroundColor: colors.borderSoft, borderRadius: radii.md, marginBottom: 6 },
+  demoAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenLight, alignItems: 'center', justifyContent: 'center' },
+  demoName: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary },
+  demoMeta: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 1 },
+  dividerWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, marginBottom: 4 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerTxt: { fontFamily: fonts.bodySemiBold, fontSize: 9, color: colors.textMuted, letterSpacing: 0.8 },
 });

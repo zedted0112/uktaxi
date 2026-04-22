@@ -21,7 +21,7 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 3  # bump to trigger reseed
+SCHEMA_VERSION = 4  # bump to trigger reseed
 
 # -------------- Vehicle Catalog --------------
 # seat_layout = list of rows; each row is list of seat numbers (0 = aisle/gap)
@@ -524,7 +524,8 @@ async def seed_demo():
         ),
     ]
     user = User(phone="+91 98765 00001", name="Aarav Sharma", role="user")
-    for u in drivers + [user]:
+    user2 = User(phone="+91 98765 00002", name="Priya Nautiyal", role="user")
+    for u in drivers + [user, user2]:
         await db.users.insert_one(u.dict())
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -564,7 +565,14 @@ async def seed_demo():
     await db.meta.update_one(
         {"key": "schema"}, {"$set": {"key": "schema", "version": SCHEMA_VERSION}}, upsert=True
     )
-    logger.info(f"Seeded {len(drivers)} drivers, 1 user, {len(rides)} rides (schema v{SCHEMA_VERSION})")
+    logger.info(f"Seeded {len(drivers)} drivers, 2 users, {len(rides)} rides (schema v{SCHEMA_VERSION})")
+
+
+@api_router.get("/demo/accounts")
+async def demo_accounts():
+    """Return all seeded accounts for one-tap demo login."""
+    items = await db.users.find({}, {"_id": 0}).to_list(100)
+    return [User(**u).dict() for u in items]
 
 
 @api_router.get("/")
