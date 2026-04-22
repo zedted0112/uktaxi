@@ -14,6 +14,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { colors, fonts, radii } from '../../src/theme';
 import { api, Booking, DEMO_USER } from '../../src/api';
 
+const BACKEND_TO_DISPLAY: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7 };
+
 export default function Bookings() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -110,7 +112,9 @@ function BookingCard({ booking, onPress }: { booking: Booking; onPress: () => vo
       <View style={styles.cardBottom}>
         <View style={styles.metaItem}>
           <MaterialCommunityIcons name="car-seat" size={13} color={colors.textSecondary} />
-          <Text style={styles.metaTxt}>Seat {booking.seat_numbers.join(', ')}</Text>
+          <Text style={styles.metaTxt}>
+            Seat {booking.seat_numbers.map((s) => BACKEND_TO_DISPLAY[s] ?? s).join(', ')}
+          </Text>
         </View>
         <View style={styles.metaItem}>
           <Feather name="calendar" size={12} color={colors.textSecondary} />
