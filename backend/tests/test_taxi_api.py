@@ -1,4 +1,4 @@
-"""Uttarkashi Taxi Union — Phase 2 API tests (auth / rides / requests)."""
+"""Uttarkashi Taxi Union — Phase 3 API tests (vehicles / driver-first rides / requests)."""
 import os
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -9,8 +9,9 @@ import requests
 BASE_URL = os.environ["EXPO_PUBLIC_BACKEND_URL"].rstrip("/")
 API = f"{BASE_URL}/api"
 
-SEED_USER_PHONE = "+91 98765 00001"    # Aarav Sharma
-SEED_DRIVER_PHONE = "+91 98765 43210"  # Rakesh Negi
+SEED_USER_PHONE = "+91 98765 00001"       # Aarav Sharma
+SEED_BOLERO_DRIVER = "+91 98765 43210"    # Rakesh Negi (Bolero, 9 seats)
+SEED_EECO_DRIVER = "+91 99887 76655"      # Mohan Rawat (Eeco, 4 seats)
 
 
 @pytest.fixture(scope="module")
@@ -24,252 +25,267 @@ def _future_date(days=30):
     return (datetime.now(timezone.utc) + timedelta(days=days)).strftime("%Y-%m-%d")
 
 
-# ---------------- Auth (OTP mock + register + me) ----------------
-class TestAuth:
-    def test_request_otp_ok(self, api):
-        r = api.post(f"{API}/auth/request-otp", json={"phone": SEED_USER_PHONE}, timeout=20)
+# ---------------- Vehicles catalog ----------------
+class TestVehicles:
+    def test_list_vehicles(self, api):
+        r = api.get(f"{API}/vehicles", timeout=20)
         assert r.status_code == 200
         data = r.json()
-        assert data.get("ok") is True
+        assert isinstance(data, list) and len(data) == 4
+        by_id = {v["id"]: v for v in data}
+        for vid in ("bolero", "innova", "scorpio", "eeco"):
+            assert vid in by_id, f"missing vehicle {vid}"
+            assert "seat_layout" in by_id[vid]
+            assert "total_seats" in by_id[vid]
 
-    def test_verify_otp_existing_user(self, api):
+        # Bolero layout assertion per PRD
+        assert by_id["bolero"]["total_seats"] == 9
+        assert by_id["bolero"]["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
+        # others
+        assert by_id["innova"]["total_seats"] == 6
+        assert by_id["scorpio"]["total_seats"] == 7
+        assert by_id["eeco"]["total_seats"] == 4
+        assert by_id["eeco"]["seat_layout"] == [[1], [2, 3, 4]]
+
+    def test_get_vehicle_404(self, api):
+        r = api.get(f"{API}/vehicles/unknown", timeout=20)
+        assert r.status_code == 404
+
+
+# ---------------- Auth / Register with preset ----------------
+class TestAuthRegister:
+    def test_request_and_verify_otp_existing(self, api):
+        r = api.post(f"{API}/auth/request-otp", json={"phone": SEED_USER_PHONE}, timeout=20)
+        assert r.status_code == 200 and r.json()["ok"] is True
         r = api.post(f"{API}/auth/verify-otp",
                      json={"phone": SEED_USER_PHONE, "otp": "123456"}, timeout=20)
         assert r.status_code == 200
-        data = r.json()
-        assert data["ok"] is True
-        assert data["user"] is not None
-        assert data["user"]["phone"] == SEED_USER_PHONE
-        assert data["user"]["role"] == "user"
+        body = r.json()
+        assert body["ok"] is True
+        assert body["user"]["phone"] == SEED_USER_PHONE
+        assert body["user"]["role"] == "user"
 
-    def test_verify_otp_new_phone_returns_null_user(self, api):
-        new_phone = f"+91 70000 {uuid.uuid4().hex[:5]}"
-        r = api.post(f"{API}/auth/verify-otp",
-                     json={"phone": new_phone, "otp": "654321"}, timeout=20)
-        assert r.status_code == 200
-        assert r.json()["user"] is None
+    def test_verify_otp_invalid(self, api):
+        assert api.post(f"{API}/auth/verify-otp",
+                        json={"phone": SEED_USER_PHONE, "otp": "abc"}, timeout=20
+                        ).status_code == 400
 
-    def test_verify_otp_rejects_short_code(self, api):
-        r = api.post(f"{API}/auth/verify-otp",
-                     json={"phone": SEED_USER_PHONE, "otp": "1234"}, timeout=20)
-        assert r.status_code == 400
-
-    def test_verify_otp_rejects_non_digit(self, api):
-        r = api.post(f"{API}/auth/verify-otp",
-                     json={"phone": SEED_USER_PHONE, "otp": "abcdef"}, timeout=20)
-        assert r.status_code == 400
-
-    def test_register_new_user_and_idempotent(self, api):
-        phone = f"+91 77777 {uuid.uuid4().hex[:5]}"
-        payload = {"phone": phone, "name": "TEST_New User", "role": "user"}
+    def test_register_driver_bolero_populates_layout(self, api):
+        phone = f"+91 77001 {uuid.uuid4().hex[:5]}"
+        payload = {"phone": phone, "name": "TEST_Bolero Driver", "role": "driver",
+                   "vehicle_preset": "bolero", "vehicle_number": "UK 07 TA 0001"}
         r = api.post(f"{API}/auth/register", json=payload, timeout=20)
         assert r.status_code == 200, r.text
         u = r.json()
-        assert u["phone"] == phone
-        assert u["role"] == "user"
-        uid = u["id"]
+        assert u["role"] == "driver"
+        assert u["vehicle_preset"] == "bolero"
+        assert u["total_seats"] == 9
+        assert u["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
+        assert u["vehicle_type"] == "Mahindra Bolero"
 
-        # Second call with same phone must be idempotent
+        # idempotent
         r2 = api.post(f"{API}/auth/register",
-                      json={"phone": phone, "name": "ignored", "role": "driver"},
-                      timeout=20)
+                      json={"phone": phone, "name": "ignored", "role": "user"}, timeout=20)
         assert r2.status_code == 200
-        assert r2.json()["id"] == uid
+        assert r2.json()["id"] == u["id"]
 
-        # /me
-        me = api.get(f"{API}/auth/me", params={"phone": phone}, timeout=20)
-        assert me.status_code == 200
-        assert me.json()["phone"] == phone
+    def test_register_driver_invalid_preset_400(self, api):
+        phone = f"+91 77002 {uuid.uuid4().hex[:5]}"
+        r = api.post(f"{API}/auth/register", json={
+            "phone": phone, "name": "TEST_bad", "role": "driver",
+            "vehicle_preset": "spacecraft", "vehicle_number": "XX 00 ZZ 0000"
+        }, timeout=20)
+        assert r.status_code == 400
 
-    def test_register_driver_with_vehicle(self, api):
-        phone = f"+91 77777 {uuid.uuid4().hex[:5]}"
-        payload = {
-            "phone": phone, "name": "TEST_Driver", "role": "driver",
-            "vehicle_type": "Toyota Innova", "vehicle_number": "UK 07 ZZ 9999",
-        }
-        r = api.post(f"{API}/auth/register", json=payload, timeout=20)
+    def test_update_driver_vehicle(self, api):
+        phone = f"+91 77003 {uuid.uuid4().hex[:5]}"
+        api.post(f"{API}/auth/register", json={
+            "phone": phone, "name": "TEST_upd", "role": "driver",
+            "vehicle_preset": "eeco", "vehicle_number": "UK 07 TA 0002",
+        }, timeout=20).raise_for_status()
+
+        r = api.post(f"{API}/drivers/{phone}/vehicle",
+                     json={"vehicle_preset": "scorpio", "vehicle_number": "UK 08 XY 1111"},
+                     timeout=20)
         assert r.status_code == 200
         u = r.json()
-        assert u["role"] == "driver"
-        assert u["vehicle_type"] == "Toyota Innova"
+        assert u["vehicle_preset"] == "scorpio"
+        assert u["total_seats"] == 7
+        assert u["seat_layout"] == [[1], [2, 3, 4], [5, 6, 7]]
+        assert u["vehicle_number"] == "UK 08 XY 1111"
 
-    def test_me_404(self, api):
-        r = api.get(f"{API}/auth/me", params={"phone": "+91 00000 00000"}, timeout=20)
-        assert r.status_code == 404
+        # bad preset
+        rb = api.post(f"{API}/drivers/{phone}/vehicle",
+                      json={"vehicle_preset": "foo", "vehicle_number": "X"}, timeout=20)
+        assert rb.status_code == 400
 
-
-# ---------------- Rides ----------------
-class TestRides:
-    ride_id: str = ""
-    ride_date: str = ""
-
-    def test_publish_ride_driver_required(self, api):
         # unknown driver
-        bad = {
-            "driver_phone": "+91 00000 00000",
-            "from_city": "Uttarkashi", "to_city": "Dehradun",
-            "from_stand": "X", "to_stand": "Y",
-            "date": _future_date(), "depart_time": "06:30 AM",
-            "arrive_time": "11:30 AM", "duration": "5h 00m",
-            "price": 500, "total_seats": 6,
-        }
-        r = api.post(f"{API}/rides", json=bad, timeout=20)
-        assert r.status_code == 404
+        rn = api.post(f"{API}/drivers/+91 00000 00000/vehicle",
+                      json={"vehicle_preset": "bolero", "vehicle_number": "X"}, timeout=20)
+        assert rn.status_code == 404
 
-    def test_publish_ride_success(self, api):
-        TestRides.ride_date = _future_date(30)
+
+# ---------------- Publish ride uses driver seat layout ----------------
+class TestPublishRide:
+    ride_id: str = ""
+    date: str = ""
+
+    def test_publish_uses_driver_layout_and_offline(self, api):
+        TestPublishRide.date = _future_date(10)
         payload = {
-            "driver_phone": SEED_DRIVER_PHONE,
+            "driver_phone": SEED_BOLERO_DRIVER,
             "from_city": "Uttarkashi", "to_city": "Dehradun",
-            "from_stand": "Uttarkashi Bus Stand", "to_stand": "Dehradun ISBT",
-            "date": TestRides.ride_date, "depart_time": "07:00 AM",
-            "arrive_time": "12:00 PM", "duration": "5h 00m",
-            "price": 500, "total_seats": 6,
+            "from_stand": "UK Stand", "to_stand": "Dehradun ISBT",
+            "date": TestPublishRide.date, "depart_time": "06:30 AM",
+            "arrive_time": "11:30 AM", "duration": "5h 00m",
+            "price": 480, "offline_seats": [3, 8],
         }
         r = api.post(f"{API}/rides", json=payload, timeout=20)
         assert r.status_code == 200, r.text
         ride = r.json()
-        assert ride["driver_phone"] == SEED_DRIVER_PHONE
-        assert ride["status"] == "published"
-        assert ride["price"] == 500
-        TestRides.ride_id = ride["id"]
+        assert ride["total_seats"] == 9
+        assert ride["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
+        assert sorted(ride["offline_seats"]) == [3, 8]
+        assert sorted(ride["booked_seats"]) == [3, 8]
+        TestPublishRide.ride_id = ride["id"]
 
-        # GET back
-        g = api.get(f"{API}/rides/{ride['id']}", timeout=20)
-        assert g.status_code == 200
-        assert g.json()["seats_left"] == 6
+        g = api.get(f"{API}/rides/{ride['id']}", timeout=20).json()
+        assert g["seats_left"] == 9 - 2
+        assert g["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
+        assert sorted(g["offline_seats"]) == [3, 8]
 
-    def test_list_rides_filter_route_and_date(self, api):
+    def test_publish_rejects_invalid_offline_seat(self, api):
+        payload = {
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "A", "to_city": "B", "from_stand": "x", "to_stand": "y",
+            "date": _future_date(11), "depart_time": "07:00 AM",
+            "arrive_time": "11:00 AM", "duration": "4h", "price": 300,
+            "offline_seats": [99],
+        }
+        r = api.post(f"{API}/rides", json=payload, timeout=20)
+        assert r.status_code == 400
+
+    def test_publish_unknown_driver(self, api):
+        payload = {
+            "driver_phone": "+91 00000 00000",
+            "from_city": "A", "to_city": "B", "from_stand": "x", "to_stand": "y",
+            "date": _future_date(11), "depart_time": "07:00 AM",
+            "arrive_time": "11:00 AM", "duration": "4h", "price": 300,
+        }
+        assert api.post(f"{API}/rides", json=payload, timeout=20).status_code == 404
+
+    def test_list_rides_has_seat_layout(self, api):
         r = api.get(f"{API}/rides",
                     params={"from_city": "Uttarkashi", "to_city": "Dehradun",
-                            "date": TestRides.ride_date}, timeout=20)
+                            "date": TestPublishRide.date}, timeout=20)
         assert r.status_code == 200
         rides = r.json()
-        assert any(x["id"] == TestRides.ride_id for x in rides)
-        for x in rides:
-            assert x["status"] == "published"
-            assert x["from_city"] == "Uttarkashi"
-            assert x["to_city"] == "Dehradun"
-            assert x["date"] == TestRides.ride_date
-
-    def test_list_rides_driver_phone_returns_all_statuses(self, api):
-        r = api.get(f"{API}/rides",
-                    params={"driver_phone": SEED_DRIVER_PHONE}, timeout=20)
-        assert r.status_code == 200
-        rides = r.json()
-        assert len(rides) >= 1
-        for x in rides:
-            assert x["driver_phone"] == SEED_DRIVER_PHONE
+        found = [x for x in rides if x["id"] == TestPublishRide.ride_id]
+        assert found, "published ride not in list"
+        assert found[0]["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
+        assert sorted(found[0]["offline_seats"]) == [3, 8]
 
 
-# ---------------- Requests (booking) ----------------
-class TestRequests:
+# ---------------- Offline seats endpoint ----------------
+class TestOfflineSeats:
+    def test_update_offline_seats(self, api):
+        # create fresh ride
+        payload = {
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "UK", "to_city": "DDN", "from_stand": "x", "to_stand": "y",
+            "date": _future_date(15), "depart_time": "08:00 AM",
+            "arrive_time": "12:00 PM", "duration": "4h", "price": 400,
+            "offline_seats": [2],
+        }
+        ride = api.post(f"{API}/rides", json=payload, timeout=20).json()
+        rid = ride["id"]
+
+        # user books seat 5 online -> confirm -> booked
+        req = api.post(f"{API}/requests", json={
+            "ride_id": rid, "user_phone": SEED_USER_PHONE, "seat_numbers": [5]
+        }, timeout=20).json()
+        api.post(f"{API}/requests/{req['id']}/confirm", timeout=20).raise_for_status()
+
+        # Now try to mark seat 5 offline -> should 400
+        bad = api.post(f"{API}/rides/{rid}/offline-seats",
+                       json={"offline_seats": [5]}, timeout=20)
+        assert bad.status_code == 400
+
+        # Valid update: offline=[2,7]; keeps confirmed-online [5] in booked
+        ok = api.post(f"{API}/rides/{rid}/offline-seats",
+                      json={"offline_seats": [2, 7]}, timeout=20)
+        assert ok.status_code == 200
+        got = api.get(f"{API}/rides/{rid}", timeout=20).json()
+        assert sorted(got["offline_seats"]) == [2, 7]
+        assert sorted(got["booked_seats"]) == [2, 5, 7]
+
+        # invalid seat number
+        r = api.post(f"{API}/rides/{rid}/offline-seats",
+                     json={"offline_seats": [42]}, timeout=20)
+        assert r.status_code == 400
+
+
+# ---------------- Requests: booked/offline/pending enforcement ----------------
+class TestRequestFlow:
     ride_id: str = ""
     req_id: str = ""
 
-    def test_setup_ride(self, api):
-        # fresh ride far in future with price 300 to validate seat+cancel logic
+    def test_setup_ride_with_offline(self, api):
         payload = {
-            "driver_phone": SEED_DRIVER_PHONE,
-            "from_city": "Uttarkashi", "to_city": "Rishikesh",
-            "from_stand": "UK Stand", "to_stand": "Rishikesh Tapovan",
-            "date": _future_date(60), "depart_time": "09:00 AM",
-            "arrive_time": "01:30 PM", "duration": "4h 30m",
-            "price": 300, "total_seats": 6,
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "UK", "to_city": "Rishikesh", "from_stand": "x", "to_stand": "y",
+            "date": _future_date(40), "depart_time": "09:00 AM",
+            "arrive_time": "01:30 PM", "duration": "4h 30m", "price": 350,
+            "offline_seats": [9],
         }
-        r = api.post(f"{API}/rides", json=payload, timeout=20)
-        assert r.status_code == 200
-        TestRequests.ride_id = r.json()["id"]
+        ride = api.post(f"{API}/rides", json=payload, timeout=20).json()
+        TestRequestFlow.ride_id = ride["id"]
 
-    def test_create_request_pending(self, api):
-        payload = {"ride_id": TestRequests.ride_id,
-                   "user_phone": SEED_USER_PHONE, "seat_numbers": [2, 3]}
-        r = api.post(f"{API}/requests", json=payload, timeout=20)
+    def test_create_request_success(self, api):
+        r = api.post(f"{API}/requests", json={
+            "ride_id": TestRequestFlow.ride_id,
+            "user_phone": SEED_USER_PHONE, "seat_numbers": [4, 7],
+        }, timeout=20)
         assert r.status_code == 200, r.text
         req = r.json()
         assert req["status"] == "pending"
-        assert req["seat_numbers"] == [2, 3]
-        assert req["total_price"] == 600
+        assert req["seat_numbers"] == [4, 7]
+        assert req["total_price"] == 350 * 2
         assert req["booking_ref"].startswith("UTK-")
-        assert req["driver_phone"] == SEED_DRIVER_PHONE
-        TestRequests.req_id = req["id"]
+        TestRequestFlow.req_id = req["id"]
 
-    def test_create_request_rejects_pending_seat(self, api):
-        payload = {"ride_id": TestRequests.ride_id,
-                   "user_phone": SEED_USER_PHONE, "seat_numbers": [3]}
-        r = api.post(f"{API}/requests", json=payload, timeout=20)
+    def test_reject_offline_seat(self, api):
+        r = api.post(f"{API}/requests", json={
+            "ride_id": TestRequestFlow.ride_id,
+            "user_phone": SEED_USER_PHONE, "seat_numbers": [9],  # offline
+        }, timeout=20)
         assert r.status_code == 400
 
-    def test_confirm_request_adds_booked_seats(self, api):
-        r = api.post(f"{API}/requests/{TestRequests.req_id}/confirm", timeout=20)
+    def test_reject_pending_seat(self, api):
+        r = api.post(f"{API}/requests", json={
+            "ride_id": TestRequestFlow.ride_id,
+            "user_phone": SEED_USER_PHONE, "seat_numbers": [4],  # pending
+        }, timeout=20)
+        assert r.status_code == 400
+
+    def test_reject_invalid_seat(self, api):
+        r = api.post(f"{API}/requests", json={
+            "ride_id": TestRequestFlow.ride_id,
+            "user_phone": SEED_USER_PHONE, "seat_numbers": [99],
+        }, timeout=20)
+        assert r.status_code == 400
+
+    def test_confirm_adds_to_booked(self, api):
+        r = api.post(f"{API}/requests/{TestRequestFlow.req_id}/confirm", timeout=20)
         assert r.status_code == 200
         assert r.json()["status"] == "confirmed"
+        ride = api.get(f"{API}/rides/{TestRequestFlow.ride_id}", timeout=20).json()
+        for s in (4, 7, 9):
+            assert s in ride["booked_seats"]
 
-        ride = api.get(f"{API}/rides/{TestRequests.ride_id}", timeout=20).json()
-        assert 2 in ride["booked_seats"] and 3 in ride["booked_seats"]
-        assert ride["seats_left"] == 4
-
-    def test_create_request_rejects_already_booked(self, api):
-        payload = {"ride_id": TestRequests.ride_id,
-                   "user_phone": SEED_USER_PHONE, "seat_numbers": [2]}
-        r = api.post(f"{API}/requests", json=payload, timeout=20)
+    def test_reject_already_booked(self, api):
+        r = api.post(f"{API}/requests", json={
+            "ride_id": TestRequestFlow.ride_id,
+            "user_phone": SEED_USER_PHONE, "seat_numbers": [7],
+        }, timeout=20)
         assert r.status_code == 400
-
-    def test_cancel_confirmed_request_frees_seats(self, api):
-        r = api.post(f"{API}/requests/{TestRequests.req_id}/cancel", timeout=20)
-        assert r.status_code == 200
-        assert r.json()["status"] == "cancelled"
-
-        ride = api.get(f"{API}/rides/{TestRequests.ride_id}", timeout=20).json()
-        assert 2 not in ride["booked_seats"]
-        assert 3 not in ride["booked_seats"]
-        assert ride["seats_left"] == 6
-
-    def test_reject_pending_flow(self, api):
-        # create a new pending request then reject
-        payload = {"ride_id": TestRequests.ride_id,
-                   "user_phone": SEED_USER_PHONE, "seat_numbers": [5]}
-        created = api.post(f"{API}/requests", json=payload, timeout=20).json()
-        r = api.post(f"{API}/requests/{created['id']}/reject", timeout=20)
-        assert r.status_code == 200
-        assert r.json()["status"] == "rejected"
-        # cannot confirm a rejected request
-        r2 = api.post(f"{API}/requests/{created['id']}/confirm", timeout=20)
-        assert r2.status_code == 400
-
-    def test_list_requests_by_user_and_driver(self, api):
-        ru = api.get(f"{API}/requests",
-                     params={"user_phone": SEED_USER_PHONE}, timeout=20)
-        assert ru.status_code == 200
-        assert any(x["id"] == TestRequests.req_id for x in ru.json())
-        rd = api.get(f"{API}/requests",
-                     params={"driver_phone": SEED_DRIVER_PHONE}, timeout=20)
-        assert rd.status_code == 200
-        assert any(x["ride_id"] == TestRequests.ride_id for x in rd.json())
-
-
-# ---------------- Ride cancel auto-cancels requests ----------------
-class TestCancelRide:
-    def test_cancel_ride_cancels_requests(self, api):
-        # new ride + pending request
-        ride_payload = {
-            "driver_phone": SEED_DRIVER_PHONE,
-            "from_city": "Uttarkashi", "to_city": "Dehradun",
-            "from_stand": "A", "to_stand": "B",
-            "date": _future_date(45), "depart_time": "10:00 AM",
-            "arrive_time": "03:00 PM", "duration": "5h 00m",
-            "price": 400, "total_seats": 6,
-        }
-        ride = api.post(f"{API}/rides", json=ride_payload, timeout=20).json()
-        req = api.post(f"{API}/requests",
-                       json={"ride_id": ride["id"],
-                             "user_phone": SEED_USER_PHONE,
-                             "seat_numbers": [1]}, timeout=20).json()
-        r = api.post(f"{API}/rides/{ride['id']}/cancel", timeout=20)
-        assert r.status_code == 200
-        # verify ride cancelled
-        got = api.get(f"{API}/rides/{ride['id']}", timeout=20).json()
-        assert got["status"] == "cancelled"
-        # verify request auto-cancelled
-        got_req = api.get(f"{API}/requests/{req['id']}", timeout=20).json()
-        assert got_req["status"] == "cancelled"

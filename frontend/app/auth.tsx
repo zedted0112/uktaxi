@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform,
   ActivityIndicator, ScrollView, Alert, Image,
@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../src/theme';
-import { api } from '../src/api';
+import { api, Vehicle } from '../src/api';
 import { useAuth } from '../src/auth';
 
 type Step = 'phone' | 'otp' | 'register';
@@ -19,9 +19,12 @@ export default function Auth() {
   const [otp, setOtp] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'user' | 'driver'>('user');
-  const [vehicleType, setVehicleType] = useState('');
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => { api.listVehicles().then(setVehicles).catch(() => {}); }, []);
 
   const formattedPhone = () => {
     const digits = phone.replace(/\D/g, '');
@@ -60,14 +63,14 @@ export default function Auth() {
 
   const registerNow = async () => {
     if (!name.trim()) return Alert.alert('Missing', 'Please enter your name');
-    if (role === 'driver' && (!vehicleType.trim() || !vehicleNumber.trim())) {
-      return Alert.alert('Missing', 'Please enter vehicle details');
+    if (role === 'driver' && (!vehiclePreset || !vehicleNumber.trim())) {
+      return Alert.alert('Missing', 'Please pick a vehicle and enter its number');
     }
     setLoading(true);
     try {
       const u = await api.register({
         phone, name: name.trim(), role,
-        vehicle_type: role === 'driver' ? vehicleType.trim() : undefined,
+        vehicle_preset: role === 'driver' ? vehiclePreset : undefined,
         vehicle_number: role === 'driver' ? vehicleNumber.trim() : undefined,
       });
       await signIn(u);
@@ -197,16 +200,36 @@ export default function Auth() {
 
             {role === 'driver' && (
               <>
-                <Text style={styles.label}>Vehicle Type</Text>
-                <TextInput
-                  value={vehicleType}
-                  onChangeText={setVehicleType}
-                  placeholder="e.g. Toyota Innova Crysta"
-                  placeholderTextColor={colors.textMuted}
-                  style={styles.inputSingle}
-                  testID="vehicle-type-input"
-                />
-                <Text style={styles.label}>Vehicle Number</Text>
+                <Text style={styles.label}>Choose your vehicle</Text>
+                <View style={{ gap: 8 }}>
+                  {vehicles.map(v => {
+                    const active = vehiclePreset === v.id;
+                    return (
+                      <TouchableOpacity
+                        key={v.id}
+                        style={[styles.vehicleCard, active && styles.vehicleCardActive]}
+                        onPress={() => setVehiclePreset(v.id)}
+                        testID={`veh-${v.id}`}
+                      >
+                        <View style={[styles.vehicleIcon, active && { backgroundColor: '#fff' }]}>
+                          <MaterialCommunityIcons
+                            name={v.id === 'eeco' ? 'van-passenger' : 'car-estate'}
+                            size={22}
+                            color={active ? colors.green : colors.textPrimary}
+                          />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.vehicleName, active && { color: '#fff' }]}>{v.name}</Text>
+                          <Text style={[styles.vehicleMeta, active && { color: '#D1FAE5' }]}>
+                            {v.total_seats} seats • {v.type}
+                          </Text>
+                        </View>
+                        {active && <Feather name="check-circle" size={18} color="#fff" />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                <Text style={[styles.label, { marginTop: 14 }]}>Vehicle Number</Text>
                 <TextInput
                   value={vehicleNumber}
                   onChangeText={(t) => setVehicleNumber(t.toUpperCase())}
@@ -300,4 +323,12 @@ const styles = StyleSheet.create({
   heroImg: { position: 'absolute', width: '100%', height: '100%' },
   heroOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)' },
   heroTxt: { fontFamily: fonts.heading, color: '#fff', fontSize: 18, padding: 18, letterSpacing: -0.3 },
+  vehicleCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 12, borderRadius: radii.lg, backgroundColor: colors.borderSoft,
+  },
+  vehicleCardActive: { backgroundColor: colors.green },
+  vehicleIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  vehicleName: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary },
+  vehicleMeta: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 2 },
 });

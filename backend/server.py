@@ -19,8 +19,46 @@ db = client[os.environ['DB_NAME']]
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
-
 logger = logging.getLogger(__name__)
+
+SCHEMA_VERSION = 3  # bump to trigger reseed
+
+# -------------- Vehicle Catalog --------------
+# seat_layout = list of rows; each row is list of seat numbers (0 = aisle/gap)
+VEHICLES = {
+    "bolero": {
+        "id": "bolero",
+        "name": "Mahindra Bolero",
+        "type": "SUV",
+        "total_seats": 9,
+        "seat_layout": [[1], [2, 3, 4, 5], [6, 7, 8, 9]],  # 1 front + 4 middle + 4 rear
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "innova": {
+        "id": "innova",
+        "name": "Toyota Innova Crysta",
+        "type": "MUV",
+        "total_seats": 6,
+        "seat_layout": [[1], [2, 3, 4], [5, 6]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "scorpio": {
+        "id": "scorpio",
+        "name": "Mahindra Scorpio",
+        "type": "SUV",
+        "total_seats": 7,
+        "seat_layout": [[1], [2, 3, 4], [5, 6, 7]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "eeco": {
+        "id": "eeco",
+        "name": "Maruti Eeco",
+        "type": "Van",
+        "total_seats": 4,
+        "seat_layout": [[1], [2, 3, 4]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+}
 
 
 # -------------- Models --------------
@@ -32,8 +70,12 @@ class User(BaseModel):
     phone: str
     name: str
     role: Role
-    vehicle_type: Optional[str] = None
+    # driver-only
+    vehicle_preset: Optional[str] = None   # id from VEHICLES
+    vehicle_type: Optional[str] = None     # display name
     vehicle_number: Optional[str] = None
+    total_seats: Optional[int] = None
+    seat_layout: Optional[List[List[int]]] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -44,17 +86,19 @@ class Ride(BaseModel):
     driver_name: str
     vehicle_type: str
     vehicle_number: str
+    seat_layout: List[List[int]]
     from_city: str
     to_city: str
     from_stand: str
     to_stand: str
-    date: str               # "YYYY-MM-DD"
-    depart_time: str        # "06:30 AM"
-    arrive_time: str        # "11:30 AM"
-    duration: str           # "5h 00m"
+    date: str
+    depart_time: str
+    arrive_time: str
+    duration: str
     price: int
-    total_seats: int = 6
-    booked_seats: List[int] = []
+    total_seats: int
+    booked_seats: List[int] = []          # both online-confirmed + offline
+    offline_seats: List[int] = []         # driver-marked offline bookings
     status: Literal['published', 'cancelled', 'completed'] = 'published'
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
@@ -74,7 +118,11 @@ class PublishRideIn(BaseModel):
     arrive_time: str
     duration: str
     price: int
-    total_seats: int = 6
+    offline_seats: List[int] = []
+
+
+class OfflineSeatsIn(BaseModel):
+    offline_seats: List[int]
 
 
 class BookingRequest(BaseModel):
@@ -87,7 +135,6 @@ class BookingRequest(BaseModel):
     total_price: int
     status: Literal['pending', 'confirmed', 'rejected', 'cancelled'] = 'pending'
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    # ride snapshot for ticket / lists
     from_city: str
     to_city: str
     from_stand: str
@@ -108,7 +155,6 @@ class CreateRequestIn(BaseModel):
     seat_numbers: List[int]
 
 
-# -------------- Auth (mock phone OTP) --------------
 class OtpRequest(BaseModel):
     phone: str
 
@@ -122,13 +168,54 @@ class RegisterIn(BaseModel):
     phone: str
     name: str
     role: Role
-    vehicle_type: Optional[str] = None
+    vehicle_preset: Optional[str] = None
     vehicle_number: Optional[str] = None
 
 
+class UpdateDriverVehicleIn(BaseModel):
+    vehicle_preset: str
+    vehicle_number: str
+
+
+# -------------- Helpers --------------
+def ride_public(r: dict) -> dict:
+    booked = r.get("booked_seats", [])
+    out = {**r, "seats_left": r["total_seats"] - len(booked)}
+    out.pop("_id", None)
+    return out
+
+
+def parse_depart(date: str, depart: str) -> datetime:
+    return datetime.strptime(f"{date} {depart}", "%Y-%m-%d %I:%M %p")
+
+
+def can_cancel(date: str, depart: str) -> bool:
+    now = datetime.utcnow() + timedelta(hours=5, minutes=30)
+    cutoff = parse_depart(date, depart) - timedelta(minutes=30)
+    return now < cutoff
+
+
+def generate_ref() -> str:
+    return "UTK-" + uuid.uuid4().hex[:8].upper()
+
+
+# -------------- Vehicles --------------
+@api_router.get("/vehicles")
+async def list_vehicles():
+    return list(VEHICLES.values())
+
+
+@api_router.get("/vehicles/{vehicle_id}")
+async def get_vehicle(vehicle_id: str):
+    v = VEHICLES.get(vehicle_id)
+    if not v:
+        raise HTTPException(status_code=404, detail="Unknown vehicle")
+    return v
+
+
+# -------------- Auth --------------
 @api_router.post("/auth/request-otp")
 async def request_otp(payload: OtpRequest):
-    # mock — no SMS. Return always ok.
     logger.info(f"OTP requested for {payload.phone}")
     return {"ok": True, "message": "Use OTP 123456 (any 6-digit also accepted in demo)"}
 
@@ -138,7 +225,7 @@ async def verify_otp(payload: OtpVerify):
     if len(payload.otp) != 6 or not payload.otp.isdigit():
         raise HTTPException(status_code=400, detail="Invalid OTP")
     user = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
-    return {"ok": True, "user": user}  # user may be None → client shows register
+    return {"ok": True, "user": user}
 
 
 @api_router.post("/auth/register", response_model=User)
@@ -146,7 +233,18 @@ async def register_user(payload: RegisterIn):
     existing = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
     if existing:
         return User(**existing)
-    u = User(**payload.dict())
+    data = payload.dict()
+    if payload.role == "driver":
+        preset = VEHICLES.get(payload.vehicle_preset or "")
+        if not preset:
+            raise HTTPException(status_code=400, detail="Invalid vehicle preset")
+        data.update({
+            "vehicle_preset": preset["id"],
+            "vehicle_type": preset["name"],
+            "total_seats": preset["total_seats"],
+            "seat_layout": preset["seat_layout"],
+        })
+    u = User(**data)
     await db.users.insert_one(u.dict())
     return u
 
@@ -159,27 +257,24 @@ async def me(phone: str):
     return User(**u)
 
 
-# -------------- Helpers --------------
-def ride_public(r: dict) -> dict:
-    booked = r.get("booked_seats", [])
-    out = {**r, "seats_left": r["total_seats"] - len(booked)}
-    out.pop("_id", None)
-    return out
-
-
-def parse_depart(date: str, depart: str) -> datetime:
-    """Parse '2026-04-22' + '06:30 AM' → naive datetime."""
-    return datetime.strptime(f"{date} {depart}", "%Y-%m-%d %I:%M %p")
-
-
-def can_cancel(date: str, depart: str) -> bool:
-    now = datetime.utcnow() + timedelta(hours=5, minutes=30)  # IST
-    cutoff = parse_depart(date, depart) - timedelta(minutes=30)
-    return now < cutoff
-
-
-def generate_ref() -> str:
-    return "UTK-" + uuid.uuid4().hex[:8].upper()
+@api_router.post("/drivers/{phone}/vehicle", response_model=User)
+async def update_vehicle(phone: str, payload: UpdateDriverVehicleIn):
+    u = await db.users.find_one({"phone": phone, "role": "driver"}, {"_id": 0})
+    if not u:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    preset = VEHICLES.get(payload.vehicle_preset)
+    if not preset:
+        raise HTTPException(status_code=400, detail="Invalid vehicle preset")
+    update = {
+        "vehicle_preset": preset["id"],
+        "vehicle_type": preset["name"],
+        "vehicle_number": payload.vehicle_number,
+        "total_seats": preset["total_seats"],
+        "seat_layout": preset["seat_layout"],
+    }
+    await db.users.update_one({"phone": phone}, {"$set": update})
+    u.update(update)
+    return User(**u)
 
 
 # -------------- Rides --------------
@@ -188,13 +283,24 @@ async def publish_ride(payload: PublishRideIn):
     driver = await db.users.find_one({"phone": payload.driver_phone, "role": "driver"}, {"_id": 0})
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
+    if not driver.get("seat_layout"):
+        raise HTTPException(status_code=400, detail="Driver has no vehicle set up")
+    # validate offline seats
+    all_seats = {s for row in driver["seat_layout"] for s in row}
+    for s in payload.offline_seats:
+        if s not in all_seats:
+            raise HTTPException(status_code=400, detail=f"Invalid offline seat {s}")
     ride = Ride(
         driver_id=driver["id"],
         driver_phone=driver["phone"],
         driver_name=driver["name"],
-        vehicle_type=driver.get("vehicle_type") or "Taxi",
+        vehicle_type=driver["vehicle_type"],
         vehicle_number=driver.get("vehicle_number") or "—",
-        **payload.dict(exclude={"driver_phone"}),
+        seat_layout=driver["seat_layout"],
+        total_seats=driver["total_seats"],
+        booked_seats=list(payload.offline_seats),
+        offline_seats=list(payload.offline_seats),
+        **payload.dict(exclude={"driver_phone", "offline_seats"}),
     )
     await db.rides.insert_one(ride.dict())
     return ride
@@ -215,7 +321,7 @@ async def list_rides(
     if date:
         q["date"] = date
     if driver_phone:
-        q.pop("status", None)  # driver sees own rides regardless of status
+        q.pop("status", None)
         q["driver_phone"] = driver_phone
     rides = await db.rides.find(q, {"_id": 0}).sort("date", 1).to_list(500)
     return [ride_public(r) for r in rides]
@@ -229,6 +335,33 @@ async def get_ride(ride_id: str):
     return ride_public(r)
 
 
+@api_router.post("/rides/{ride_id}/offline-seats", response_model=Ride)
+async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
+    r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
+    if not r:
+        raise HTTPException(status_code=404, detail="Ride not found")
+    # confirmed-online seats = booked minus current offline
+    cur_offline = set(r.get("offline_seats", []))
+    confirmed_online = set(r.get("booked_seats", [])) - cur_offline
+    new_offline = set(payload.offline_seats)
+    # offline cannot overlap with confirmed online
+    conflict = confirmed_online & new_offline
+    if conflict:
+        raise HTTPException(status_code=400, detail=f"Seats already booked online: {sorted(conflict)}")
+    all_seats = {s for row in r.get("seat_layout", []) for s in row}
+    for s in new_offline:
+        if s not in all_seats:
+            raise HTTPException(status_code=400, detail=f"Invalid seat {s}")
+    new_booked = list(confirmed_online | new_offline)
+    await db.rides.update_one(
+        {"id": ride_id},
+        {"$set": {"offline_seats": list(new_offline), "booked_seats": new_booked}},
+    )
+    r["offline_seats"] = list(new_offline)
+    r["booked_seats"] = new_booked
+    return Ride(**r)
+
+
 @api_router.post("/rides/{ride_id}/cancel")
 async def cancel_ride(ride_id: str):
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
@@ -237,7 +370,6 @@ async def cancel_ride(ride_id: str):
     if not can_cancel(r["date"], r["depart_time"]):
         raise HTTPException(status_code=400, detail="Cannot cancel within 30 minutes of departure")
     await db.rides.update_one({"id": ride_id}, {"$set": {"status": "cancelled"}})
-    # auto-cancel all pending/confirmed requests
     await db.requests.update_many(
         {"ride_id": ride_id, "status": {"$in": ["pending", "confirmed"]}},
         {"$set": {"status": "cancelled"}},
@@ -255,19 +387,19 @@ async def create_request(payload: CreateRequestIn):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     booked = set(ride.get("booked_seats", []))
-    # also consider pending requests to avoid double-request for same seat
     pending = await db.requests.find(
         {"ride_id": payload.ride_id, "status": "pending"}, {"_id": 0}
-    ).to_list(100)
+    ).to_list(200)
     reserved = set()
     for p in pending:
         reserved.update(p["seat_numbers"])
+    all_seats = {s for row in ride.get("seat_layout", []) for s in row}
     for s in payload.seat_numbers:
         if s in booked:
             raise HTTPException(status_code=400, detail=f"Seat {s} already booked")
         if s in reserved:
             raise HTTPException(status_code=400, detail=f"Seat {s} pending another request")
-        if s < 1 or s > ride["total_seats"]:
+        if s not in all_seats:
             raise HTTPException(status_code=400, detail=f"Invalid seat {s}")
     req = BookingRequest(
         booking_ref=generate_ref(),
@@ -276,18 +408,12 @@ async def create_request(payload: CreateRequestIn):
         user_name=user["name"],
         seat_numbers=payload.seat_numbers,
         total_price=ride["price"] * len(payload.seat_numbers),
-        from_city=ride["from_city"],
-        to_city=ride["to_city"],
-        from_stand=ride["from_stand"],
-        to_stand=ride["to_stand"],
-        date=ride["date"],
-        depart_time=ride["depart_time"],
-        arrive_time=ride["arrive_time"],
-        duration=ride["duration"],
-        vehicle_type=ride["vehicle_type"],
-        vehicle_number=ride["vehicle_number"],
-        driver_name=ride["driver_name"],
-        driver_phone=ride["driver_phone"],
+        from_city=ride["from_city"], to_city=ride["to_city"],
+        from_stand=ride["from_stand"], to_stand=ride["to_stand"],
+        date=ride["date"], depart_time=ride["depart_time"],
+        arrive_time=ride["arrive_time"], duration=ride["duration"],
+        vehicle_type=ride["vehicle_type"], vehicle_number=ride["vehicle_number"],
+        driver_name=ride["driver_name"], driver_phone=ride["driver_phone"],
     )
     await db.requests.insert_one(req.dict())
     return req
@@ -354,7 +480,6 @@ async def cancel_request(req_id: str):
         raise HTTPException(status_code=400, detail="Already cancelled")
     if not can_cancel(r["date"], r["depart_time"]):
         raise HTTPException(status_code=400, detail="Cannot cancel within 30 minutes of departure")
-    # free seats if already confirmed
     if r["status"] == "confirmed":
         ride = await db.rides.find_one({"id": r["ride_id"]}, {"_id": 0})
         if ride:
@@ -367,43 +492,84 @@ async def cancel_request(req_id: str):
 
 # -------------- Seed --------------
 async def seed_demo():
-    if await db.users.count_documents({}) > 0:
+    meta = await db.meta.find_one({"key": "schema"}) or {}
+    if meta.get("version") == SCHEMA_VERSION and await db.users.count_documents({}) > 0:
         return
-    # demo drivers
+    # reset collections
+    await db.users.drop()
+    await db.rides.drop()
+    await db.requests.drop()
+
     drivers = [
-        User(phone="+91 98765 43210", name="Rakesh Negi", role="driver",
-             vehicle_type="Toyota Innova Crysta", vehicle_number="UK 07 TA 1234"),
-        User(phone="+91 98123 45678", name="Suresh Rana", role="driver",
-             vehicle_type="Mahindra Bolero", vehicle_number="UK 07 TA 5678"),
+        User(
+            phone="+91 98765 43210", name="Rakesh Negi", role="driver",
+            vehicle_preset="bolero", vehicle_type=VEHICLES["bolero"]["name"],
+            vehicle_number="UK 07 TA 1234",
+            total_seats=VEHICLES["bolero"]["total_seats"],
+            seat_layout=VEHICLES["bolero"]["seat_layout"],
+        ),
+        User(
+            phone="+91 98123 45678", name="Suresh Rana", role="driver",
+            vehicle_preset="bolero", vehicle_type=VEHICLES["bolero"]["name"],
+            vehicle_number="UK 07 TA 5678",
+            total_seats=VEHICLES["bolero"]["total_seats"],
+            seat_layout=VEHICLES["bolero"]["seat_layout"],
+        ),
+        User(
+            phone="+91 99887 76655", name="Mohan Rawat", role="driver",
+            vehicle_preset="eeco", vehicle_type=VEHICLES["eeco"]["name"],
+            vehicle_number="UK 07 TA 9999",
+            total_seats=VEHICLES["eeco"]["total_seats"],
+            seat_layout=VEHICLES["eeco"]["seat_layout"],
+        ),
     ]
-    # demo user
     user = User(phone="+91 98765 00001", name="Aarav Sharma", role="user")
     for u in drivers + [user]:
         await db.users.insert_one(u.dict())
+
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
-    demo_rides = [
-        Ride(driver_id=drivers[0].id, driver_phone=drivers[0].phone, driver_name=drivers[0].name,
-             vehicle_type=drivers[0].vehicle_type, vehicle_number=drivers[0].vehicle_number,
-             from_city="Uttarkashi", to_city="Dehradun",
-             from_stand="Uttarkashi Bus Stand", to_stand="Dehradun ISBT",
-             date=today, depart_time="06:30 AM", arrive_time="11:30 AM", duration="5h 00m",
-             price=450, total_seats=6),
-        Ride(driver_id=drivers[1].id, driver_phone=drivers[1].phone, driver_name=drivers[1].name,
-             vehicle_type=drivers[1].vehicle_type, vehicle_number=drivers[1].vehicle_number,
-             from_city="Uttarkashi", to_city="Rishikesh",
-             from_stand="Uttarkashi Bus Stand", to_stand="Rishikesh Tapovan",
-             date=tomorrow, depart_time="08:00 AM", arrive_time="12:30 PM", duration="4h 30m",
-             price=400, total_seats=6),
+    rides = [
+        Ride(
+            driver_id=drivers[0].id, driver_phone=drivers[0].phone, driver_name=drivers[0].name,
+            vehicle_type=drivers[0].vehicle_type, vehicle_number=drivers[0].vehicle_number,
+            seat_layout=drivers[0].seat_layout, total_seats=drivers[0].total_seats,
+            from_city="Uttarkashi", to_city="Dehradun",
+            from_stand="Uttarkashi Bus Stand", to_stand="Dehradun ISBT",
+            date=today, depart_time="06:30 AM", arrive_time="11:30 AM", duration="5h 00m",
+            price=450, booked_seats=[2, 5], offline_seats=[2, 5],
+        ),
+        Ride(
+            driver_id=drivers[1].id, driver_phone=drivers[1].phone, driver_name=drivers[1].name,
+            vehicle_type=drivers[1].vehicle_type, vehicle_number=drivers[1].vehicle_number,
+            seat_layout=drivers[1].seat_layout, total_seats=drivers[1].total_seats,
+            from_city="Uttarkashi", to_city="Rishikesh",
+            from_stand="Uttarkashi Bus Stand", to_stand="Rishikesh Tapovan",
+            date=tomorrow, depart_time="08:00 AM", arrive_time="12:30 PM", duration="4h 30m",
+            price=400, booked_seats=[1], offline_seats=[1],
+        ),
+        Ride(
+            driver_id=drivers[2].id, driver_phone=drivers[2].phone, driver_name=drivers[2].name,
+            vehicle_type=drivers[2].vehicle_type, vehicle_number=drivers[2].vehicle_number,
+            seat_layout=drivers[2].seat_layout, total_seats=drivers[2].total_seats,
+            from_city="Dehradun", to_city="Uttarkashi",
+            from_stand="Dehradun ISBT", to_stand="Uttarkashi Bus Stand",
+            date=today, depart_time="02:00 PM", arrive_time="07:30 PM", duration="5h 30m",
+            price=420, booked_seats=[], offline_seats=[],
+        ),
     ]
-    for r in demo_rides:
+    for r in rides:
         await db.rides.insert_one(r.dict())
-    logger.info(f"Seeded {len(drivers)} drivers, 1 user, {len(demo_rides)} rides")
+
+    await db.meta.update_one(
+        {"key": "schema"}, {"$set": {"key": "schema", "version": SCHEMA_VERSION}}, upsert=True
+    )
+    logger.info(f"Seeded {len(drivers)} drivers, 1 user, {len(rides)} rides (schema v{SCHEMA_VERSION})")
 
 
 @api_router.get("/")
 async def root():
-    return {"message": "Uttarkashi Taxi Union API"}
+    return {"message": "Uttarkashi Taxi Union API", "schema": SCHEMA_VERSION}
 
 
 app.include_router(api_router)
@@ -416,11 +582,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 @app.on_event("startup")
 async def startup_event():
-    # drop old seed data from prior schema so the new model takes over cleanly
-    if await db.trips.count_documents({}) > 0:
-        await db.trips.drop()
-    if await db.bookings.count_documents({}) > 0:
-        await db.bookings.drop()
     await seed_demo()
 
 

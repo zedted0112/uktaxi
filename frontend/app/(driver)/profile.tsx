@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../../src/theme';
 import { useAuth } from '../../src/auth';
+import { SeatMap } from '../../src/SeatMap';
 
 export default function DriverProfile() {
   const insets = useSafeAreaInsets();
@@ -39,8 +40,25 @@ export default function DriverProfile() {
             <Text style={styles.vLabel}>My Vehicle</Text>
             <Text style={styles.vName}>{user?.vehicle_type || 'Not set'}</Text>
             <Text style={styles.vNum}>{user?.vehicle_number || ''}</Text>
+            {user?.total_seats != null && (
+              <View style={styles.vPill}>
+                <MaterialCommunityIcons name="car-seat" size={12} color={colors.greenDark} />
+                <Text style={styles.vPillTxt}>{user.total_seats} seats</Text>
+              </View>
+            )}
           </View>
         </View>
+
+        {user?.seat_layout && (
+          <View style={styles.layoutPreview}>
+            <Text style={styles.layoutTitle}>Seat Layout</Text>
+            <SeatMap
+              layout={user.seat_layout}
+              statusOf={() => 'available'}
+              compact
+            />
+          </View>
+        )}
 
         <View style={styles.list}>
           {[
@@ -81,6 +99,10 @@ const styles = StyleSheet.create({
   vLabel: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
   vName: { fontFamily: fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary, marginTop: 2 },
   vNum: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  vPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.greenLight, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radii.full, marginTop: 6 },
+  vPillTxt: { fontFamily: fonts.bodySemiBold, fontSize: 10, color: colors.greenDark, letterSpacing: 0.3 },
+  layoutPreview: { marginTop: 14 },
+  layoutTitle: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textSecondary, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
   list: { backgroundColor: colors.surface, borderRadius: radii.xl, marginTop: 16, borderWidth: 1, borderColor: colors.border },
   row: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 14 },
   rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.borderSoft },

@@ -7,8 +7,20 @@ export type User = {
   phone: string;
   name: string;
   role: Role;
+  vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
+  total_seats?: number | null;
+  seat_layout?: number[][] | null;
+};
+
+export type Vehicle = {
+  id: string;
+  name: string;
+  type: string;
+  total_seats: number;
+  seat_layout: number[][];
+  image: string;
 };
 
 export type Ride = {
@@ -18,6 +30,7 @@ export type Ride = {
   driver_name: string;
   vehicle_type: string;
   vehicle_number: string;
+  seat_layout: number[][];
   from_city: string;
   to_city: string;
   from_stand: string;
@@ -29,6 +42,7 @@ export type Ride = {
   price: number;
   total_seats: number;
   booked_seats: number[];
+  offline_seats: number[];
   seats_left: number;
   status: 'published' | 'cancelled' | 'completed';
   created_at: string;
@@ -82,9 +96,14 @@ export const api = {
   verifyOtp: (phone: string, otp: string) => req<{ ok: boolean; user: User | null }>(`/auth/verify-otp`, {
     method: 'POST', body: JSON.stringify({ phone, otp }),
   }),
-  register: (payload: { phone: string; name: string; role: Role; vehicle_type?: string; vehicle_number?: string }) =>
+  register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+  listVehicles: () => req<Vehicle[]>(`/vehicles`),
+  updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>
+    req<User>(`/drivers/${encodeURIComponent(phone)}/vehicle`, { method: 'POST', body: JSON.stringify(payload) }),
+  setOfflineSeats: (rideId: string, offline_seats: number[]) =>
+    req<Ride>(`/rides/${rideId}/offline-seats`, { method: 'POST', body: JSON.stringify({ offline_seats }) }),
 
   // rides
   publishRide: (payload: any) => req<Ride>(`/rides`, { method: 'POST', body: JSON.stringify(payload) }),

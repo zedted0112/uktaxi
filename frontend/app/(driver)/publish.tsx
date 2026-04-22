@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
@@ -9,16 +9,15 @@ import { useRouter } from 'expo-router';
 import { colors, fonts, radii } from '../../src/theme';
 import { api } from '../../src/api';
 import { useAuth } from '../../src/auth';
+import { SeatMap, SeatLegend, SeatStatus } from '../../src/SeatMap';
 
 const CITIES = ['Uttarkashi', 'Dehradun', 'Rishikesh'];
 
-// generate next 7 dates
-function next7(): { iso: string; day: string; date: string }[] {
+function next7() {
   const out: { iso: string; day: string; date: string }[] = [];
   const now = new Date();
   for (let i = 0; i < 7; i++) {
-    const d = new Date(now);
-    d.setDate(now.getDate() + i);
+    const d = new Date(now); d.setDate(now.getDate() + i);
     out.push({
       iso: d.toISOString().slice(0, 10),
       day: d.toLocaleDateString('en-IN', { weekday: 'short' }),
@@ -29,12 +28,18 @@ function next7(): { iso: string; day: string; date: string }[] {
 }
 
 const TIMES = [
-  { label: '06:30 AM', dep: '06:30 AM', arr: '11:30 AM', dur: '5h 00m', ext: '-Dehradun' },
+  { label: '06:30 AM', dep: '06:30 AM', arr: '11:30 AM', dur: '5h 00m' },
   { label: '08:00 AM', dep: '08:00 AM', arr: '12:30 PM', dur: '4h 30m' },
   { label: '10:00 AM', dep: '10:00 AM', arr: '02:30 PM', dur: '4h 30m' },
   { label: '02:00 PM', dep: '02:00 PM', arr: '07:00 PM', dur: '5h 00m' },
   { label: '04:00 PM', dep: '04:00 PM', arr: '08:30 PM', dur: '4h 30m' },
 ];
+
+const STANDS: Record<string, string> = {
+  Uttarkashi: 'Uttarkashi Bus Stand',
+  Dehradun: 'Dehradun ISBT',
+  Rishikesh: 'Rishikesh Tapovan',
+};
 
 export default function Publish() {
   const insets = useSafeAreaInsets();
@@ -46,22 +51,20 @@ export default function Publish() {
   const [date, setDate] = useState(dates[0].iso);
   const [timeIdx, setTimeIdx] = useState(0);
   const [price, setPrice] = useState('450');
-  const [seats, setSeats] = useState('6');
+  const [offline, setOffline] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const STANDS: Record<string, string> = {
-    Uttarkashi: 'Uttarkashi Bus Stand',
-    Dehradun: 'Dehradun ISBT',
-    Rishikesh: 'Rishikesh Tapovan',
-  };
+  const layout = user?.seat_layout || [[1]];
+  const totalSeats = user?.total_seats || 0;
 
-  const publish = async () => {
+  const statusOf = (n: number): SeatStatus => offline.includes(n) ? 'offline' : 'available';
+  const toggleOffline = (n: number) => setOffline(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
+
+  const onPublish = async () => {
     if (!user) return;
     if (from === to) return Alert.alert('Invalid', 'From and To cannot be same');
     const p = parseInt(price, 10);
-    const s = parseInt(seats, 10);
-    if (isNaN(p) || p <= 0) return Alert.alert('Invalid', 'Price must be a number');
-    if (isNaN(s) || s < 1 || s > 8) return Alert.alert('Invalid', 'Seats must be 1-8');
+    if (isNaN(p) || p <= 0) return Alert.alert('Invalid', 'Price must be a positive number');
     setLoading(true);
     try {
       const t = TIMES[timeIdx];
@@ -70,15 +73,32 @@ export default function Publish() {
         from_city: from, to_city: to,
         from_stand: STANDS[from], to_stand: STANDS[to],
         date, depart_time: t.dep, arrive_time: t.arr, duration: t.dur,
-        price: p, total_seats: s,
+        price: p, offline_seats: offline,
       });
-      Alert.alert('Published!', 'Your ride is now visible to users', [
+      Alert.alert('Published!', 'Your ride is now visible to passengers', [
         { text: 'OK', onPress: () => router.push('/(driver)/rides') },
       ]);
+      setOffline([]);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }
   };
+
+  const availableCount = useMemo(() => totalSeats - offline.length, [totalSeats, offline.length]);
+
+  if (!user?.seat_layout) {
+    return (
+      <View style={[styles.screen, { paddingTop: insets.top, alignItems: 'center', justifyContent: 'center', padding: 24 }]}>
+        <MaterialCommunityIcons name="car-off" size={42} color={colors.textMuted} />
+        <Text style={{ fontFamily: fonts.heading, fontSize: 20, marginTop: 12, color: colors.textPrimary }}>
+          No vehicle set
+        </Text>
+        <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.textSecondary, marginTop: 4, textAlign: 'center' }}>
+          Please set up your vehicle from the Profile tab to publish rides.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -91,7 +111,7 @@ export default function Publish() {
         testID="publish-screen"
       >
         <Text style={styles.heading}>Publish a Ride</Text>
-        <Text style={styles.subheading}>Set date, time & price. Users will request seats.</Text>
+        <Text style={styles.subheading}>Set route, date, time & price</Text>
 
         <View style={styles.card}>
           <Text style={styles.label}>From</Text>
@@ -117,7 +137,7 @@ export default function Publish() {
           </View>
         </View>
 
-        <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Date</Text>
+        <Text style={[styles.sectionTitle, { marginTop: 22 }]}>Date</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateRow}>
           {dates.map(d => {
             const active = d.iso === date;
@@ -144,36 +164,46 @@ export default function Publish() {
           })}
         </ScrollView>
 
-        <View style={[styles.card, { marginTop: 20 }]}>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Price per Seat (₹)</Text>
-              <TextInput value={price} onChangeText={setPrice} keyboardType="number-pad"
-                style={styles.input} testID="pub-price" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Total Seats</Text>
-              <TextInput value={seats} onChangeText={setSeats} keyboardType="number-pad"
-                style={styles.input} testID="pub-seats" />
-            </View>
+        <View style={[styles.card, { marginTop: 22 }]}>
+          <Text style={styles.label}>Price per Seat (₹)</Text>
+          <TextInput value={price} onChangeText={setPrice} keyboardType="number-pad"
+            style={styles.input} testID="pub-price" />
+        </View>
+
+        <View style={styles.seatsHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sectionTitle}>Offline Bookings</Text>
+            <Text style={styles.seatsSub}>
+              Tap seats already booked offline (walk-in / phone). Rest go online.
+            </Text>
+          </View>
+          <View style={styles.availPill}>
+            <Text style={styles.availPillTxt} testID="avail-count">{availableCount} online</Text>
           </View>
         </View>
+
+        <View style={{ marginTop: 10 }}>
+          <SeatMap layout={layout} statusOf={statusOf} onPress={toggleOffline} compact />
+        </View>
+        <SeatLegend items={['available', 'offline']} />
 
         <View style={styles.summaryCard}>
           <View style={styles.summaryHead}>
             <MaterialCommunityIcons name="car-estate" size={18} color="#fff" />
             <Text style={styles.summaryTitle}>{user?.vehicle_type}</Text>
+            <Text style={styles.summaryNum}>{user?.vehicle_number}</Text>
           </View>
-          <Text style={styles.summaryNum}>{user?.vehicle_number}</Text>
           <View style={styles.summaryRoute}>
             <Text style={styles.summaryCity}>{from}</Text>
             <Feather name="arrow-right" size={16} color="#fff" />
             <Text style={styles.summaryCity}>{to}</Text>
           </View>
-          <Text style={styles.summaryMeta}>{date} • {TIMES[timeIdx].label} • {seats} seats × ₹{price}</Text>
+          <Text style={styles.summaryMeta}>
+            {date} • {TIMES[timeIdx].label} • {availableCount}/{totalSeats} available × ₹{price}
+          </Text>
         </View>
 
-        <TouchableOpacity style={[styles.publishBtn, loading && { opacity: 0.6 }]} onPress={publish} disabled={loading} testID="publish-btn">
+        <TouchableOpacity style={[styles.publishBtn, loading && { opacity: 0.6 }]} onPress={onPublish} disabled={loading} testID="publish-btn">
           {loading ? <ActivityIndicator color="#fff" /> : <>
             <Text style={styles.publishBtnTxt}>Publish Ride</Text>
             <Feather name="arrow-right" size={18} color="#fff" />
@@ -186,6 +216,7 @@ export default function Publish() {
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingHorizontal: 24, paddingBottom: 40 },
   heading: { fontFamily: fonts.heading, fontSize: 34, color: colors.textPrimary, letterSpacing: -1 },
   subheading: { fontFamily: fonts.body, fontSize: 13, color: colors.textSecondary, marginTop: 4, marginBottom: 18 },
@@ -206,10 +237,14 @@ const styles = StyleSheet.create({
   timeChipActive: { backgroundColor: colors.green, borderColor: colors.green },
   timeChipTxt: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
   input: { fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.textPrimary, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, paddingHorizontal: 14, paddingVertical: 12 },
-  summaryCard: { backgroundColor: colors.black, borderRadius: radii.xl, padding: 18, marginTop: 22 },
-  summaryHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  seatsHeader: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 24, gap: 10 },
+  seatsSub: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  availPill: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.greenLight, borderRadius: radii.full },
+  availPillTxt: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.greenDark },
+  summaryCard: { backgroundColor: colors.black, borderRadius: radii.xl, padding: 18, marginTop: 20 },
+  summaryHead: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   summaryTitle: { fontFamily: fonts.bodySemiBold, fontSize: 14, color: '#fff' },
-  summaryNum: { fontFamily: fonts.body, fontSize: 12, color: '#9CA3AF', marginTop: 4 },
+  summaryNum: { fontFamily: fonts.body, fontSize: 12, color: '#9CA3AF', marginLeft: 'auto' },
   summaryRoute: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
   summaryCity: { fontFamily: fonts.heading, fontSize: 20, color: '#fff' },
   summaryMeta: { fontFamily: fonts.body, fontSize: 12, color: '#9CA3AF', marginTop: 8 },
