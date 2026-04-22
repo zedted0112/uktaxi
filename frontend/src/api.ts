@@ -1,4 +1,4 @@
-const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BASE = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://uttarkashi-taxi.preview.emergentagent.com';
 
 export type Role = 'user' | 'driver';
 

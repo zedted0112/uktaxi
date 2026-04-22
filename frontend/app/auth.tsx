@@ -10,6 +10,47 @@ import { api, Vehicle } from '../src/api';
 import { useAuth } from '../src/auth';
 
 type Step = 'phone' | 'otp' | 'register';
+type DemoAccount = {
+  phone: string;
+  name: string;
+  role: 'user' | 'driver';
+  vehicle_preset?: string;
+  vehicle_type?: string;
+  vehicle_number?: string;
+  total_seats?: number;
+};
+
+const LOCAL_DEMOS: DemoAccount[] = [
+  {
+    phone: '+91 98765 43210',
+    name: 'Rakesh Negi',
+    role: 'driver',
+    vehicle_preset: 'bolero',
+    vehicle_type: 'Mahindra Bolero',
+    vehicle_number: 'UK 07 TA 1234',
+    total_seats: 9,
+  },
+  {
+    phone: '+91 98123 45678',
+    name: 'Suresh Rana',
+    role: 'driver',
+    vehicle_preset: 'innova',
+    vehicle_type: 'Toyota Innova Crysta',
+    vehicle_number: 'UK 07 TA 5678',
+    total_seats: 7,
+  },
+  {
+    phone: '+91 99887 76655',
+    name: 'Mohan Rawat',
+    role: 'driver',
+    vehicle_preset: 'swift',
+    vehicle_type: 'Maruti Swift Dzire',
+    vehicle_number: 'UK 07 TA 9999',
+    total_seats: 5,
+  },
+  { phone: '+91 98765 00001', name: 'Aarav Sharma', role: 'user' },
+  { phone: '+91 98765 00002', name: 'Priya Nautiyal', role: 'user' },
+];
 
 export default function Auth() {
   const insets = useSafeAreaInsets();
@@ -23,18 +64,36 @@ export default function Auth() {
   const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoAccts, setDemoAccts] = useState<import('../src/api').User[]>([]);
+  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
-    api.demoAccounts().then(setDemoAccts).catch(() => {});
+    api.demoAccounts()
+      .then((remote) => {
+        const merged = new Map<string, DemoAccount>();
+        LOCAL_DEMOS.forEach((d) => merged.set(d.phone, d));
+        remote.forEach((r) => merged.set(r.phone, { ...merged.get(r.phone), ...r }));
+        setDemoAccts(Array.from(merged.values()));
+      })
+      .catch(() => setDemoAccts(LOCAL_DEMOS));
   }, []);
 
-  const quickSignIn = async (phone: string) => {
-    setQuickLoading(phone);
+  const quickSignIn = async (acct: DemoAccount) => {
+    setQuickLoading(acct.phone);
     try {
-      const u = await api.me(phone);
+      let u;
+      try {
+        u = await api.me(acct.phone);
+      } catch {
+        u = await api.register({
+          phone: acct.phone,
+          name: acct.name,
+          role: acct.role,
+          vehicle_preset: acct.role === 'driver' ? acct.vehicle_preset : undefined,
+          vehicle_number: acct.role === 'driver' ? acct.vehicle_number : undefined,
+        });
+      }
       await signIn(u);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed to sign in');
@@ -125,7 +184,7 @@ export default function Auth() {
                     key={a.phone}
                     style={styles.demoRow}
                     disabled={quickLoading !== null}
-                    onPress={() => quickSignIn(a.phone)}
+                    onPress={() => quickSignIn(a)}
                     testID={`demo-${a.phone.replace(/\D/g, '')}`}
                   >
                     <View style={[styles.demoAvatar, a.role === 'driver' && { backgroundColor: colors.black }]}>

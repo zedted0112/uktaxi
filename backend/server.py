@@ -21,7 +21,7 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 4  # bump to trigger reseed
+SCHEMA_VERSION = 5  # bump to trigger reseed
 
 # -------------- Vehicle Catalog --------------
 # seat_layout = list of rows; each row is list of seat numbers (0 = aisle/gap)
@@ -38,8 +38,16 @@ VEHICLES = {
         "id": "innova",
         "name": "Toyota Innova Crysta",
         "type": "MUV",
-        "total_seats": 6,
-        "seat_layout": [[1], [2, 3, 4], [5, 6]],
+        "total_seats": 7,
+        "seat_layout": [[1, 2], [3, 4, 5], [6, 7]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "swift": {
+        "id": "swift",
+        "name": "Maruti Swift Dzire",
+        "type": "Sedan",
+        "total_seats": 5,
+        "seat_layout": [[1, 2], [3, 4, 5]],
         "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
     },
     "scorpio": {
@@ -510,17 +518,17 @@ async def seed_demo():
         ),
         User(
             phone="+91 98123 45678", name="Suresh Rana", role="driver",
-            vehicle_preset="bolero", vehicle_type=VEHICLES["bolero"]["name"],
+            vehicle_preset="innova", vehicle_type=VEHICLES["innova"]["name"],
             vehicle_number="UK 07 TA 5678",
-            total_seats=VEHICLES["bolero"]["total_seats"],
-            seat_layout=VEHICLES["bolero"]["seat_layout"],
+            total_seats=VEHICLES["innova"]["total_seats"],
+            seat_layout=VEHICLES["innova"]["seat_layout"],
         ),
         User(
             phone="+91 99887 76655", name="Mohan Rawat", role="driver",
-            vehicle_preset="eeco", vehicle_type=VEHICLES["eeco"]["name"],
+            vehicle_preset="swift", vehicle_type=VEHICLES["swift"]["name"],
             vehicle_number="UK 07 TA 9999",
-            total_seats=VEHICLES["eeco"]["total_seats"],
-            seat_layout=VEHICLES["eeco"]["seat_layout"],
+            total_seats=VEHICLES["swift"]["total_seats"],
+            seat_layout=VEHICLES["swift"]["seat_layout"],
         ),
     ]
     user = User(phone="+91 98765 00001", name="Aarav Sharma", role="user")
@@ -547,7 +555,7 @@ async def seed_demo():
             from_city="Uttarkashi", to_city="Rishikesh",
             from_stand="Uttarkashi Bus Stand", to_stand="Rishikesh Tapovan",
             date=tomorrow, depart_time="08:00 AM", arrive_time="12:30 PM", duration="4h 30m",
-            price=400, booked_seats=[1], offline_seats=[1],
+            price=400, booked_seats=[2], offline_seats=[2],
         ),
         Ride(
             driver_id=drivers[2].id, driver_phone=drivers[2].phone, driver_name=drivers[2].name,
@@ -571,8 +579,18 @@ async def seed_demo():
 @api_router.get("/demo/accounts")
 async def demo_accounts():
     """Return all seeded accounts for one-tap demo login."""
-    items = await db.users.find({}, {"_id": 0}).to_list(100)
-    return [User(**u).dict() for u in items]
+    demo_phones = [
+        "+91 98765 43210",
+        "+91 98123 45678",
+        "+91 99887 76655",
+        "+91 98765 00001",
+        "+91 98765 00002",
+    ]
+    items = await db.users.find({"phone": {"$in": demo_phones}}, {"_id": 0}).to_list(100)
+    users = [User(**u).dict() for u in items]
+    by_phone = {u["phone"]: u for u in users}
+    ordered = [by_phone[p] for p in demo_phones if p in by_phone]
+    return ordered
 
 
 @api_router.get("/")
