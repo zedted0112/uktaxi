@@ -47,7 +47,7 @@ export default function Auth() {
   };
 
   const verifyOtp = async () => {
-    if (otp.length !== 6) return Alert.alert('Invalid', 'Enter 6-digit OTP');
+    if (otp.length !== 6) return Alert.alert('Invalid OTP', 'Please enter the 6-digit code (try 123456)');
     setLoading(true);
     try {
       const res = await api.verifyOtp(phone, otp);
@@ -57,7 +57,7 @@ export default function Auth() {
         setStep('register');
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed');
+      Alert.alert('Verification failed', e?.message || 'Please try OTP 123456');
     } finally { setLoading(false); }
   };
 
