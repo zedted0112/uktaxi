@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from ..database import get_db
 from ..models.ride import Ride, PublishRideIn, OfflineSeatsIn
 from ..helpers import ride_public, can_cancel
-from ..notifications import send_notification, fire_and_forget
+from ..notifications import send_notification
 
 router = APIRouter(prefix="/rides", tags=["rides"])
 
@@ -115,11 +115,11 @@ async def cancel_ride(ride_id: str):
 
     # Notify each affected passenger
     for entry in affected:
-        fire_and_forget(send_notification(
+        await send_notification(
             recipient_phone=entry["user_phone"],
             title="Ride Cancelled",
             body=f"The driver cancelled the {r['date']} ride to {r['to_city']}.",
             data={"type": "ride_cancelled", "ride_id": ride_id},
-        ))
+        )
 
     return {"ok": True}

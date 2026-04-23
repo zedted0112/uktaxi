@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from ..database import get_db
 from ..models.request import BookingRequest, CreateRequestIn
 from ..helpers import generate_ref, can_cancel
-from ..notifications import send_notification, fire_and_forget
+from ..notifications import send_notification
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
@@ -46,12 +46,12 @@ async def create_request(payload: CreateRequestIn):
     )
     await db.requests.insert_one(req.dict())
 
-    fire_and_forget(send_notification(
+    await send_notification(
         recipient_phone=ride["driver_phone"],
         title="New Seat Request",
         body=f"{req.user_name} wants {len(req.seat_numbers)} seat(s) on your {req.date} ride.",
         data={"type": "new_request", "request_id": req.id, "ride_id": req.ride_id},
-    ))
+    )
 
     return req
 
@@ -97,12 +97,12 @@ async def confirm_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "confirmed"}})
     r["status"] = "confirmed"
 
-    fire_and_forget(send_notification(
+    await send_notification(
         recipient_phone=r["user_phone"],
         title="Booking Confirmed!",
         body=f"Your seat(s) on the {r['date']} ride to {r['to_city']} are confirmed.",
         data={"type": "booking_confirmed", "request_id": req_id},
-    ))
+    )
 
     return BookingRequest(**r)
 
@@ -118,12 +118,12 @@ async def reject_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "rejected"}})
     r["status"] = "rejected"
 
-    fire_and_forget(send_notification(
+    await send_notification(
         recipient_phone=r["user_phone"],
         title="Booking Not Accepted",
         body=f"Your seat request for the {r['date']} ride to {r['to_city']} was not accepted.",
         data={"type": "booking_rejected", "request_id": req_id},
-    ))
+    )
 
     return BookingRequest(**r)
 
@@ -146,11 +146,11 @@ async def cancel_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "cancelled"}})
     r["status"] = "cancelled"
 
-    fire_and_forget(send_notification(
+    await send_notification(
         recipient_phone=r["driver_phone"],
         title="Booking Cancelled",
         body=f"{r['user_name']} cancelled their seat(s) on the {r['date']} ride.",
         data={"type": "booking_cancelled", "request_id": req_id},
-    ))
+    )
 
     return BookingRequest(**r)
