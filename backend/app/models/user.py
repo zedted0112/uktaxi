@@ -16,6 +16,7 @@ class User(BaseModel):
     vehicle_number: Optional[str] = None
     total_seats: Optional[int] = None
     seat_layout: Optional[List[List[int]]] = None
+    push_token: Optional[str] = None  # Expo push token for device notifications
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

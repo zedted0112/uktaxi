@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from ..database import get_db
 from ..models.ride import Ride, PublishRideIn, OfflineSeatsIn
 from ..helpers import ride_public, can_cancel
+from ..notifications import send_push, fire_and_forget
 
 router = APIRouter(prefix="/rides", tags=["rides"])
 
@@ -100,9 +101,27 @@ async def cancel_ride(ride_id: str):
         raise HTTPException(status_code=404, detail="Ride not found")
     if not can_cancel(r["date"], r["depart_time"]):
         raise HTTPException(status_code=400, detail="Cannot cancel within 30 minutes of departure")
+    # Fetch affected passengers before cancelling so we can notify them
+    affected = await db.requests.find(
+        {"ride_id": ride_id, "status": {"$in": ["pending", "confirmed"]}},
+        {"user_phone": 1, "_id": 0},
+    ).to_list(200)
+
     await db.rides.update_one({"id": ride_id}, {"$set": {"status": "cancelled"}})
     await db.requests.update_many(
         {"ride_id": ride_id, "status": {"$in": ["pending", "confirmed"]}},
         {"$set": {"status": "cancelled"}},
     )
+
+    # Notify each affected passenger
+    for entry in affected:
+        passenger = await db.users.find_one({"phone": entry["user_phone"]}, {"_id": 0})
+        if passenger:
+            fire_and_forget(send_push(
+                passenger.get("push_token"),
+                title="Ride Cancelled",
+                body=f"The driver cancelled the {r['date']} ride to {r['to_city']}.",
+                data={"type": "ride_cancelled", "ride_id": ride_id},
+            ))
+
     return {"ok": True}

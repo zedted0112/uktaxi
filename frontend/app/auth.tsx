@@ -6,8 +6,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../src/theme';
-import { api, Vehicle } from '../src/api';
+import { api, Vehicle, User } from '../src/api';
 import { useAuth } from '../src/auth';
+import { registerPushToken } from '../src/utils/notifications';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -84,6 +85,11 @@ export default function Auth() {
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
+  const doSignIn = async (u: User) => {
+    registerPushToken(u.phone).catch(() => {}); // fire-and-forget
+    await signIn(u);
+  };
+
   const formattedPhone = () => {
     const digits = phone.replace(/\D/g, '');
     return digits.startsWith('91')
@@ -109,7 +115,7 @@ export default function Auth() {
           vehicle_number: acct.role === 'driver' ? acct.vehicle_number : undefined,
         });
       }
-      await signIn(u);
+      await doSignIn(u);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed to sign in');
     } finally { setQuickLoading(null); }
@@ -134,7 +140,7 @@ export default function Auth() {
     try {
       const res = await api.verifyOtp(phone, otp);
       if (res.user) {
-        await signIn(res.user);
+        await doSignIn(res.user);
       } else {
         // New number — go to role-specific onboarding
         setDriverSubStep(1);
@@ -153,7 +159,7 @@ export default function Auth() {
         vehicle_preset: vehiclePreset,
         vehicle_number: vehicleNumber.trim(),
       });
-      await signIn(u);
+      await doSignIn(u);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }
@@ -164,7 +170,7 @@ export default function Auth() {
     setLoading(true);
     try {
       const u = await api.register({ phone, name: name.trim(), role: 'user' });
-      await signIn(u);
+      await doSignIn(u);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }

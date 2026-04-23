@@ -147,6 +147,8 @@ export const api = {
   register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+  savePushToken: (phone: string, push_token: string) =>
+    req<{ ok: boolean }>(`/auth/push-token`, { method: 'POST', body: JSON.stringify({ phone, push_token }) }),
   demoAccounts: () => req<User[]>(`/demo/accounts`),
   listVehicles: () => req<Vehicle[]>(`/vehicles`),
   updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>

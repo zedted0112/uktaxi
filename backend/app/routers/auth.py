@@ -1,11 +1,17 @@
 import logging
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from ..database import get_db
 from ..models.user import User, OtpRequest, OtpVerify, RegisterIn
 from ..models.vehicle import VEHICLES
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = logging.getLogger(__name__)
+
+
+class PushTokenIn(BaseModel):
+    phone: str
+    push_token: str
 
 
 @router.post("/request-otp")
@@ -43,6 +49,19 @@ async def register_user(payload: RegisterIn):
     u = User(**data)
     await db.users.insert_one(u.dict())
     return u
+
+
+@router.post("/push-token")
+async def save_push_token(payload: PushTokenIn):
+    """Store or update the Expo push token for a user."""
+    db = get_db()
+    result = await db.users.update_one(
+        {"phone": payload.phone},
+        {"$set": {"push_token": payload.push_token}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"ok": True}
 
 
 @router.get("/me")
