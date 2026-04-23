@@ -12,78 +12,120 @@ This guide helps a new developer become productive quickly and ship safe changes
    - `docs/05-api-reference.md`
    - `docs/06-data-model.md`
    - `docs/07-local-development-runbook.md`
-2. Run backend and frontend locally.
+   - `docs/09-production-roadmap.md`
+2. Follow the runbook and get both services running locally.
 3. Sign in using a demo account and execute one passenger and one driver flow.
-4. Inspect Mongo collections after actions to understand data mutations.
+4. Create a seat request as a passenger, then confirm it as the driver.
+5. Check the Alerts (bell) tab on both sides to see notifications appear.
+6. Inspect MongoDB `notifications` collection after actions to understand the data.
 
 ## Core Product Flows to Learn First
+
 ### Passenger flow
-- Login/register
-- Browse rides by route
-- Create request
-- View/cancel ticket
+- Role select → phone → OTP → register name
+- Browse rides by route (Home tab)
+- Create request (Ride Detail screen)
+- View ticket (Bookings tab)
+- Check notifications (Alerts tab)
+- Cancel ticket
 
 ### Driver flow
-- Login/register with vehicle
-- Publish ride with offline seats
-- Review requests
+- Role select → phone → OTP → register name, vehicle type, plate
+- Publish ride with offline seats (Publish tab)
+- Review requests (Requests tab)
 - Confirm/reject request
+- Check notifications (Alerts tab)
 - Cancel ride
 
+## Key Files to Understand First
+
+### Frontend
+| File | Why |
+|---|---|
+| `frontend/app/_layout.tsx` | Auth gate and role-based redirect logic |
+| `frontend/app/auth.tsx` | Multi-step onboarding flow with all step logic |
+| `frontend/src/api.ts` | All API calls and TypeScript types |
+| `frontend/src/auth.tsx` | Auth context, session persistence |
+| `frontend/src/hooks/useNotifications.ts` | Notification polling and badge logic |
+| `frontend/src/theme.ts` | Design tokens — always use these for styling |
+
+### Backend
+| File | Why |
+|---|---|
+| `backend/app/main.py` | App setup, router registration |
+| `backend/app/routers/requests.py` | Core booking logic with notification triggers |
+| `backend/app/routers/rides.py` | Ride publish, cancel, cascade notification |
+| `backend/app/notifications.py` | Single place for all notification writes |
+| `backend/app/helpers.py` | Business rule helpers (seat validation, cancel cutoff) |
+
 ## Contribution Workflow
-1. Pull latest main branch.
+1. Pull latest `main` branch.
 2. Create feature branch (`feature/<short-name>`).
 3. Implement with small focused commits.
-4. Run lint/tests before opening PR.
-5. Write PR notes:
-   - what changed
-   - why it changed
-   - test evidence
+4. Run lint/tests before opening PR:
+   - `yarn lint` (frontend)
+   - `pytest -q` (backend)
+5. Write PR notes: what changed, why, and test evidence.
 
 ## Change Impact Checklist
 Before merging, verify:
-- API contract changes are reflected in `frontend/src/api.ts`.
+- API contract changes reflected in `frontend/src/api.ts` and `docs/05-api-reference.md`.
+- New backend endpoints registered in `backend/app/main.py`.
 - Role gating still behaves correctly (`app/_layout.tsx`).
 - Request and ride status transitions are not broken.
 - Seat rules remain consistent (`booked_seats` vs `offline_seats`).
-- No generated artifacts (cache files) are included accidentally.
+- If a booking action was added: does it call `send_notification()`?
+- No generated artifacts (cache files, `.env`) in commits.
 
 ## Feature Development Playbook
-### If adding a new frontend screen
-- Add route under correct group (`(tabs)` or `(driver)`).
-- Integrate with existing theme tokens and test IDs.
-- Use centralized API client rather than raw fetch calls in screen files.
 
-### If adding a backend endpoint
-- Add Pydantic input/output models.
-- Enforce business validation with explicit HTTP errors.
-- Update API docs (`docs/05-api-reference.md`) and data model docs if schema changes.
+### Adding a new frontend screen
+- Add route file under correct group: `(tabs)/` for passenger, `(driver)/` for driver.
+- Use design tokens from `src/theme.ts` for all styling.
+- Add `testID` to interactive elements.
+- Create a hook in `src/hooks/` if screen needs data fetching.
+- Use the hook in the screen — never call `api.*` directly from screen files.
 
-### If changing booking logic
+### Adding a backend endpoint
+- Add Pydantic input/output model in the appropriate `app/models/` file.
+- Add route in the appropriate `app/routers/` file.
+- Register the router in `app/main.py` if it's a new file.
+- Enforce business validation with explicit `HTTPException`.
+- If the action triggers a notification, `await send_notification(...)` before returning.
+- Update `docs/05-api-reference.md`.
+
+### Adding a new notification type
+- Add the event type string to `docs/06-data-model.md` notification types table.
+- Call `await send_notification(recipient_phone=..., title=..., body=..., data={"type": "..."})` in the router.
+- Add the icon mapping in `frontend/src/components/NotificationsScreen.tsx` `TYPE_ICON` constant.
+
+### Changing booking logic
 - Validate all edge cases:
-  - pending conflicts
+  - pending seat conflicts
   - confirmed seat duplication
   - cancellation cutoffs
   - ride cancellation cascading
+  - notification delivery to correct recipient
 
 ## Testing Expectations
 Minimum for each non-trivial change:
-- Frontend: lint clean (`yarn lint`)
-- Backend: API tests (`pytest -q`)
+- Frontend: `yarn lint` passes clean
+- Backend: `pytest -q` passes
 - Manual smoke:
-  - passenger booking request path
-  - driver confirm/reject path
-  - cancellation behavior
+  - Full passenger booking request path
+  - Driver confirm and reject paths
+  - Cancellation behavior (both sides)
+  - Notification appears in bell tab within 30 seconds
 
 ## Documentation Maintenance Rule
-When implementation changes, update relevant docs in same PR:
-- API changes -> `docs/05-api-reference.md`
-- schema/state changes -> `docs/06-data-model.md`
-- setup/tooling changes -> `docs/07-local-development-runbook.md`
-- architectural changes -> `docs/02-system-architecture.md`, `docs/03-*`, `docs/04-*`
+Update docs in the same PR as the code:
+- API changes → `docs/05-api-reference.md`
+- Schema/data changes → `docs/06-data-model.md`
+- Setup/tooling changes → `docs/07-local-development-runbook.md`
+- Architectural changes → `docs/02-system-architecture.md`, `docs/03-*`, `docs/04-*`
 
 ## Current Technical Debt to Watch
-- Monolithic backend file (`backend/server.py`).
-- Seat confirmation race risks under concurrent traffic.
-- Demo seeding behavior can wipe data when schema version changes.
-- Unused Python dependencies increase backend install footprint.
+- Seat confirmation race risk under concurrent traffic (no DB transactions).
+- Demo seeding is destructive when `SCHEMA_VERSION` bumps — guard before enabling in production.
+- API auth is trust-based on phone identity — no JWT/session tokens yet (see `docs/09-production-roadmap.md`).
+- 30-second notification polling introduces delivery latency — acceptable for MVP, upgrade to WebSocket for v2.

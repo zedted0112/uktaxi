@@ -3,22 +3,24 @@
 ## Base
 - Base URL: `${EXPO_PUBLIC_BACKEND_URL}/api`
 - Content type: `application/json`
-- Auth: no token/JWT; phone identity passed in payload/query
+- Auth: no token/JWT currently; phone identity passed in payload/query
 - Error shape: FastAPI standard (`{ "detail": "..." }`)
 
 ## Health and Demo
+
 ### `GET /`
 Returns API identity and schema version.
 
 Response:
 ```json
 { "message": "Uttarkashi Taxi Union API", "schema": 5 }
-`````
+```
 
 ### `GET /demo/accounts`
 Returns ordered demo users for one-tap login.
 
 ## Vehicles
+
 ### `GET /vehicles`
 Returns full vehicle presets list.
 
@@ -29,6 +31,7 @@ Errors:
 - `404 Unknown vehicle`
 
 ## Auth and User
+
 ### `POST /auth/request-otp`
 Input:
 ```json
@@ -46,7 +49,7 @@ Input:
 ```
 Response:
 ```json
-{ "ok": true, "user": { "...": "existing user or null" } }
+{ "ok": true, "user": { "...": "existing user object or null for new phone" } }
 ```
 
 Errors:
@@ -93,6 +96,7 @@ Errors:
 - `400 Invalid vehicle preset`
 
 ## Rides
+
 ### `POST /rides`
 Publishes a ride for an existing driver.
 
@@ -150,7 +154,7 @@ Errors:
 
 ### `POST /rides/{ride_id}/cancel`
 Cancels ride if current time is at least 30 minutes before departure.
-Also cancels related pending/confirmed requests.
+Also cancels related pending/confirmed requests and writes a notification to each affected passenger.
 
 Response:
 ```json
@@ -162,8 +166,9 @@ Errors:
 - `400 Cannot cancel within 30 minutes of departure`
 
 ## Booking Requests
+
 ### `POST /requests`
-Creates booking request with `pending` status.
+Creates booking request with `pending` status. Writes a notification to the driver.
 
 Input:
 ```json
@@ -200,7 +205,7 @@ Errors:
 - `404 Request not found`
 
 ### `POST /requests/{req_id}/confirm`
-Confirms a pending request and books seats on ride.
+Confirms a pending request, books seats on ride, writes a notification to the passenger.
 
 Errors:
 - `404 Request not found`
@@ -209,19 +214,53 @@ Errors:
 - `400 Seat <n> already booked`
 
 ### `POST /requests/{req_id}/reject`
-Rejects a pending request.
+Rejects a pending request and writes a notification to the passenger.
 
 Errors:
 - `404 Request not found`
 - `400 Cannot reject a <status> request`
 
 ### `POST /requests/{req_id}/cancel`
-Cancels a request. If request was confirmed, seats are freed from ride.
+Cancels a request. If confirmed, seats are freed from ride. Writes a notification to the driver.
 
 Errors:
 - `404 Request not found`
 - `400 Already cancelled`
 - `400 Cannot cancel within 30 minutes of departure`
+
+## Notifications
+
+### `GET /notifications?phone={phone}`
+Returns all notifications for the given phone, newest first (max 200).
+
+Response: array of `Notification` objects.
+
+### `GET /notifications/unread-count?phone={phone}`
+Returns the unread notification count for badge display.
+
+Response:
+```json
+{ "count": 3 }
+```
+
+### `POST /notifications/{notif_id}/read`
+Marks a single notification as read.
+
+Response:
+```json
+{ "ok": true }
+```
+
+Errors:
+- `404 Notification not found`
+
+### `POST /notifications/read-all?phone={phone}`
+Marks all notifications for the given phone as read.
+
+Response:
+```json
+{ "ok": true }
+```
 
 ## Status Enums
 - User role: `user | driver`
