@@ -1,4 +1,5 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { isRunningInExpoGo } from 'expo';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import {
@@ -11,23 +12,28 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
 import * as Notifications from 'expo-notifications';
 import { colors } from '../src/theme';
 import { AuthProvider, useAuth } from '../src/auth';
 
-// Default handler: show notifications as banners even when app is foregrounded
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Push notifications are unavailable in Expo Go on Android from SDK 53+.
+// Set the handler only when push is supported on this device/environment.
+const pushSupported = !(isRunningInExpoGo() && Platform.OS === 'android');
+
+if (pushSupported) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 function Gate() {
   const { user, loading } = useAuth();
@@ -53,8 +59,10 @@ function Gate() {
     }
   }, [user, loading, segments, router]);
 
-  // Set up notification tap-to-navigate
+  // Set up notification tap-to-navigate (only where push is supported)
   useEffect(() => {
+    if (!pushSupported) return;
+
     notifListener.current = Notifications.addNotificationReceivedListener(() => {
       // Notification received while app is in foreground — banner shown automatically
     });
@@ -62,7 +70,7 @@ function Gate() {
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as Record<string, string> | undefined;
       if (!data) return;
-      const { type, ride_id, request_id } = data;
+      const { type } = data;
       if (!user) return;
 
       if (type === 'new_request' && user.role === 'driver') {

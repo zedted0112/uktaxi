@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
 import { api } from '../api';
 
@@ -7,10 +8,16 @@ import { api } from '../api';
  * Request permission, obtain the Expo Push Token, and save it to our
  * backend so the server can reach this device.
  *
- * Silently no-ops on simulators or when permission is denied.
+ * Silently no-ops on:
+ * - simulators / emulators (no push support)
+ * - Expo Go on Android (removed in SDK 53 — requires a development build)
+ * The in-app notification inbox still works regardless.
  */
 export async function registerPushToken(phone: string): Promise<void> {
-  if (!Device.isDevice) return; // simulators can't receive push notifications
+  // Expo Go on Android throws since SDK 53 — skip silently
+  if (isRunningInExpoGo() && Platform.OS === 'android') return;
+
+  if (!Device.isDevice) return;
 
   const { status: existing } = await Notifications.getPermissionsAsync();
   let finalStatus = existing;
@@ -25,11 +32,8 @@ export async function registerPushToken(phone: string): Promise<void> {
   const { data: token } = await Notifications.getExpoPushTokenAsync();
   if (!token) return;
 
-  await api.savePushToken(phone, token).catch(() => {
-    // Non-fatal — the app still works without push tokens
-  });
+  await api.savePushToken(phone, token).catch(() => {});
 
-  // Android requires a notification channel
   if (Platform.OS === 'android') {
     Notifications.setNotificationChannelAsync('default', {
       name: 'default',
