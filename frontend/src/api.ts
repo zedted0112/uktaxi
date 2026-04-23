@@ -45,6 +45,17 @@ export type User = {
   seat_layout?: number[][] | null;
 };
 
+export type AppNotification = {
+  id: string;
+  recipient_phone: string;
+  title: string;
+  body: string;
+  type: string;
+  data: Record<string, string>;
+  read: boolean;
+  created_at: string;
+};
+
 export type Vehicle = {
   id: string;
   name: string;
@@ -178,4 +189,13 @@ export const api = {
   confirmRequest: (id: string) => req<BookingRequest>(`/requests/${id}/confirm`, { method: 'POST' }),
   rejectRequest: (id: string) => req<BookingRequest>(`/requests/${id}/reject`, { method: 'POST' }),
   cancelRequest: (id: string) => req<BookingRequest>(`/requests/${id}/cancel`, { method: 'POST' }),
+
+  // notifications
+  listNotifications: (phone: string) =>
+    req<AppNotification[]>(`/notifications?phone=${encodeURIComponent(phone)}`),
+  unreadCount: (phone: string) =>
+    req<{ count: number }>(`/notifications/unread-count?phone=${encodeURIComponent(phone)}`),
+  markRead: (id: string) => req<{ ok: boolean }>(`/notifications/${id}/read`, { method: 'POST' }),
+  markAllRead: (phone: string) =>
+    req<{ ok: boolean }>(`/notifications/read-all?phone=${encodeURIComponent(phone)}`, { method: 'POST' }),
 };

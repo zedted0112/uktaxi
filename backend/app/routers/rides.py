@@ -122,6 +122,7 @@ async def cancel_ride(ride_id: str):
                 title="Ride Cancelled",
                 body=f"The driver cancelled the {r['date']} ride to {r['to_city']}.",
                 data={"type": "ride_cancelled", "ride_id": ride_id},
+                recipient_phone=passenger["phone"],
             ))
 
     return {"ok": True}

@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from .config import SCHEMA_VERSION, CORS_ORIGINS
 from .database import get_db, close_client
 from .seed import seed_demo
-from .routers import auth, vehicles, drivers, rides, requests, demo
+from .routers import auth, vehicles, drivers, rides, requests, demo, notifications
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Register domain routers under /api prefix
-for router in [auth.router, vehicles.router, drivers.router, rides.router, requests.router, demo.router]:
+for router in [auth.router, vehicles.router, drivers.router, rides.router, requests.router, demo.router, notifications.router]:
     app.include_router(router, prefix="/api")
 
 
