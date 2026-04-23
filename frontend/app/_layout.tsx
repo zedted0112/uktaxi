@@ -15,15 +15,17 @@ import {
 import { View, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
-import * as Notifications from 'expo-notifications';
 import { colors } from '../src/theme';
 import { AuthProvider, useAuth } from '../src/auth';
 
 // Push notifications are unavailable in Expo Go on Android from SDK 53+.
-// Set the handler only when push is supported on this device/environment.
+// The library throws at import time, so we use lazy require() instead of
+// a static import and only load it when push is actually supported.
 const pushSupported = !(isRunningInExpoGo() && Platform.OS === 'android');
 
 if (pushSupported) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Notifications = require('expo-notifications');
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -39,8 +41,8 @@ function Gate() {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const notifListener = useRef<ReturnType<typeof Notifications.addNotificationReceivedListener> | null>(null);
-  const responseListener = useRef<ReturnType<typeof Notifications.addNotificationResponseReceivedListener> | null>(null);
+  const notifListener = useRef<any>(null);
+  const responseListener = useRef<any>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -63,11 +65,14 @@ function Gate() {
   useEffect(() => {
     if (!pushSupported) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Notifications = require('expo-notifications');
+
     notifListener.current = Notifications.addNotificationReceivedListener(() => {
       // Notification received while app is in foreground — banner shown automatically
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response: any) => {
       const data = response.notification.request.content.data as Record<string, string> | undefined;
       if (!data) return;
       const { type } = data;
