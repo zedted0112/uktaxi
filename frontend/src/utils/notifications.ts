@@ -1,4 +1,3 @@
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
@@ -14,10 +13,14 @@ import { api } from '../api';
  * The in-app notification inbox still works regardless.
  */
 export async function registerPushToken(phone: string): Promise<void> {
-  // Expo Go on Android throws since SDK 53 — skip silently
+  // Expo Go on Android throws at import time since SDK 53 — skip entirely
   if (isRunningInExpoGo() && Platform.OS === 'android') return;
 
   if (!Device.isDevice) return;
+
+  // Lazy require so the module is never loaded in Expo Go on Android
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Notifications = require('expo-notifications');
 
   const { status: existing } = await Notifications.getPermissionsAsync();
   let finalStatus = existing;
