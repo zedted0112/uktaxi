@@ -1,0 +1,42 @@
+VEHICLES: dict[str, dict] = {
+    "bolero": {
+        "id": "bolero",
+        "name": "Mahindra Bolero",
+        "type": "SUV",
+        "total_seats": 9,
+        "seat_layout": [[1], [2, 3, 4, 5], [6, 7, 8, 9]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "innova": {
+        "id": "innova",
+        "name": "Toyota Innova Crysta",
+        "type": "MUV",
+        "total_seats": 7,
+        "seat_layout": [[1, 2], [3, 4, 5], [6, 7]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "swift": {
+        "id": "swift",
+        "name": "Maruti Swift Dzire",
+        "type": "Sedan",
+        "total_seats": 5,
+        "seat_layout": [[1, 2], [3, 4, 5]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "scorpio": {
+        "id": "scorpio",
+        "name": "Mahindra Scorpio",
+        "type": "SUV",
+        "total_seats": 7,
+        "seat_layout": [[1], [2, 3, 4], [5, 6, 7]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+    "eeco": {
+        "id": "eeco",
+        "name": "Maruti Eeco",
+        "type": "Van",
+        "total_seats": 4,
+        "seat_layout": [[1], [2, 3, 4]],
+        "image": "https://images.unsplash.com/photo-1758219944472-745f682c70f8?w=600&q=80",
+    },
+}

@@ -31,9 +31,9 @@ class TestVehicles:
         r = api.get(f"{API}/vehicles", timeout=20)
         assert r.status_code == 200
         data = r.json()
-        assert isinstance(data, list) and len(data) == 4
+        assert isinstance(data, list) and len(data) == 5
         by_id = {v["id"]: v for v in data}
-        for vid in ("bolero", "innova", "scorpio", "eeco"):
+        for vid in ("bolero", "innova", "swift", "scorpio", "eeco"):
             assert vid in by_id, f"missing vehicle {vid}"
             assert "seat_layout" in by_id[vid]
             assert "total_seats" in by_id[vid]
@@ -42,7 +42,7 @@ class TestVehicles:
         assert by_id["bolero"]["total_seats"] == 9
         assert by_id["bolero"]["seat_layout"] == [[1], [2, 3, 4, 5], [6, 7, 8, 9]]
         # others
-        assert by_id["innova"]["total_seats"] == 6
+        assert by_id["innova"]["total_seats"] == 7
         assert by_id["scorpio"]["total_seats"] == 7
         assert by_id["eeco"]["total_seats"] == 4
         assert by_id["eeco"]["seat_layout"] == [[1], [2, 3, 4]]

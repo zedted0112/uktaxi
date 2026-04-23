@@ -1,45 +1,29 @@
-import { useCallback, useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl,
-  ActivityIndicator, Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { colors, fonts, radii } from '../../src/theme';
 import { api, BookingRequest } from '../../src/api';
 import { useAuth } from '../../src/auth';
-
-const STATUS_META: Record<BookingRequest['status'], { label: string; color: string; bg: string; icon: any }> = {
-  pending: { label: 'PENDING', color: '#B45309', bg: '#FEF3C7', icon: 'clock' },
-  confirmed: { label: 'CONFIRMED', color: '#059669', bg: '#D1FAE5', icon: 'check-circle' },
-  rejected: { label: 'REJECTED', color: '#B91C1C', bg: '#FEE2E2', icon: 'x-circle' },
-  cancelled: { label: 'CANCELLED', color: '#4B5563', bg: '#E5E7EB', icon: 'slash' },
-};
+import { useRequests } from '../../src/hooks/useRequests';
+import { Badge } from '../../src/components/Badge';
+import { LoadingSpinner } from '../../src/components/LoadingSpinner';
+import { EmptyState } from '../../src/components/EmptyState';
 
 export default function Bookings() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const [items, setItems] = useState<BookingRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!user) return;
-    try {
-      const data = await api.listRequests({ user_phone: user.phone });
-      setItems(data);
-    } finally { setLoading(false); setRefreshing(false); }
-  }, [user]);
-
-  useFocusEffect(useCallback(() => { setLoading(true); load(); }, [load]));
+  const { requests: items, loading, refreshing, onRefresh, reload } = useRequests(
+    user ? { user_phone: user.phone } : {},
+  );
 
   const cancel = async (b: BookingRequest) => {
     Alert.alert('Cancel booking?', `Cancel ${b.booking_ref}? Allowed up to 30 min before departure.`, [
       { text: 'Keep', style: 'cancel' },
       { text: 'Cancel booking', style: 'destructive', onPress: async () => {
-        try { await api.cancelRequest(b.id); await load(); }
+        try { await api.cancelRequest(b.id); reload(); }
         catch (e: any) { Alert.alert('Error', e?.message || 'Failed'); }
       }},
     ]);
@@ -49,34 +33,29 @@ export default function Bookings() {
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="bookings-screen">
       <ScrollView
         contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <Text style={styles.heading}>My Bookings</Text>
         <Text style={styles.subheading}>Your ride requests & tickets</Text>
 
         {loading ? (
-          <ActivityIndicator color={colors.green} style={{ marginTop: 40 }} />
+          <LoadingSpinner />
         ) : items.length === 0 ? (
-          <View style={styles.empty}>
-            <MaterialCommunityIcons name="ticket-outline" size={48} color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No bookings yet</Text>
-            <Text style={styles.emptyTxt}>Find a ride to send your first request</Text>
-            <TouchableOpacity style={styles.emptyBtn} onPress={() => router.push('/(tabs)')} testID="browse-btn">
-              <Text style={styles.emptyBtnTxt}>Find a Ride</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            icon="ticket-outline"
+            title="No bookings yet"
+            subtitle="Find a ride to send your first request"
+            actionLabel="Find a Ride"
+            onAction={() => router.push('/(tabs)')}
+          />
         ) : (
           items.map((b) => {
-            const meta = STATUS_META[b.status];
             return (
               <View key={b.id} style={styles.card} testID={`booking-${b.id}`}>
                 <TouchableOpacity onPress={() => router.push(`/ticket/${b.id}`)} activeOpacity={0.85}>
                   <View style={styles.top}>
                     <Text style={styles.ref}>{b.booking_ref}</Text>
-                    <View style={[styles.badge, { backgroundColor: meta.bg }]}>
-                      <Feather name={meta.icon} size={10} color={meta.color} />
-                      <Text style={[styles.badgeTxt, { color: meta.color }]}>{meta.label}</Text>
-                    </View>
+                    <Badge status={b.status} showIcon />
                   </View>
                   <View style={styles.route}>
                     <View style={{ flex: 1 }}>
@@ -129,8 +108,6 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radii.xl, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   ref: { fontFamily: fonts.bodySemiBold, fontSize: 12, color: colors.textPrimary },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4, borderRadius: radii.full },
-  badgeTxt: { fontFamily: fonts.bodySemiBold, fontSize: 10, letterSpacing: 0.5 },
   route: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   city: { fontFamily: fonts.heading, fontSize: 18, color: colors.textPrimary },
   time: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 2 },
@@ -146,9 +123,4 @@ const styles = StyleSheet.create({
     borderRadius: radii.full, backgroundColor: '#FEF2F2',
   },
   cancelTxt: { color: '#B91C1C', fontFamily: fonts.bodySemiBold, fontSize: 12 },
-  empty: { alignItems: 'center', paddingVertical: 50 },
-  emptyTitle: { fontFamily: fonts.heading, fontSize: 20, color: colors.textPrimary, marginTop: 12 },
-  emptyTxt: { fontFamily: fonts.body, fontSize: 13, color: colors.textSecondary, marginTop: 4, marginBottom: 18 },
-  emptyBtn: { backgroundColor: colors.black, paddingHorizontal: 22, paddingVertical: 12, borderRadius: radii.full },
-  emptyBtnTxt: { color: '#fff', fontFamily: fonts.bodySemiBold, fontSize: 13 },
 });

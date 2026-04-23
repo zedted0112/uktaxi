@@ -1,14 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl,
-  ActivityIndicator, Image,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { colors, fonts, radii } from '../../src/theme';
-import { api, Ride } from '../../src/api';
+import { Ride } from '../../src/api';
 import { useAuth } from '../../src/auth';
+import { useRides } from '../../src/hooks/useRides';
+import { LoadingSpinner } from '../../src/components/LoadingSpinner';
+import { EmptyState } from '../../src/components/EmptyState';
+import { formatDate } from '../../src/utils/date';
 
 const ROUTES = [
   { from: 'Uttarkashi', to: 'Dehradun' },
@@ -21,34 +24,16 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const [rides, setRides] = useState<Ride[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [routeIdx, setRouteIdx] = useState(0);
 
-  const load = useCallback(async () => {
-    try {
-      const { from, to } = ROUTES[routeIdx];
-      const data = await api.listRides({ from_city: from, to_city: to });
-      setRides(data);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [routeIdx]);
-
-  useFocusEffect(useCallback(() => { setLoading(true); load(); }, [load]));
-
-  const fmt = (d: string) => {
-    const dt = new Date(d);
-    return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-  };
+  const { from, to } = ROUTES[routeIdx];
+  const { rides, loading, refreshing, onRefresh } = useRides({ from_city: from, to_city: to });
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="home-screen">
       <ScrollView
         contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
@@ -115,13 +100,13 @@ export default function Home() {
         </View>
 
         {loading ? (
-          <ActivityIndicator color={colors.green} style={{ marginTop: 40 }} />
+          <LoadingSpinner />
         ) : rides.length === 0 ? (
-          <View style={styles.empty}>
-            <MaterialCommunityIcons name="car-off" size={36} color={colors.textMuted} />
-            <Text style={styles.emptyTxt}>No rides published yet</Text>
-            <Text style={styles.emptySub}>Pull to refresh or try another route</Text>
-          </View>
+          <EmptyState
+            icon="car-off"
+            title="No rides published yet"
+            subtitle="Pull to refresh or try another route"
+          />
         ) : (
           rides.map((r) => (
             <TouchableOpacity
@@ -135,7 +120,7 @@ export default function Home() {
               <View style={styles.rideTopRow}>
                 <View style={styles.rideBadge}>
                   <MaterialCommunityIcons name="car" size={14} color={colors.greenDark} />
-                  <Text style={styles.rideBadgeTxt}>{fmt(r.date)}</Text>
+                  <Text style={styles.rideBadgeTxt}>{formatDate(r.date)}</Text>
                 </View>
                 <Text style={styles.rideVehicle} numberOfLines={1}>{r.vehicle_type}</Text>
               </View>
@@ -228,7 +213,4 @@ const styles = StyleSheet.create({
   seatsPillTxt: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.greenDark },
   priceBox: {},
   priceValue: { fontFamily: fonts.heading, fontSize: 20, color: colors.textPrimary },
-  empty: { alignItems: 'center', padding: 40, gap: 6 },
-  emptyTxt: { fontFamily: fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary },
-  emptySub: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary },
 });

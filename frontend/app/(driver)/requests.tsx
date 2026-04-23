@@ -1,13 +1,15 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Alert,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
 import { colors, fonts, radii } from '../../src/theme';
 import { api, BookingRequest } from '../../src/api';
 import { useAuth } from '../../src/auth';
+import { useRequests } from '../../src/hooks/useRequests';
+import { Badge } from '../../src/components/Badge';
+import { LoadingSpinner } from '../../src/components/LoadingSpinner';
 
 const TABS: { key: BookingRequest['status'] | 'all'; label: string }[] = [
   { key: 'pending', label: 'Pending' },
@@ -18,20 +20,11 @@ const TABS: { key: BookingRequest['status'] | 'all'; label: string }[] = [
 export default function Requests() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const [items, setItems] = useState<BookingRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<typeof TABS[number]['key']>('pending');
 
-  const load = useCallback(async () => {
-    if (!user) return;
-    try {
-      const data = await api.listRequests({ driver_phone: user.phone });
-      setItems(data);
-    } finally { setLoading(false); setRefreshing(false); }
-  }, [user]);
-
-  useFocusEffect(useCallback(() => { setLoading(true); load(); }, [load]));
+  const { requests: items, loading, refreshing, onRefresh, reload } = useRequests(
+    user ? { driver_phone: user.phone } : {},
+  );
 
   const filtered = items.filter(i => tab === 'all' ? true : i.status === tab);
   const pendingCount = items.filter(i => i.status === 'pending').length;
@@ -41,7 +34,7 @@ export default function Requests() {
     try {
       if (action === 'confirm') await api.confirmRequest(id);
       else await api.rejectRequest(id);
-      await load();
+      reload();
     } catch (e: any) { Alert.alert('Error', e?.message || 'Failed'); }
   };
 
@@ -62,7 +55,7 @@ export default function Requests() {
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="requests-screen">
       <ScrollView
         contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <Text style={styles.heading}>Requests</Text>
         <Text style={styles.subheading}>Incoming booking requests from passengers</Text>
@@ -90,7 +83,7 @@ export default function Requests() {
           })}
         </View>
 
-        {loading ? <ActivityIndicator color={colors.green} style={{ marginTop: 40 }} /> :
+        {loading ? <LoadingSpinner /> :
          filtered.length === 0 ? (
           <View style={styles.empty}>
             <Feather name="inbox" size={42} color={colors.textMuted} />
@@ -103,7 +96,7 @@ export default function Requests() {
                 <Text style={styles.user}>{b.user_name}</Text>
                 <Text style={styles.phone}>{b.user_phone}</Text>
               </View>
-              <StatusPill status={b.status} />
+              <Badge status={b.status} />
             </View>
             <View style={styles.route}>
               <View><Text style={styles.city}>{b.from_city}</Text><Text style={styles.stand}>{b.depart_time}</Text></View>
@@ -141,19 +134,6 @@ export default function Requests() {
   );
 }
 
-function StatusPill({ status }: { status: BookingRequest['status'] }) {
-  const map = {
-    pending: { bg: '#FEF3C7', fg: '#B45309', label: 'PENDING' },
-    confirmed: { bg: colors.greenLight, fg: colors.greenDark, label: 'CONFIRMED' },
-    rejected: { bg: '#FEE2E2', fg: '#B91C1C', label: 'REJECTED' },
-    cancelled: { bg: '#E5E7EB', fg: '#4B5563', label: 'CANCELLED' },
-  }[status];
-  return (
-    <View style={[{ paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999 }, { backgroundColor: map.bg }]}>
-      <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 10, letterSpacing: 0.5, color: map.fg }}>{map.label}</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
