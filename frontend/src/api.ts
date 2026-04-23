@@ -1,4 +1,35 @@
-const BASE = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://uttarkashi-taxi.preview.emergentagent.com';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
+const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
+
+function normalizeBase(url: string): string {
+  return url.trim().replace(/\/+$/, '');
+}
+
+function getHostIpBase(): string | null {
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (!hostUri) return null;
+  const host = hostUri.split(':')[0];
+  if (!host || !/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return null;
+  return `http://${host}:${BACKEND_PORT}`;
+}
+
+function buildBaseCandidates(): string[] {
+  const candidates: string[] = [];
+  const envBase = process.env.EXPO_PUBLIC_BACKEND_URL;
+  if (envBase) candidates.push(normalizeBase(envBase));
+  const hostIpBase = getHostIpBase();
+  if (hostIpBase) candidates.push(hostIpBase);
+
+  if (Platform.OS === 'android') {
+    candidates.push(`http://10.0.2.2:${BACKEND_PORT}`);
+    candidates.push(`http://localhost:${BACKEND_PORT}`);
+  } else {
+    candidates.push(`http://localhost:${BACKEND_PORT}`);
+  }
+  return [...new Set(candidates)];
+}
 
 export type Role = 'user' | 'driver';
 
@@ -73,10 +104,27 @@ export type BookingRequest = {
 };
 
 async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BASE}/api${path}`, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-  });
+  const candidates = buildBaseCandidates();
+  let res: Response | null = null;
+  let lastError: unknown = null;
+
+  for (const base of candidates) {
+    const url = `${base}/api${path}`;
+    try {
+      res = await fetch(url, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      });
+      break;
+    } catch (error: unknown) {
+      lastError = error;
+    }
+  }
+
+  if (!res) {
+    throw lastError instanceof Error ? lastError : new Error('Network request failed');
+  }
+
   if (!res.ok) {
     let msg = `Request failed: ${res.status}`;
     try {

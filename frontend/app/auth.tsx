@@ -64,8 +64,9 @@ export default function Auth() {
   const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
+  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>(LOCAL_DEMOS);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
@@ -173,7 +174,19 @@ export default function Auth() {
 
         {step === 'phone' && (
           <View style={styles.card} testID="phone-step">
-            {demoAccts.length > 0 && (
+            <View style={styles.demoToggleRow}>
+              <Text style={styles.demoToggleLabel}>Quick Demo Access</Text>
+              <TouchableOpacity
+                onPress={() => setShowDemo((prev) => !prev)}
+                style={[styles.demoToggleBtn, showDemo && styles.demoToggleBtnActive]}
+                testID="demo-toggle-btn"
+              >
+                <Text style={[styles.demoToggleBtnTxt, showDemo && styles.demoToggleBtnTxtActive]}>
+                  {showDemo ? 'Hide Demo' : 'Demo'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {showDemo && demoAccts.length > 0 && (
               <View style={styles.demoBox} testID="demo-box">
                 <View style={styles.demoHead}>
                   <MaterialCommunityIcons name="flash-outline" size={16} color={colors.greenDark} />
@@ -451,6 +464,12 @@ const styles = StyleSheet.create({
   demoBox: { marginBottom: 4 },
   demoHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
   demoHeadTxt: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.greenDark, letterSpacing: 0.6, textTransform: 'uppercase' },
+  demoToggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  demoToggleLabel: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.textSecondary, letterSpacing: 0.6, textTransform: 'uppercase' },
+  demoToggleBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radii.full, backgroundColor: colors.borderSoft, borderWidth: 1, borderColor: colors.border },
+  demoToggleBtnActive: { backgroundColor: colors.greenLight, borderColor: colors.green },
+  demoToggleBtnTxt: { fontFamily: fonts.bodySemiBold, fontSize: 12, color: colors.textPrimary },
+  demoToggleBtnTxtActive: { color: colors.greenDark },
   demoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 10, backgroundColor: colors.borderSoft, borderRadius: radii.md, marginBottom: 6 },
   demoAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenLight, alignItems: 'center', justifyContent: 'center' },
   demoName: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary },
