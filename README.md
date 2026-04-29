@@ -72,6 +72,8 @@ ENABLE_DEMO_MODE=true
 - `ENABLE_DEMO_MODE=true` (default if omitted): mounts `GET /api/demo/accounts` and may seed demo users/rides on startup.
 - `ENABLE_DEMO_MODE=false`: no demo seed, no `/api/demo/*` routes — use for production or real data only.
 
+The Expo auth screen calls **`GET /api/`** on load and reads **`demo_mode`** (same flag). When `demo_mode` is `false`, quick demo UI and hardcoded demo account chips are hidden, and OTP copy does not mention `123456`. If the device cannot reach the API on first open, demo UI stays off (safe default).
+
 Copy from [`backend/.env.example`](backend/.env.example) and adjust.
 
 If using local MongoDB:
@@ -133,9 +135,8 @@ Then:
 
 ## 5) Demo login
 
-- OTP: `123456`
-- With `ENABLE_DEMO_MODE=true`, quick-login accounts are listed at `GET /api/demo/accounts`.
-- With `ENABLE_DEMO_MODE=false`, register/sign in normally; that endpoint is not mounted.
+- When **`demo_mode`** from `GET /api/` is true (backend `ENABLE_DEMO_MODE=true`): OTP `123456` works and the auth screen can show quick demo sign-in after loading accounts from `GET /api/demo/accounts`.
+- When **`demo_mode`** is false: use normal phone flow; quick demo row is hidden and the app does not call `/api/demo/accounts`.
 
 ## Common issues
 

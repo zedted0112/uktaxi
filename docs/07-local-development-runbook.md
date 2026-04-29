@@ -33,6 +33,8 @@ ENABLE_DEMO_MODE=true
 
 `ENABLE_DEMO_MODE=false` skips startup demo seed and disables `GET /api/demo/accounts` (production-style). See [`backend/.env.example`](../backend/.env.example).
 
+The Expo auth screen reads **`demo_mode`** from **`GET /api/`** to show or hide quick demo UI; it must reach the backend on first auth load for that flag.
+
 ### Frontend (`frontend/.env`)
 ```env
 EXPO_PUBLIC_BACKEND_URL=http://192.168.x.x:8000

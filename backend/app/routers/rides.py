@@ -2,10 +2,70 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from ..database import get_db
 from ..models.ride import Ride, PublishRideIn, OfflineSeatsIn
-from ..helpers import ride_public, can_cancel
+from ..helpers import ride_public, can_cancel, is_departed, is_completed_after_arrival
 from ..notifications import send_notification
 
 router = APIRouter(prefix="/rides", tags=["rides"])
+
+
+async def auto_mark_departed_rides() -> None:
+    """
+    Lazily advance ride lifecycle by time:
+    - ride.status: published -> departed
+    - pending requests for that ride -> cancelled
+    - affected passengers receive in-app notification
+    - ride.status: departed -> completed (after arrival + 10 min)
+    - confirmed requests for that ride -> completed
+    """
+    db = get_db()
+    published = await db.rides.find({"status": "published"}, {"_id": 0}).to_list(500)
+    for ride in published:
+        if not is_departed(ride["date"], ride["depart_time"]):
+            continue
+
+        # Move status once; if already updated by another request, skip side-effects.
+        result = await db.rides.update_one(
+            {"id": ride["id"], "status": "published"},
+            {"$set": {"status": "departed"}},
+        )
+        if result.matched_count == 0:
+            continue
+
+        pending_requests = await db.requests.find(
+            {"ride_id": ride["id"], "status": "pending"},
+            {"_id": 0},
+        ).to_list(500)
+        if pending_requests:
+            await db.requests.update_many(
+                {"ride_id": ride["id"], "status": "pending"},
+                {"$set": {"status": "cancelled"}},
+            )
+            for req in pending_requests:
+                await send_notification(
+                    recipient_phone=req["user_phone"],
+                    title="Ride Departed",
+                    body=(
+                        f"Your pending request for the {ride['date']} ride to "
+                        f"{ride['to_city']} was auto-cancelled because the ride has departed."
+                    ),
+                    data={"type": "ride_departed", "ride_id": ride["id"], "request_id": req["id"]},
+                )
+
+    # Complete departed rides once arrival time + grace period has elapsed.
+    departed = await db.rides.find({"status": "departed"}, {"_id": 0}).to_list(500)
+    for ride in departed:
+        if not is_completed_after_arrival(ride["date"], ride["arrive_time"], grace_minutes=10):
+            continue
+        result = await db.rides.update_one(
+            {"id": ride["id"], "status": "departed"},
+            {"$set": {"status": "completed"}},
+        )
+        if result.matched_count == 0:
+            continue
+        await db.requests.update_many(
+            {"ride_id": ride["id"], "status": "confirmed"},
+            {"$set": {"status": "completed"}},
+        )
 
 
 @router.post("", response_model=Ride)
@@ -48,6 +108,7 @@ async def list_rides(
     # Default listing is passenger-safe (published only). Driver-specific query
     # can include non-published records for management screens.
     db = get_db()
+    await auto_mark_departed_rides()
     q: dict = {"status": "published"}
     if from_city:
         q["from_city"] = from_city
@@ -64,6 +125,7 @@ async def list_rides(
 
 @router.get("/{ride_id}")
 async def get_ride(ride_id: str):
+    await auto_mark_departed_rides()
     db = get_db()
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:

@@ -57,7 +57,7 @@ Represents published trips by drivers.
 | `total_seats` | number | yes | Vehicle capacity |
 | `booked_seats` | number[] | yes | Offline + confirmed online seats combined |
 | `offline_seats` | number[] | yes | Driver-blocked seats |
-| `status` | `published \| cancelled \| completed` | yes | Default `published` |
+| `status` | `published \| departed \| cancelled \| completed` | yes | Default `published` |
 | `created_at` | ISO string | yes | UTC timestamp |
 
 ### Computed API field
@@ -76,7 +76,7 @@ Represents passenger seat booking requests and ticket snapshot.
 | `user_name` | string | yes | Passenger snapshot |
 | `seat_numbers` | number[] | yes | Requested seats |
 | `total_price` | number | yes | `ride.price * seats count` |
-| `status` | `pending \| confirmed \| rejected \| cancelled` | yes | Default `pending` |
+| `status` | `pending \| confirmed \| rejected \| cancelled \| completed` | yes | Default `pending` |
 | `created_at` | ISO string | yes | UTC timestamp |
 | `from_city` | string | yes | Route snapshot |
 | `to_city` | string | yes | Route snapshot |
@@ -115,6 +115,7 @@ Frontend polls this collection every 30 seconds via `GET /api/notifications`.
 | `booking_rejected` | Driver rejects request | Passenger |
 | `booking_cancelled` | Passenger cancels confirmed booking | Driver |
 | `ride_cancelled` | Driver cancels ride | Each affected passenger |
+| `ride_departed` | Ride auto-marked departed; pending request auto-cancelled | Each affected passenger |
 
 ## Collection: `meta`
 Used for schema/version control.
@@ -128,9 +129,16 @@ Used for schema/version control.
 ## State Transitions
 ### Ride status
 ```
+published → departed
 published → cancelled
 published → completed  (reserved for future use)
+departed → completed    (after arrive_time + 10 minutes)
 ```
+
+`published → departed` is applied lazily during ride/request read endpoints once departure time has passed.
+When this transition happens, pending requests on that ride are auto-cancelled.
+`departed → completed` is also applied lazily once `arrive_time + 10 minutes` has passed.
+When this transition happens, confirmed requests on that ride are auto-updated to `completed`.
 
 ### Booking request status
 ```
@@ -138,6 +146,7 @@ pending → confirmed
 pending → rejected
 pending → cancelled
 confirmed → cancelled
+confirmed → completed
 ```
 
 ## Seat Consistency Rules

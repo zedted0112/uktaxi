@@ -56,6 +56,12 @@ export type AppNotification = {
   created_at: string;
 };
 
+export type ApiRootResponse = {
+  message: string;
+  schema: number;
+  demo_mode: boolean;
+};
+
 export type Vehicle = {
   id: string;
   name: string;
@@ -86,7 +92,7 @@ export type Ride = {
   booked_seats: number[];
   offline_seats: number[];
   seats_left: number;
-  status: 'published' | 'cancelled' | 'completed';
+  status: 'published' | 'departed' | 'cancelled' | 'completed';
   created_at: string;
 };
 
@@ -98,7 +104,7 @@ export type BookingRequest = {
   user_name: string;
   seat_numbers: number[];
   total_price: number;
-  status: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'completed';
   created_at: string;
   from_city: string;
   to_city: string;
@@ -148,6 +154,9 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
+  /** Health + flags (`demo_mode` mirrors backend `ENABLE_DEMO_MODE`). */
+  getApiRoot: () => req<ApiRootResponse>('/'),
+
   // auth
   requestOtp: (phone: string) => req<{ ok: boolean; message: string }>(`/auth/request-otp`, {
     method: 'POST', body: JSON.stringify({ phone }),

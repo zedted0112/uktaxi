@@ -9,11 +9,11 @@
 ## Health and Demo
 
 ### `GET /`
-Returns API identity and schema version.
+Returns API identity, schema version, and demo-mode flag.
 
 Response:
 ```json
-{ "message": "Uttarkashi Taxi Union API", "schema": 5 }
+{ "message": "Uttarkashi Taxi Union API", "schema": 5, "demo_mode": true }
 ```
 
 ### `GET /demo/accounts`
@@ -132,6 +132,10 @@ List rides with optional filters:
 Notes:
 - Without `driver_phone`, only `published` rides are returned.
 - Returns computed `seats_left`.
+- Before response, backend lazily auto-marks past-departure `published` rides as `departed`.
+- When auto-marking to `departed`, all pending requests for that ride are auto-cancelled and affected passengers are notified.
+- Before response, backend also marks `departed` rides as `completed` once `arrive_time + 10 minutes` is crossed.
+- On that completion transition, related `confirmed` requests are auto-updated to `completed`.
 
 ### `GET /rides/{ride_id}`
 Returns single ride with computed `seats_left`.
@@ -197,6 +201,11 @@ Query params:
 - `driver_phone` (optional)
 
 Returns sorted list (newest first).
+- Before response, backend runs the same lazy departure sync:
+  - past `published` rides -> `departed`
+  - related `pending` requests -> `cancelled`
+  - past `departed` rides with arrival+10 crossed -> `completed`
+  - related `confirmed` requests -> `completed`
 
 ### `GET /requests/{req_id}`
 Returns one booking request.
@@ -210,6 +219,7 @@ Confirms a pending request, books seats on ride, writes a notification to the pa
 Errors:
 - `404 Request not found`
 - `404 Ride not found`
+- `400 Cannot confirm request for a departed ride`
 - `400 Cannot confirm a <status> request`
 - `400 Seat <n> already booked`
 
@@ -264,5 +274,5 @@ Response:
 
 ## Status Enums
 - User role: `user | driver`
-- Ride status: `published | cancelled | completed`
-- Request status: `pending | confirmed | rejected | cancelled`
+- Ride status: `published | departed | cancelled | completed`
+- Request status: `pending | confirmed | rejected | cancelled | completed`

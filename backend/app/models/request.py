@@ -12,7 +12,7 @@ class BookingRequest(BaseModel):
     user_name: str
     seat_numbers: List[int]
     total_price: int
-    status: Literal["pending", "confirmed", "rejected", "cancelled"] = "pending"
+    status: Literal["pending", "confirmed", "rejected", "cancelled", "completed"] = "pending"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     # Snapshot fields from the ride at booking time
     from_city: str

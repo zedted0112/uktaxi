@@ -66,20 +66,45 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>(LOCAL_DEMOS);
+  /** Mirrors backend `GET /api/` `demo_mode`; false until server responds or on error. */
+  const [demoUiEnabled, setDemoUiEnabled] = useState(false);
+  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
-    api.demoAccounts()
-      .then((remote) => {
-        const merged = new Map<string, DemoAccount>();
-        LOCAL_DEMOS.forEach((d) => merged.set(d.phone, d));
-        remote.forEach((r) => merged.set(r.phone, { ...merged.get(r.phone), ...r }));
-        setDemoAccts(Array.from(merged.values()));
-      })
-      .catch(() => setDemoAccts(LOCAL_DEMOS));
+    let cancelled = false;
+    (async () => {
+      try {
+        const root = await api.getApiRoot();
+        if (cancelled) return;
+        const enabled = root.demo_mode === true;
+        setDemoUiEnabled(enabled);
+        if (!enabled) {
+          setDemoAccts([]);
+          return;
+        }
+        try {
+          const remote = await api.demoAccounts();
+          if (cancelled) return;
+          const merged = new Map<string, DemoAccount>();
+          LOCAL_DEMOS.forEach((d) => merged.set(d.phone, d));
+          remote.forEach((r) => merged.set(r.phone, { ...merged.get(r.phone), ...r }));
+          setDemoAccts(Array.from(merged.values()));
+        } catch {
+          if (!cancelled) setDemoAccts([...LOCAL_DEMOS]);
+        }
+      } catch {
+        if (!cancelled) {
+          setDemoUiEnabled(false);
+          setDemoAccts([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -129,7 +154,14 @@ export default function Auth() {
   };
 
   const verifyOtp = async () => {
-    if (otp.length !== 6) return Alert.alert('Invalid OTP', 'Please enter the 6-digit code (try 123456)');
+    if (otp.length !== 6) {
+      return Alert.alert(
+        'Invalid OTP',
+        demoUiEnabled
+          ? 'Please enter the 6-digit code (try 123456 in demo)'
+          : 'Please enter the 6-digit code sent to your phone',
+      );
+    }
     setLoading(true);
     try {
       const res = await api.verifyOtp(phone, otp);
@@ -141,7 +173,11 @@ export default function Auth() {
         setStep(role === 'driver' ? 'onboard_driver' : 'onboard_passenger');
       }
     } catch (e: any) {
-      Alert.alert('Verification failed', e?.message || 'Please try OTP 123456');
+      Alert.alert(
+        'Verification failed',
+        e?.message ||
+          (demoUiEnabled ? 'Please try OTP 123456' : 'Check the code and try again'),
+      );
     } finally { setLoading(false); }
   };
 
@@ -196,56 +232,59 @@ export default function Auth() {
         {step === 'role_select' && (
           <View style={styles.card} testID="role-select-step">
 
-            {/* Demo toggle */}
-            <View style={styles.demoToggleRow}>
-              <Text style={styles.demoToggleLabel}>Quick Demo Access</Text>
-              <TouchableOpacity
-                onPress={() => setShowDemo((p) => !p)}
-                style={[styles.demoToggleBtn, showDemo && styles.demoToggleBtnActive]}
-                testID="demo-toggle-btn"
-              >
-                <Text style={[styles.demoToggleBtnTxt, showDemo && styles.demoToggleBtnTxtActive]}>
-                  {showDemo ? 'Hide' : 'Demo'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {showDemo && demoAccts.length > 0 && (
-              <View style={styles.demoBox} testID="demo-box">
-                <View style={styles.demoHead}>
-                  <MaterialCommunityIcons name="flash-outline" size={16} color={colors.greenDark} />
-                  <Text style={styles.demoHeadTxt}>Demo · tap to sign in instantly</Text>
-                </View>
-                {demoAccts.map((a) => (
+            {demoUiEnabled && (
+              <>
+                <View style={styles.demoToggleRow}>
+                  <Text style={styles.demoToggleLabel}>Quick Demo Access</Text>
                   <TouchableOpacity
-                    key={a.phone}
-                    style={styles.demoRow}
-                    disabled={quickLoading !== null}
-                    onPress={() => quickSignIn(a)}
-                    testID={`demo-${a.phone.replace(/\D/g, '')}`}
+                    onPress={() => setShowDemo((p) => !p)}
+                    style={[styles.demoToggleBtn, showDemo && styles.demoToggleBtnActive]}
+                    testID="demo-toggle-btn"
                   >
-                    <View style={[styles.demoAvatar, a.role === 'driver' && { backgroundColor: colors.black }]}>
-                      {a.role === 'driver'
-                        ? <MaterialCommunityIcons name="steering" size={16} color="#fff" />
-                        : <Feather name="user" size={16} color={colors.textPrimary} />}
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.demoName}>{a.name}</Text>
-                      <Text style={styles.demoMeta}>
-                        {a.role === 'driver' ? `${a.vehicle_type} • ${a.total_seats} seats` : 'Passenger'}
-                      </Text>
-                    </View>
-                    {quickLoading === a.phone
-                      ? <ActivityIndicator color={colors.green} size="small" />
-                      : <Feather name="arrow-right" size={16} color={colors.textMuted} />}
+                    <Text style={[styles.demoToggleBtnTxt, showDemo && styles.demoToggleBtnTxtActive]}>
+                      {showDemo ? 'Hide' : 'Demo'}
+                    </Text>
                   </TouchableOpacity>
-                ))}
-                <View style={styles.dividerWrap}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerTxt}>OR CONTINUE BELOW</Text>
-                  <View style={styles.dividerLine} />
                 </View>
-              </View>
+
+                {showDemo && demoAccts.length > 0 && (
+                  <View style={styles.demoBox} testID="demo-box">
+                    <View style={styles.demoHead}>
+                      <MaterialCommunityIcons name="flash-outline" size={16} color={colors.greenDark} />
+                      <Text style={styles.demoHeadTxt}>Demo · tap to sign in instantly</Text>
+                    </View>
+                    {demoAccts.map((a) => (
+                      <TouchableOpacity
+                        key={a.phone}
+                        style={styles.demoRow}
+                        disabled={quickLoading !== null}
+                        onPress={() => quickSignIn(a)}
+                        testID={`demo-${a.phone.replace(/\D/g, '')}`}
+                      >
+                        <View style={[styles.demoAvatar, a.role === 'driver' && { backgroundColor: colors.black }]}>
+                          {a.role === 'driver'
+                            ? <MaterialCommunityIcons name="steering" size={16} color="#fff" />
+                            : <Feather name="user" size={16} color={colors.textPrimary} />}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.demoName}>{a.name}</Text>
+                          <Text style={styles.demoMeta}>
+                            {a.role === 'driver' ? `${a.vehicle_type} • ${a.total_seats} seats` : 'Passenger'}
+                          </Text>
+                        </View>
+                        {quickLoading === a.phone
+                          ? <ActivityIndicator color={colors.green} size="small" />
+                          : <Feather name="arrow-right" size={16} color={colors.textMuted} />}
+                      </TouchableOpacity>
+                    ))}
+                    <View style={styles.dividerWrap}>
+                      <View style={styles.dividerLine} />
+                      <Text style={styles.dividerTxt}>OR CONTINUE BELOW</Text>
+                      <View style={styles.dividerLine} />
+                    </View>
+                  </View>
+                )}
+              </>
             )}
 
             <Text style={styles.heading}>Welcome</Text>
@@ -349,7 +388,16 @@ export default function Auth() {
               <Text style={styles.backTxt}>{phone}</Text>
             </TouchableOpacity>
             <Text style={styles.heading}>Enter OTP</Text>
-            <Text style={styles.sub}>Sent to your phone · Use <Text style={{ color: colors.greenDark, fontFamily: fonts.bodySemiBold }}>123456</Text> in demo</Text>
+            <Text style={styles.sub}>
+              {demoUiEnabled ? (
+                <>
+                  Sent to your phone · Use{' '}
+                  <Text style={{ color: colors.greenDark, fontFamily: fonts.bodySemiBold }}>123456</Text> in demo
+                </>
+              ) : (
+                'Enter the 6-digit code sent to your phone'
+              )}
+            </Text>
             <TextInput
               value={otp}
               onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}

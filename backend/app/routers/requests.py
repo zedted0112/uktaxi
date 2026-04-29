@@ -4,6 +4,7 @@ from ..database import get_db
 from ..models.request import BookingRequest, CreateRequestIn
 from ..helpers import generate_ref, can_cancel
 from ..notifications import send_notification
+from .rides import auto_mark_departed_rides
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
@@ -61,6 +62,7 @@ async def create_request(payload: CreateRequestIn):
 
 @router.get("", response_model=List[BookingRequest])
 async def list_requests(user_phone: Optional[str] = None, driver_phone: Optional[str] = None):
+    await auto_mark_departed_rides()
     db = get_db()
     q: dict = {}
     if user_phone:
@@ -73,6 +75,7 @@ async def list_requests(user_phone: Optional[str] = None, driver_phone: Optional
 
 @router.get("/{req_id}", response_model=BookingRequest)
 async def get_request(req_id: str):
+    await auto_mark_departed_rides()
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
@@ -93,6 +96,8 @@ async def confirm_request(req_id: str):
     ride = await db.rides.find_one({"id": r["ride_id"]}, {"_id": 0})
     if not ride:
         raise HTTPException(status_code=404, detail="Ride not found")
+    if ride["status"] != "published":
+        raise HTTPException(status_code=400, detail=f"Cannot confirm request for a {ride['status']} ride")
     booked = set(ride.get("booked_seats", []))
     for s in r["seat_numbers"]:
         if s in booked:

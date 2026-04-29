@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { fonts, radii } from '../theme';
 
-export type BadgeStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'published' | 'completed';
+export type BadgeStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'published' | 'departed' | 'completed';
 
 const STATUS_CONFIG: Record<BadgeStatus, { label: string; color: string; bg: string; icon?: React.ComponentProps<typeof Feather>['name'] }> = {
   pending:   { label: 'PENDING',   color: '#B45309', bg: '#FEF3C7', icon: 'clock' },
@@ -10,6 +10,7 @@ const STATUS_CONFIG: Record<BadgeStatus, { label: string; color: string; bg: str
   rejected:  { label: 'REJECTED',  color: '#B91C1C', bg: '#FEE2E2', icon: 'x-circle' },
   cancelled: { label: 'CANCELLED', color: '#4B5563', bg: '#E5E7EB', icon: 'slash' },
   published: { label: 'PUBLISHED', color: '#059669', bg: '#D1FAE5' },
+  departed:  { label: 'DEPARTED',  color: '#B45309', bg: '#FEF3C7', icon: 'clock' },
   completed: { label: 'COMPLETED', color: '#4B5563', bg: '#E5E7EB' },
 };
 
