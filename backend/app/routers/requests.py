@@ -10,6 +10,8 @@ router = APIRouter(prefix="/requests", tags=["requests"])
 
 @router.post("", response_model=BookingRequest)
 async def create_request(payload: CreateRequestIn):
+    # Booking creation validates seat availability against both confirmed seats
+    # and pending requests to reduce double-allocation risk.
     db = get_db()
     ride = await db.rides.find_one({"id": payload.ride_id}, {"_id": 0})
     if not ride or ride["status"] != "published":
@@ -46,6 +48,7 @@ async def create_request(payload: CreateRequestIn):
     )
     await db.requests.insert_one(req.dict())
 
+    # Driver receives an in-app notification for every new passenger request.
     await send_notification(
         recipient_phone=ride["driver_phone"],
         title="New Seat Request",
@@ -79,6 +82,8 @@ async def get_request(req_id: str):
 
 @router.post("/{req_id}/confirm", response_model=BookingRequest)
 async def confirm_request(req_id: str):
+    # Confirmation moves seats from "requested" to "booked" on the ride and
+    # transitions request state in one handler.
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
@@ -97,6 +102,7 @@ async def confirm_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "confirmed"}})
     r["status"] = "confirmed"
 
+    # Passenger is notified so ticket state can be checked from alerts tab.
     await send_notification(
         recipient_phone=r["user_phone"],
         title="Booking Confirmed!",
@@ -109,6 +115,7 @@ async def confirm_request(req_id: str):
 
 @router.post("/{req_id}/reject", response_model=BookingRequest)
 async def reject_request(req_id: str):
+    # Rejection is allowed only for pending requests to preserve state integrity.
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
@@ -118,6 +125,7 @@ async def reject_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "rejected"}})
     r["status"] = "rejected"
 
+    # Passenger receives a rejection event in the in-app inbox.
     await send_notification(
         recipient_phone=r["user_phone"],
         title="Booking Not Accepted",
@@ -130,6 +138,7 @@ async def reject_request(req_id: str):
 
 @router.post("/{req_id}/cancel", response_model=BookingRequest)
 async def cancel_request(req_id: str):
+    # Passenger cancellation respects the same departure cutoff as ride cancel.
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
@@ -139,6 +148,7 @@ async def cancel_request(req_id: str):
     if not can_cancel(r["date"], r["depart_time"]):
         raise HTTPException(status_code=400, detail="Cannot cancel within 30 minutes of departure")
     if r["status"] == "confirmed":
+        # Confirmed seats are released back to ride inventory on cancellation.
         ride = await db.rides.find_one({"id": r["ride_id"]}, {"_id": 0})
         if ride:
             freed = [s for s in ride.get("booked_seats", []) if s not in r["seat_numbers"]]
@@ -146,6 +156,7 @@ async def cancel_request(req_id: str):
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "cancelled"}})
     r["status"] = "cancelled"
 
+    # Driver gets a cancellation notice so seat management stays in sync.
     await send_notification(
         recipient_phone=r["driver_phone"],
         title="Booking Cancelled",

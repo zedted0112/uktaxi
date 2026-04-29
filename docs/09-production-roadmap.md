@@ -148,11 +148,6 @@ Add to FastAPI (use `slowapi` package):
 - OTP request: max 3 per phone per 10 minutes
 - Register: max 5 per IP per hour
 
-### 4.3 Secrets Hygiene
-
-- Move `backend/.env` out of git (add to `.gitignore` if not already)
-- Use environment variables in your deployment platform — never commit production credentials
-- Rotate the current MongoDB Atlas credentials (they have been in git history)
 
 ### 4.4 MongoDB Atlas Indexes
 
@@ -211,7 +206,6 @@ If you want in-app payment:
 | 10 | Rate limiting | 4 | 2 hrs |
 | 11 | MongoDB Atlas indexes | 4 | 1 hr |
 | 12 | Privacy policy + Data Safety form | 4 | 2 hrs |
-| 13 | Rotate leaked DB credentials | 4 | 30 min |
 | 14 | EAS production build + Play submission | 5 | 2 hrs |
 
 **Total estimated effort: 8–12 focused working days.**

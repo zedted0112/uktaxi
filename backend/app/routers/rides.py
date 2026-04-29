@@ -10,6 +10,8 @@ router = APIRouter(prefix="/rides", tags=["rides"])
 
 @router.post("", response_model=Ride)
 async def publish_ride(payload: PublishRideIn):
+    # Ride publishing copies vehicle snapshot data from driver profile so later
+    # profile edits do not rewrite historical ride records.
     db = get_db()
     driver = await db.users.find_one({"phone": payload.driver_phone, "role": "driver"}, {"_id": 0})
     if not driver:
@@ -43,6 +45,8 @@ async def list_rides(
     date: Optional[str] = None,
     driver_phone: Optional[str] = None,
 ):
+    # Default listing is passenger-safe (published only). Driver-specific query
+    # can include non-published records for management screens.
     db = get_db()
     q: dict = {"status": "published"}
     if from_city:
@@ -69,6 +73,8 @@ async def get_ride(ride_id: str):
 
 @router.post("/{ride_id}/offline-seats", response_model=Ride)
 async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
+    # Offline-seat edits preserve already confirmed online seats so driver
+    # manual blocks never overwrite paid/accepted passenger allocations.
     db = get_db()
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:
@@ -95,6 +101,8 @@ async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
 
 @router.post("/{ride_id}/cancel")
 async def cancel_ride(ride_id: str):
+    # Ride cancellation cascades to active requests and informs affected
+    # passengers through the in-app notification stream.
     db = get_db()
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:

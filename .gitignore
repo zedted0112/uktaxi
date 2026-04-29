@@ -84,6 +84,8 @@ android-sdk/
 # Environment and credential files
 .env
 .env.*
+# Allow committed templates (negate after .env.*)
+!**/.env.example
 *.env
 credentials.json
 *.pem

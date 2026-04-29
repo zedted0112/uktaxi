@@ -22,12 +22,16 @@ Create the file (not committed to git):
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=uktaxi
 CORS_ORIGINS=*
+ENABLE_DEMO_MODE=true
 ```
 For MongoDB Atlas:
 ```env
 MONGO_URL=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net
 DB_NAME=uktaxi
+ENABLE_DEMO_MODE=true
 ```
+
+`ENABLE_DEMO_MODE=false` skips startup demo seed and disables `GET /api/demo/accounts` (production-style). See [`backend/.env.example`](../backend/.env.example).
 
 ### Frontend (`frontend/.env`)
 ```env
@@ -54,6 +58,16 @@ yarn install
 ```
 
 ## Run Services
+
+### One script (backend + Expo QR in one terminal)
+
+From repo root (requires `backend/.venv` and `frontend/node_modules` already created):
+
+```bash
+./scripts/quick-start.sh
+```
+
+Optional: `BACKEND_PORT`, `FRONTEND_PORT`, or `EXPO_TUNNEL=1` for `npx expo --tunnel`. See [README.md](../README.md#quick-start-one-command).
 
 ### Start backend
 ```bash
@@ -127,7 +141,3 @@ lsof -ti:8000 | xargs kill -9   # kill backend port
 lsof -ti:8081 | xargs kill -9   # kill Metro port
 ```
 
-## Git Hygiene Notes
-- Metro cache under `frontend/.metro-cache` produces large numbers of generated files.
-- These are excluded by `.gitignore` — do not commit them.
-- `backend/.env` and `frontend/.env` are also excluded — never commit secrets.

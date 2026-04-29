@@ -10,12 +10,16 @@ logger = logging.getLogger(__name__)
 
 @router.post("/request-otp")
 async def request_otp(payload: OtpRequest):
+    # Demo mode always accepts a synthetic OTP flow so frontend onboarding can
+    # be developed before integrating a real SMS provider.
     logger.info(f"OTP requested for {payload.phone}")
     return {"ok": True, "message": "Use OTP 123456 (any 6-digit also accepted in demo)"}
 
 
 @router.post("/verify-otp")
 async def verify_otp(payload: OtpVerify):
+    # Validation stays intentionally lightweight: it verifies format and then
+    # returns existing user record if the phone already exists.
     if len(payload.otp) != 6 or not payload.otp.isdigit():
         raise HTTPException(status_code=400, detail="Invalid OTP")
     db = get_db()
@@ -25,12 +29,16 @@ async def verify_otp(payload: OtpVerify):
 
 @router.post("/register", response_model=User)
 async def register_user(payload: RegisterIn):
+    # Registration is idempotent by phone number. If the user already exists,
+    # the same profile is returned instead of creating duplicates.
     db = get_db()
     existing = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
     if existing:
         return User(**existing)
     data = payload.dict()
     if payload.role == "driver":
+        # Driver accounts are enriched from vehicle presets so seat layout and
+        # capacity stay standardized across ride creation.
         preset = VEHICLES.get(payload.vehicle_preset or "")
         if not preset:
             raise HTTPException(status_code=400, detail="Invalid vehicle preset")
@@ -47,6 +55,7 @@ async def register_user(payload: RegisterIn):
 
 @router.get("/me")
 async def me(phone: str):
+    # Frontend session restore calls this endpoint to refresh user profile.
     db = get_db()
     u = await db.users.find_one({"phone": phone}, {"_id": 0})
     if not u:
