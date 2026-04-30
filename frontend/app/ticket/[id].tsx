@@ -44,6 +44,7 @@ export default function Ticket() {
     b.status === 'confirmed' ? 'Confirmed by Driver' :
     b.status === 'pending' ? 'Awaiting Driver Confirmation' :
     b.status === 'rejected' ? 'Rejected by Driver' : 'Cancelled';
+  const bookingRefText = b.booking_ref || 'AWAITING CONFIRMATION';
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="ticket-screen">
@@ -83,7 +84,7 @@ export default function Ticket() {
 
           <View style={styles.dash} />
           <Text style={styles.label}>Booking Reference</Text>
-          <Text style={styles.ref} testID="ticket-ref">{b.booking_ref}</Text>
+          <Text style={styles.ref} testID="ticket-ref">{bookingRefText}</Text>
 
           <View style={styles.grid}>
             <View style={styles.gridItem}><Text style={styles.label}>Vehicle</Text><Text style={styles.gridVal}>{b.vehicle_number}</Text></View>
@@ -104,7 +105,7 @@ export default function Ticket() {
           <View style={styles.dash} />
           <View style={styles.barcodeWrap}>
             <Image source={{ uri: barcodeUri }} style={styles.barcode} resizeMode="stretch" />
-            <Text style={styles.barcodeTxt}>{b.booking_ref}</Text>
+            <Text style={styles.barcodeTxt}>{bookingRefText}</Text>
           </View>
           <View style={styles.notchLb} /><View style={styles.notchRb} />
         </View>

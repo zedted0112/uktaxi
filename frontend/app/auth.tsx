@@ -70,7 +70,7 @@ export default function Auth() {
   const [demoUiEnabled, setDemoUiEnabled] = useState(false);
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
-  const [showDemo, setShowDemo] = useState(false);
+  const [showDemo, setShowDemo] = useState(true);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});

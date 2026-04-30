@@ -1,12 +1,12 @@
-# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-04-30)
+# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-05-01)
 
 ## Corpus Check
-- 61 files · ~86,005 words
+- 61 files · ~86,110 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 233 nodes · 330 edges · 42 communities detected
-- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 78 edges (avg confidence: 0.75)
+- 233 nodes · 331 edges · 42 communities detected
+- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.75)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -301,7 +301,7 @@ Nodes (1): Returns True when departure is more than 30 minutes away (IST).
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `get_db()` connect `Community 1` to `Community 2`, `Community 3`, `Community 4`, `Community 6`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+  _High betweenness centrality (0.070) - this node is a cross-community bridge._
 - **Why does `me()` connect `Community 6` to `Community 1`, `Community 2`?**
   _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Are the 23 inferred relationships involving `get_db()` (e.g. with `send_notification()` and `startup_event()`) actually correct?**

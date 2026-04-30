@@ -111,10 +111,22 @@ async def ensure_indexes() -> None:
             DB_NAME,
         )
 
+    # Migrate booking_ref unique index to partial unique index so pending rows
+    # can omit booking_ref until driver confirmation.
+    req_indexes = await db.requests.index_information()
+    booking_ref_idx = req_indexes.get("requests_booking_ref_unique")
+    if booking_ref_idx and "partialFilterExpression" not in booking_ref_idx:
+        await db.requests.drop_index("requests_booking_ref_unique")
+
     await db.requests.create_indexes(
         [
             IndexModel([("id", ASCENDING)], name="requests_id_unique", unique=True),
-            IndexModel([("booking_ref", ASCENDING)], name="requests_booking_ref_unique", unique=True),
+            IndexModel(
+                [("booking_ref", ASCENDING)],
+                name="requests_booking_ref_unique",
+                unique=True,
+                partialFilterExpression={"booking_ref": {"$exists": True, "$type": "string"}},
+            ),
             IndexModel([("user_phone", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_user_status_created"),
             IndexModel([("ride_id", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_ride_status_created"),
             IndexModel([("driver_phone", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_driver_status_created"),

@@ -98,7 +98,7 @@ export type Ride = {
 
 export type BookingRequest = {
   id: string;
-  booking_ref: string;
+  booking_ref?: string | null;
   ride_id: string;
   user_phone: string;
   user_name: string;

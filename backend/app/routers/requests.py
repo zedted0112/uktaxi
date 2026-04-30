@@ -118,7 +118,6 @@ async def create_request(payload: CreateRequestIn):
         return BookingRequest(**updated)
 
     req = BookingRequest(
-        booking_ref=generate_ref(),
         ride_id=ride["id"],
         user_phone=canonical_phone,
         user_name=user["name"],
@@ -133,7 +132,7 @@ async def create_request(payload: CreateRequestIn):
         vehicle_type=ride["vehicle_type"], vehicle_number=ride["vehicle_number"],
         driver_name=ride["driver_name"], driver_phone=ride["driver_phone"],
     )
-    await db.requests.insert_one(req.dict())
+    await db.requests.insert_one(req.dict(exclude_none=True))
 
     # Driver receives an in-app notification for every new passenger request.
     await send_notification(
@@ -192,8 +191,13 @@ async def confirm_request(req_id: str, driver_phone: str):
             raise HTTPException(status_code=400, detail=f"Seat {s} already booked")
     new_booked = list(booked.union(set(r["seat_numbers"])))
     await db.rides.update_one({"id": ride["id"]}, {"$set": {"booked_seats": new_booked}})
-    await db.requests.update_one({"id": req_id}, {"$set": {"status": "confirmed"}})
+    booking_ref = r.get("booking_ref") or generate_ref()
+    await db.requests.update_one(
+        {"id": req_id},
+        {"$set": {"status": "confirmed", "booking_ref": booking_ref}},
+    )
     r["status"] = "confirmed"
+    r["booking_ref"] = booking_ref
 
     # Passenger is notified so ticket state can be checked from alerts tab.
     await send_notification(

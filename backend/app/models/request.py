@@ -14,7 +14,7 @@ class GuestPassenger(BaseModel):
 
 class BookingRequest(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    booking_ref: str
+    booking_ref: Optional[str] = None
     ride_id: str
     user_phone: str
     user_name: str

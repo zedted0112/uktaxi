@@ -428,7 +428,7 @@ class TestRequestFlow:
         assert req["status"] == "pending"
         assert req["seat_numbers"] == [4, 7]
         assert req["total_price"] == 350 * 2
-        assert req["booking_ref"].startswith("UTK-")
+        assert req.get("booking_ref") in (None, "")
         TestRequestFlow.req_id = req["id"]
 
     def test_reject_offline_seat(self, api):
@@ -459,7 +459,9 @@ class TestRequestFlow:
             timeout=20,
         )
         assert r.status_code == 200
-        assert r.json()["status"] == "confirmed"
+        confirmed = r.json()
+        assert confirmed["status"] == "confirmed"
+        assert confirmed.get("booking_ref", "").startswith("UTK-")
         ride = api.get(f"{API}/rides/{TestRequestFlow.ride_id}", timeout=20).json()
         for s in (4, 7, 9):
             assert s in ride["booked_seats"]

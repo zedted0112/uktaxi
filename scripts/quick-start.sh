@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Starts FastAPI (background) and Expo dev server (foreground) so you get one terminal with the QR code.
 # Usage from repo root: ./scripts/quick-start.sh
-# Optional: BACKEND_PORT=8000 FRONTEND_PORT=8081 EXPO_TUNNEL=1 ./scripts/quick-start.sh
+# Optional overrides:
+#   BACKEND_PORT=8000 FRONTEND_PORT=8081 ./scripts/quick-start.sh
+#   EXPO_TUNNEL=1 ./scripts/quick-start.sh   # enable tunnel when backend is publicly exposed
 
 set -euo pipefail
 
@@ -9,6 +11,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
 FRONTEND_PORT="${FRONTEND_PORT:-8081}"
 BACKEND_PID=""
+LOCAL_IP=""
 
 free_port() {
   local port="$1"
@@ -49,6 +52,10 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
+detect_local_ip() {
+  ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true
+}
+
 if [[ ! -d "${ROOT}/backend/.venv" ]]; then
   echo "Missing backend/.venv — run once:"
   echo "  cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt"
@@ -85,8 +92,17 @@ echo "Starting Expo on port ${FRONTEND_PORT} (QR below; Ctrl+C stops Expo and ba
 echo ""
 
 cd "${ROOT}/frontend"
+LOCAL_IP="$(detect_local_ip)"
+if [[ -n "${LOCAL_IP}" ]]; then
+  export EXPO_PUBLIC_BACKEND_URL="http://${LOCAL_IP}:${BACKEND_PORT}"
+  echo "Using phone-reachable backend URL: ${EXPO_PUBLIC_BACKEND_URL}"
+else
+  echo "Could not detect local IP; keeping EXPO_PUBLIC_BACKEND_URL as-is."
+fi
+
+EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
 EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
-if [[ "${EXPO_TUNNEL:-}" == "1" ]] || [[ "${EXPO_TUNNEL:-}" == "true" ]]; then
+if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
   EXPO_ARGS+=(--tunnel)
 fi
 
