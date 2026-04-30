@@ -117,6 +117,11 @@ export default function Requests() {
               </View>
               <Text style={styles.price}>₹{b.total_price}</Text>
             </View>
+            {(b.guest_passengers?.length || 0) > 0 && (
+              <Text style={styles.guestTxt}>
+                Guests: {b.guest_passengers?.map(g => `${g.name} (${g.phone}) - Seat ${g.seat_number}`).join(', ')}
+              </Text>
+            )}
             {b.status === 'pending' && (
               <View style={styles.actionRow}>
                 <TouchableOpacity style={styles.rejectBtn} onPress={() => reject(b)} testID={`reject-${b.id}`}>
@@ -164,6 +169,7 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaTxt: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textSecondary },
   price: { fontFamily: fonts.heading, fontSize: 18, color: colors.textPrimary, marginLeft: 'auto' },
+  guestTxt: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 8 },
   actionRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   rejectBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 11, borderWidth: 1, borderColor: '#FECACA', borderRadius: radii.full, backgroundColor: '#FEF2F2' },
   rejectTxt: { color: '#B91C1C', fontFamily: fonts.bodySemiBold, fontSize: 13 },

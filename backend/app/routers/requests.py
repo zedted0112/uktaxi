@@ -3,7 +3,7 @@ from typing import Optional, List
 import uuid
 from fastapi import APIRouter, HTTPException
 from ..database import get_db
-from ..models.request import BookingRequest, CreateRequestIn, SEAT_HOLD_MINUTES
+from ..models.request import BookingRequest, CreateRequestIn, SEAT_HOLD_MINUTES, GuestPassenger
 from ..helpers import generate_ref, can_cancel
 from ..notifications import send_notification
 from .rides import auto_mark_departed_rides
@@ -42,6 +42,23 @@ async def create_request(payload: CreateRequestIn):
 
     now = datetime.now(timezone.utc)
     canonical_phone = user["phone"]
+    confirmed_requests = await db.requests.find(
+        {"user_phone": canonical_phone, "status": "confirmed"}, {"_id": 0}
+    ).to_list(200)
+    confirmed_same_request = next((req for req in confirmed_requests if req["ride_id"] == payload.ride_id), None)
+    confirmed_same_ride = confirmed_same_request is not None
+    confirmed_other_ride = any(req["ride_id"] != payload.ride_id for req in confirmed_requests)
+    if confirmed_other_ride:
+        raise HTTPException(
+            status_code=400,
+            detail="You already have a confirmed booking on another ride",
+        )
+    if confirmed_same_ride and (not payload.guest_name or not payload.guest_phone):
+        raise HTTPException(
+            status_code=400,
+            detail="Guest name and phone are required for an additional seat on this ride",
+        )
+
     pending_count = await db.requests.count_documents({"user_phone": canonical_phone, "status": "pending"})
     if pending_count >= 4:
         raise HTTPException(status_code=400, detail="Maximum 4 active pending requests allowed")
@@ -59,6 +76,47 @@ async def create_request(payload: CreateRequestIn):
             raise HTTPException(status_code=400, detail=f"Seat {s} pending another request")
         if s not in all_seats:
             raise HTTPException(status_code=400, detail=f"Invalid seat {s}")
+
+    if confirmed_same_request:
+        if len(payload.seat_numbers) != 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Add one guest seat at a time on an existing confirmed booking",
+            )
+        seat_number = payload.seat_numbers[0]
+        guest_passengers = list(confirmed_same_request.get("guest_passengers", []))
+        guest_passengers.append(
+            GuestPassenger(
+                seat_number=seat_number,
+                name=payload.guest_name.strip(),
+                phone=payload.guest_phone.strip(),
+            ).dict()
+        )
+        merged_seats = list(set(confirmed_same_request.get("seat_numbers", []) + [seat_number]))
+        merged_total = int(confirmed_same_request.get("total_price", 0)) + int(ride["price"])
+
+        await db.rides.update_one(
+            {"id": ride["id"]},
+            {"$set": {"booked_seats": list(booked.union({seat_number}))}},
+        )
+        await db.requests.update_one(
+            {"id": confirmed_same_request["id"], "status": "confirmed"},
+            {"$set": {"seat_numbers": merged_seats, "total_price": merged_total, "guest_passengers": guest_passengers}},
+        )
+        updated = await db.requests.find_one({"id": confirmed_same_request["id"]}, {"_id": 0})
+        if updated is None:
+            raise HTTPException(status_code=500, detail="Failed to update confirmed booking")
+        await send_notification(
+            recipient_phone=ride["driver_phone"],
+            title="Guest Added To Booking",
+            body=(
+                f"{user['name']} added guest {payload.guest_name.strip()} "
+                f"on seat {seat_number} for {ride['date']}."
+            ),
+            data={"type": "guest_added", "request_id": updated["id"], "ride_id": ride["id"]},
+        )
+        return BookingRequest(**updated)
+
     req = BookingRequest(
         booking_ref=generate_ref(),
         ride_id=ride["id"],
@@ -67,6 +125,7 @@ async def create_request(payload: CreateRequestIn):
         seat_numbers=payload.seat_numbers,
         total_price=ride["price"] * len(payload.seat_numbers),
         hold_expires_at=(now + timedelta(minutes=SEAT_HOLD_MINUTES)).replace(microsecond=0).isoformat(),
+        guest_passengers=[],
         from_city=ride["from_city"], to_city=ride["to_city"],
         from_stand=ride["from_stand"], to_stand=ride["to_stand"],
         date=ride["date"], depart_time=ride["depart_time"],

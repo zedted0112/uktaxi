@@ -6,6 +6,12 @@ from pydantic import BaseModel, Field
 SEAT_HOLD_MINUTES = 2
 
 
+class GuestPassenger(BaseModel):
+    seat_number: int
+    name: str
+    phone: str
+
+
 class BookingRequest(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     booking_ref: str
@@ -20,6 +26,7 @@ class BookingRequest(BaseModel):
         default_factory=lambda: (datetime.now(timezone.utc) + timedelta(minutes=SEAT_HOLD_MINUTES)).isoformat()
     )
     cancel_reason: Optional[str] = None
+    guest_passengers: List[GuestPassenger] = Field(default_factory=list)
     # Snapshot fields from the ride at booking time
     from_city: str
     to_city: str
@@ -39,3 +46,5 @@ class CreateRequestIn(BaseModel):
     ride_id: str
     user_phone: str
     seat_numbers: List[int]
+    guest_name: Optional[str] = None
+    guest_phone: Optional[str] = None

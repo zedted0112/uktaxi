@@ -78,6 +78,8 @@ async def publish_ride(payload: PublishRideIn):
         raise HTTPException(status_code=404, detail="Driver not found")
     if not driver.get("seat_layout"):
         raise HTTPException(status_code=400, detail="Driver has no vehicle set up")
+    if is_departed(payload.date, payload.depart_time):
+        raise HTTPException(status_code=400, detail="Departure time already passed")
     all_seats = {s for row in driver["seat_layout"] for s in row}
     for s in payload.offline_seats:
         if s not in all_seats:

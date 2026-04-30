@@ -106,6 +106,11 @@ export type BookingRequest = {
   total_price: number;
   status: 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'completed';
   created_at: string;
+  guest_passengers?: Array<{
+    seat_number: number;
+    name: string;
+    phone: string;
+  }>;
   from_city: string;
   to_city: string;
   from_stand: string;
@@ -185,7 +190,13 @@ export const api = {
   cancelRide: (id: string) => req<{ ok: boolean }>(`/rides/${id}/cancel`, { method: 'POST' }),
 
   // requests
-  createRequest: (payload: { ride_id: string; user_phone: string; seat_numbers: number[] }) =>
+  createRequest: (payload: {
+    ride_id: string;
+    user_phone: string;
+    seat_numbers: number[];
+    guest_name?: string;
+    guest_phone?: string;
+  }) =>
     req<BookingRequest>(`/requests`, { method: 'POST', body: JSON.stringify(payload) }),
   listRequests: (params: { user_phone?: string; driver_phone?: string } = {}) => {
     const q = new URLSearchParams();

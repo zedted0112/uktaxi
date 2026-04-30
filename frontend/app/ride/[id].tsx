@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,6 +20,9 @@ export default function RideDetail() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -62,17 +65,36 @@ export default function RideDetail() {
 
   const total = selected.length * ride.price;
 
-  const request = async () => {
+  const submitRequest = async (guest?: { guest_name: string; guest_phone: string }) => {
     if (!user || selected.length === 0) return;
     setSubmitting(true);
     try {
       const req = await api.createRequest({
-        ride_id: ride.id, user_phone: user.phone, seat_numbers: selected,
+        ride_id: ride.id, user_phone: user.phone, seat_numbers: selected, ...guest,
       });
       router.replace(`/ticket/${req.id}`);
     } catch (e: any) {
       Alert.alert('Request failed', e?.message || 'Try again');
     } finally { setSubmitting(false); }
+  };
+
+  const request = async () => {
+    if (!user || selected.length === 0) return;
+    try {
+      const myReqs = await api.listRequests({ user_phone: user.phone });
+      const hasConfirmedSameRide = myReqs.some(r => r.status === 'confirmed' && r.ride_id === ride.id);
+      if (hasConfirmedSameRide) {
+        if (selected.length !== 1) {
+          Alert.alert('Guest booking', 'Please select exactly one seat for guest add-on.');
+          return;
+        }
+        setGuestModalOpen(true);
+        return;
+      }
+      await submitRequest();
+    } catch (e: any) {
+      Alert.alert('Request failed', e?.message || 'Try again');
+    }
   };
 
   const cancelRide = async () => {
@@ -154,6 +176,59 @@ export default function RideDetail() {
           </TouchableOpacity>
         </View>
       )}
+      <Modal
+        visible={guestModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setGuestModalOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Guest details required</Text>
+            <Text style={styles.modalSubtitle}>You already have a confirmed seat on this ride. Add guest details for this extra seat.</Text>
+            <TextInput
+              value={guestName}
+              onChangeText={setGuestName}
+              placeholder="Guest name"
+              style={styles.modalInput}
+              testID="guest-name-input"
+            />
+            <TextInput
+              value={guestPhone}
+              onChangeText={setGuestPhone}
+              placeholder="Guest phone"
+              keyboardType="phone-pad"
+              style={styles.modalInput}
+              testID="guest-phone-input"
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancel}
+                onPress={() => setGuestModalOpen(false)}
+                testID="guest-cancel-btn"
+              >
+                <Text style={styles.modalCancelTxt}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirm}
+                onPress={async () => {
+                  const gName = guestName.trim();
+                  const gPhone = guestPhone.trim();
+                  if (!gName || !gPhone) {
+                    Alert.alert('Missing info', 'Please fill guest name and phone');
+                    return;
+                  }
+                  setGuestModalOpen(false);
+                  await submitRequest({ guest_name: gName, guest_phone: gPhone });
+                }}
+                testID="guest-confirm-btn"
+              >
+                <Text style={styles.modalConfirmTxt}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -189,4 +264,14 @@ const styles = StyleSheet.create({
   bookBtnTxt: { color: '#fff', fontFamily: fonts.bodySemiBold, fontSize: 14 },
   cancelRideBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20, paddingVertical: 13, borderWidth: 1, borderColor: '#FECACA', borderRadius: radii.full, backgroundColor: '#FEF2F2' },
   cancelRideTxt: { color: '#B91C1C', fontFamily: fonts.bodySemiBold, fontSize: 13 },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  modalCard: { width: '100%', backgroundColor: colors.surface, borderRadius: radii.lg, padding: 18, borderWidth: 1, borderColor: colors.border },
+  modalTitle: { fontFamily: fonts.heading, fontSize: 20, color: colors.textPrimary },
+  modalSubtitle: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 6, marginBottom: 12 },
+  modalInput: { borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, paddingHorizontal: 12, paddingVertical: 10, marginTop: 8, fontFamily: fonts.body, fontSize: 14, color: colors.textPrimary },
+  modalActions: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  modalCancel: { flex: 1, borderRadius: radii.full, borderWidth: 1, borderColor: colors.border, paddingVertical: 11, alignItems: 'center' },
+  modalCancelTxt: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary },
+  modalConfirm: { flex: 1, borderRadius: radii.full, backgroundColor: colors.green, paddingVertical: 11, alignItems: 'center' },
+  modalConfirmTxt: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: '#fff' },
 });

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
@@ -41,6 +41,15 @@ const STANDS: Record<string, string> = {
   Rishikesh: 'Rishikesh Tapovan',
 };
 
+function parseSlotDateTime(dateIso: string, dep: string): Date {
+  const [time, meridiem] = dep.split(' ');
+  const [hh, mm] = time.split(':').map(Number);
+  let hours = hh % 12;
+  if (meridiem === 'PM') hours += 12;
+  const [y, m, d] = dateIso.split('-').map(Number);
+  return new Date(y, m - 1, d, hours, mm, 0, 0);
+}
+
 export default function Publish() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -59,15 +68,27 @@ export default function Publish() {
 
   const statusOf = (n: number): SeatStatus => offline.includes(n) ? 'offline' : 'available';
   const toggleOffline = (n: number) => setOffline(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const availableTimes = useMemo(() => {
+    const now = new Date();
+    return TIMES.filter(t => date !== todayIso || parseSlotDateTime(date, t.dep) > now);
+  }, [date, todayIso]);
+
+  useEffect(() => {
+    if (timeIdx >= availableTimes.length) setTimeIdx(0);
+  }, [availableTimes.length, timeIdx]);
 
   const onPublish = async () => {
     if (!user) return;
     if (from === to) return Alert.alert('Invalid', 'From and To cannot be same');
     const p = parseInt(price, 10);
     if (isNaN(p) || p <= 0) return Alert.alert('Invalid', 'Price must be a positive number');
+    if (availableTimes.length === 0) {
+      return Alert.alert('No slots available', 'All departure times for this date have already passed.');
+    }
     setLoading(true);
     try {
-      const t = TIMES[timeIdx];
+      const t = availableTimes[timeIdx];
       await api.publishRide({
         driver_phone: user.phone,
         from_city: from, to_city: to,
@@ -153,7 +174,7 @@ export default function Publish() {
 
         <Text style={[styles.sectionTitle, { marginTop: 18 }]}>Departure Time</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 24 }}>
-          {TIMES.map((t, i) => {
+          {availableTimes.map((t, i) => {
             const active = timeIdx === i;
             return (
               <TouchableOpacity key={t.label} onPress={() => setTimeIdx(i)}
@@ -163,6 +184,9 @@ export default function Publish() {
             );
           })}
         </ScrollView>
+        {availableTimes.length === 0 && (
+          <Text style={styles.noSlotsText}>No departure slots left for this date. Pick another date.</Text>
+        )}
 
         <View style={[styles.card, { marginTop: 22 }]}>
           <Text style={styles.label}>Price per Seat (₹)</Text>
@@ -199,11 +223,16 @@ export default function Publish() {
             <Text style={styles.summaryCity}>{to}</Text>
           </View>
           <Text style={styles.summaryMeta}>
-            {date} • {TIMES[timeIdx].label} • {availableCount}/{totalSeats} available × ₹{price}
+            {date} • {(availableTimes[timeIdx]?.label || 'No slot')} • {availableCount}/{totalSeats} available × ₹{price}
           </Text>
         </View>
 
-        <TouchableOpacity style={[styles.publishBtn, loading && { opacity: 0.6 }]} onPress={onPublish} disabled={loading} testID="publish-btn">
+        <TouchableOpacity
+          style={[styles.publishBtn, (loading || availableTimes.length === 0) && { opacity: 0.6 }]}
+          onPress={onPublish}
+          disabled={loading || availableTimes.length === 0}
+          testID="publish-btn"
+        >
           {loading ? <ActivityIndicator color="#fff" /> : <>
             <Text style={styles.publishBtnTxt}>Publish Ride</Text>
             <Feather name="arrow-right" size={18} color="#fff" />
@@ -237,6 +266,7 @@ const styles = StyleSheet.create({
   timeChipActive: { backgroundColor: colors.green, borderColor: colors.green },
   timeChipTxt: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
   input: { fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.textPrimary, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, paddingHorizontal: 14, paddingVertical: 12 },
+  noSlotsText: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 8 },
   seatsHeader: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 24, gap: 10 },
   seatsSub: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 2 },
   availPill: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.greenLight, borderRadius: radii.full },

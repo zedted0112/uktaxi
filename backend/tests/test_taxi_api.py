@@ -174,6 +174,20 @@ class TestPublishRide:
         }
         assert api.post(f"{API}/rides", json=payload, timeout=20).status_code == 404
 
+    def test_publish_rejects_past_departure(self, api):
+        past_date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        payload = {
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "Uttarkashi", "to_city": "Dehradun",
+            "from_stand": "UK Stand", "to_stand": "Dehradun ISBT",
+            "date": past_date, "depart_time": "06:30 AM",
+            "arrive_time": "11:30 AM", "duration": "5h 00m",
+            "price": 480, "offline_seats": [],
+        }
+        r = api.post(f"{API}/rides", json=payload, timeout=20)
+        assert r.status_code == 400
+        assert "Departure time already passed" in r.text
+
     def test_list_rides_has_seat_layout(self, api):
         r = api.get(f"{API}/rides",
                     params={"from_city": "Uttarkashi", "to_city": "Dehradun",
@@ -233,8 +247,17 @@ class TestOfflineSeats:
 class TestRequestFlow:
     ride_id: str = ""
     req_id: str = ""
+    user_phone: str = ""
 
     def test_setup_ride_with_offline(self, api):
+        phone = f"+91 77444 {uuid.uuid4().hex[:5]}"
+        reg = api.post(
+            f"{API}/auth/register",
+            json={"phone": phone, "name": "TEST_req_flow", "role": "user"},
+            timeout=20,
+        )
+        assert reg.status_code == 200
+        TestRequestFlow.user_phone = phone
         payload = {
             "driver_phone": SEED_BOLERO_DRIVER,
             "from_city": "UK", "to_city": "Rishikesh", "from_stand": "x", "to_stand": "y",
@@ -248,7 +271,7 @@ class TestRequestFlow:
     def test_create_request_success(self, api):
         r = api.post(f"{API}/requests", json={
             "ride_id": TestRequestFlow.ride_id,
-            "user_phone": SEED_USER_PHONE, "seat_numbers": [4, 7],
+            "user_phone": TestRequestFlow.user_phone, "seat_numbers": [4, 7],
         }, timeout=20)
         assert r.status_code == 200, r.text
         req = r.json()
@@ -261,21 +284,21 @@ class TestRequestFlow:
     def test_reject_offline_seat(self, api):
         r = api.post(f"{API}/requests", json={
             "ride_id": TestRequestFlow.ride_id,
-            "user_phone": SEED_USER_PHONE, "seat_numbers": [9],  # offline
+            "user_phone": TestRequestFlow.user_phone, "seat_numbers": [9],  # offline
         }, timeout=20)
         assert r.status_code == 400
 
     def test_reject_pending_seat(self, api):
         r = api.post(f"{API}/requests", json={
             "ride_id": TestRequestFlow.ride_id,
-            "user_phone": SEED_USER_PHONE, "seat_numbers": [4],  # pending
+            "user_phone": TestRequestFlow.user_phone, "seat_numbers": [4],  # pending
         }, timeout=20)
         assert r.status_code == 400
 
     def test_reject_invalid_seat(self, api):
         r = api.post(f"{API}/requests", json={
             "ride_id": TestRequestFlow.ride_id,
-            "user_phone": SEED_USER_PHONE, "seat_numbers": [99],
+            "user_phone": TestRequestFlow.user_phone, "seat_numbers": [99],
         }, timeout=20)
         assert r.status_code == 400
 
@@ -294,9 +317,45 @@ class TestRequestFlow:
     def test_reject_already_booked(self, api):
         r = api.post(f"{API}/requests", json={
             "ride_id": TestRequestFlow.ride_id,
-            "user_phone": SEED_USER_PHONE, "seat_numbers": [7],
+            "user_phone": TestRequestFlow.user_phone, "seat_numbers": [7],
         }, timeout=20)
         assert r.status_code == 400
+
+    def test_same_ride_additional_seat_requires_guest_info(self, api):
+        # user already has a confirmed request on this ride from previous tests
+        no_guest = api.post(
+            f"{API}/requests",
+            json={
+                "ride_id": TestRequestFlow.ride_id,
+                "user_phone": TestRequestFlow.user_phone,
+                "seat_numbers": [6],
+            },
+            timeout=20,
+        )
+        assert no_guest.status_code == 400
+        assert "Guest name and phone are required" in no_guest.text
+
+        with_guest = api.post(
+            f"{API}/requests",
+            json={
+                "ride_id": TestRequestFlow.ride_id,
+                "user_phone": TestRequestFlow.user_phone,
+                "seat_numbers": [6],
+                "guest_name": "Guest One",
+                "guest_phone": "+91 90000 11111",
+            },
+            timeout=20,
+        )
+        assert with_guest.status_code == 200, with_guest.text
+        body = with_guest.json()
+        assert body["status"] == "confirmed"
+        assert body["id"] == TestRequestFlow.req_id
+        assert 6 in body["seat_numbers"]
+        guests = body.get("guest_passengers") or []
+        assert any(
+            g["seat_number"] == 6 and g["name"] == "Guest One" and g["phone"] == "+91 90000 11111"
+            for g in guests
+        )
 
 
 class TestMultiRequestRules:
@@ -387,3 +446,61 @@ class TestMultiRequestRules:
         assert len(cancelled) >= 3
         for req in cancelled:
             assert req.get("cancel_reason") == "Ride is booked by other Driver"
+
+    def test_confirmed_user_cannot_request_other_rides(self, api):
+        phone = f"+91 77333 {uuid.uuid4().hex[:5]}"
+        reg = api.post(
+            f"{API}/auth/register",
+            json={"phone": phone, "name": "TEST_lock", "role": "user"},
+            timeout=20,
+        )
+        assert reg.status_code == 200
+
+        ride_a = api.post(
+            f"{API}/rides",
+            json={
+                "driver_phone": SEED_BOLERO_DRIVER,
+                "from_city": "Uttarkashi", "to_city": "Dehradun",
+                "from_stand": "UK Stand", "to_stand": "Dehradun ISBT",
+                "date": _future_date(65), "depart_time": "08:00 AM",
+                "arrive_time": "12:30 PM", "duration": "4h 30m",
+                "price": 450, "offline_seats": [],
+            },
+            timeout=20,
+        )
+        ride_b = api.post(
+            f"{API}/rides",
+            json={
+                "driver_phone": SEED_EECO_DRIVER,
+                "from_city": "Uttarkashi", "to_city": "Rishikesh",
+                "from_stand": "UK Stand", "to_stand": "Rishikesh Tapovan",
+                "date": _future_date(66), "depart_time": "10:00 AM",
+                "arrive_time": "02:00 PM", "duration": "4h",
+                "price": 350, "offline_seats": [],
+            },
+            timeout=20,
+        )
+        assert ride_a.status_code == 200 and ride_b.status_code == 200
+        ride_a_id = ride_a.json()["id"]
+        ride_b_id = ride_b.json()["id"]
+
+        req_a = api.post(
+            f"{API}/requests",
+            json={"ride_id": ride_a_id, "user_phone": phone, "seat_numbers": [1]},
+            timeout=20,
+        )
+        assert req_a.status_code == 200
+        conf = api.post(
+            f"{API}/requests/{req_a.json()['id']}/confirm",
+            params={"driver_phone": SEED_BOLERO_DRIVER},
+            timeout=20,
+        )
+        assert conf.status_code == 200
+
+        blocked = api.post(
+            f"{API}/requests",
+            json={"ride_id": ride_b_id, "user_phone": phone, "seat_numbers": [1]},
+            timeout=20,
+        )
+        assert blocked.status_code == 400
+        assert "confirmed booking on another ride" in blocked.text

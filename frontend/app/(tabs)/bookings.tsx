@@ -83,6 +83,11 @@ export default function Bookings() {
                     </View>
                     <Text style={styles.price}>₹{b.total_price}</Text>
                   </View>
+                  {(b.guest_passengers?.length || 0) > 0 && (
+                    <Text style={styles.guestTxt}>
+                      Guests: {b.guest_passengers?.map(g => `${g.name} (Seat ${g.seat_number})`).join(', ')}
+                    </Text>
+                  )}
                 </TouchableOpacity>
                 {(b.status === 'pending' || b.status === 'confirmed') && (
                   <TouchableOpacity style={styles.cancelBtn} onPress={() => cancel(b)} testID={`cancel-${b.id}`}>
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaTxt: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textSecondary },
   price: { fontFamily: fonts.heading, fontSize: 18, color: colors.textPrimary, marginLeft: 'auto' },
+  guestTxt: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 8 },
   cancelBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
     marginTop: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#FEE2E2',
