@@ -17,10 +17,10 @@ type DemoAccount = {
   phone: string;
   name: string;
   role: 'user' | 'driver';
-  vehicle_preset?: string;
-  vehicle_type?: string;
-  vehicle_number?: string;
-  total_seats?: number;
+  vehicle_preset?: string | null;
+  vehicle_type?: string | null;
+  vehicle_number?: string | null;
+  total_seats?: number | null;
 };
 
 // ─── Local demo accounts (shown offline) ─────────────────────────────────────
@@ -66,9 +66,9 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Mirrors backend `GET /api/` `demo_mode`; false until server responds or on error. */
-  const [demoUiEnabled, setDemoUiEnabled] = useState(false);
-  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
+  /** Default on for resilient demo UX; backend root can still explicitly turn it off. */
+  const [demoUiEnabled, setDemoUiEnabled] = useState(true);
+  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(true);
 
@@ -97,8 +97,9 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          setDemoUiEnabled(false);
-          setDemoAccts([]);
+          // Keep local demo access available if root check fails (tunnel/LAN blips).
+          setDemoUiEnabled(true);
+          setDemoAccts([...LOCAL_DEMOS]);
         }
       }
     })();
@@ -130,8 +131,8 @@ export default function Auth() {
       catch {
         u = await api.register({
           phone: acct.phone, name: acct.name, role: acct.role,
-          vehicle_preset: acct.role === 'driver' ? acct.vehicle_preset : undefined,
-          vehicle_number: acct.role === 'driver' ? acct.vehicle_number : undefined,
+          vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
+          vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
         });
       }
       await signIn(u);

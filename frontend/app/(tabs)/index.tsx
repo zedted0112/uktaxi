@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -24,10 +24,80 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const [fromCity, setFromCity] = useState(ROUTES[0].from);
+  const [toCity, setToCity] = useState(ROUTES[0].to);
+  const [pickerFor, setPickerFor] = useState<'from' | 'to' | null>(null);
   const [routeIdx, setRouteIdx] = useState(0);
 
-  const { from, to } = ROUTES[routeIdx];
-  const { rides, loading, refreshing, onRefresh } = useRides({ from_city: from, to_city: to });
+  const fromOptions = useMemo(
+    () => Array.from(new Set(ROUTES.map((r) => r.from))),
+    [],
+  );
+  const toOptions = useMemo(
+    () => Array.from(new Set(ROUTES.filter((r) => r.from === fromCity).map((r) => r.to))),
+    [fromCity],
+  );
+
+  const hasRoute = (from: string, to: string) =>
+    ROUTES.some((r) => r.from === from && r.to === to);
+
+  const syncChipIndex = (from: string, to: string) => {
+    const idx = ROUTES.findIndex((r) => r.from === from && r.to === to);
+    if (idx >= 0) setRouteIdx(idx);
+  };
+
+  const applyFrom = (nextFrom: string) => {
+    if (nextFrom === toCity) {
+      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
+      return;
+    }
+    const validForFrom = ROUTES.filter((r) => r.from === nextFrom).map((r) => r.to);
+    if (validForFrom.length === 0) return;
+    const nextTo = validForFrom.includes(toCity) ? toCity : validForFrom[0];
+    setFromCity(nextFrom);
+    setToCity(nextTo);
+    syncChipIndex(nextFrom, nextTo);
+  };
+
+  const applyTo = (nextTo: string) => {
+    if (nextTo === fromCity) {
+      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
+      return;
+    }
+    if (!hasRoute(fromCity, nextTo)) {
+      Alert.alert('Route not available', 'This route is not available yet.');
+      return;
+    }
+    setToCity(nextTo);
+    syncChipIndex(fromCity, nextTo);
+  };
+
+  const onChipSelect = (index: number) => {
+    const selected = ROUTES[index];
+    setRouteIdx(index);
+    setFromCity(selected.from);
+    setToCity(selected.to);
+    setPickerFor(null);
+  };
+
+  const reverseRoute = () => {
+    if (fromCity === toCity) {
+      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
+      return;
+    }
+    if (!hasRoute(toCity, fromCity)) {
+      Alert.alert('Route not available', 'Reverse direction is not available yet.');
+      return;
+    }
+    const nextFrom = toCity;
+    const nextTo = fromCity;
+    setFromCity(nextFrom);
+    setToCity(nextTo);
+    syncChipIndex(nextFrom, nextTo);
+    setPickerFor(null);
+  };
+
+  const { rides, loading, refreshing, onRefresh } = useRides({ from_city: fromCity, to_city: toCity });
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="home-screen">
@@ -61,7 +131,7 @@ export default function Home() {
             return (
               <TouchableOpacity
                 key={`${r.from}-${r.to}`}
-                onPress={() => setRouteIdx(i)}
+                onPress={() => onChipSelect(i)}
                 style={[styles.chip, active ? styles.chipActive : styles.chipInactive]}
                 testID={`route-chip-${i}`}
               >
@@ -74,21 +144,76 @@ export default function Home() {
         </ScrollView>
 
         <View style={styles.routeCard}>
-          <View style={styles.routeRow}>
+          <TouchableOpacity
+            style={styles.routeRow}
+            activeOpacity={0.8}
+            onPress={() => setPickerFor((p) => (p === 'from' ? null : 'from'))}
+            testID="from-picker-toggle"
+          >
             <View style={styles.dotGreenOutline} />
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={styles.routeLabel}>From</Text>
-              <Text style={styles.routeCity}>{ROUTES[routeIdx].from}</Text>
+              <Text style={styles.routeCity}>{fromCity}</Text>
             </View>
-          </View>
+            <Feather name="chevron-down" size={16} color={colors.textSecondary} />
+          </TouchableOpacity>
+          {pickerFor === 'from' && (
+            <View style={styles.pickerList} testID="from-picker-list">
+              {fromOptions.map((city) => (
+                <TouchableOpacity
+                  key={`from-${city}`}
+                  style={[styles.pickerItem, city === fromCity && styles.pickerItemActive]}
+                  onPress={() => {
+                    applyFrom(city);
+                    setPickerFor(null);
+                  }}
+                  testID={`from-option-${city}`}
+                >
+                  <Text style={[styles.pickerText, city === fromCity && styles.pickerTextActive]}>{city}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           <View style={styles.routeDivider} />
-          <View style={styles.routeRow}>
+          <View style={styles.swapWrap}>
+            <TouchableOpacity
+              style={styles.swapBtn}
+              onPress={reverseRoute}
+              testID="route-reverse-btn"
+            >
+              <Feather name="repeat" size={14} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={styles.routeRow}
+            activeOpacity={0.8}
+            onPress={() => setPickerFor((p) => (p === 'to' ? null : 'to'))}
+            testID="to-picker-toggle"
+          >
             <View style={styles.dotGreenFill} />
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={styles.routeLabel}>To</Text>
-              <Text style={styles.routeCity}>{ROUTES[routeIdx].to}</Text>
+              <Text style={styles.routeCity}>{toCity}</Text>
             </View>
-          </View>
+            <Feather name="chevron-down" size={16} color={colors.textSecondary} />
+          </TouchableOpacity>
+          {pickerFor === 'to' && (
+            <View style={styles.pickerList} testID="to-picker-list">
+              {toOptions.map((city) => (
+                <TouchableOpacity
+                  key={`to-${city}`}
+                  style={[styles.pickerItem, city === toCity && styles.pickerItemActive]}
+                  onPress={() => {
+                    applyTo(city);
+                    setPickerFor(null);
+                  }}
+                  testID={`to-option-${city}`}
+                >
+                  <Text style={[styles.pickerText, city === toCity && styles.pickerTextActive]}>{city}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.sectionRow}>
@@ -186,9 +311,38 @@ const styles = StyleSheet.create({
   chipTextInactive: { color: colors.textSecondary, fontFamily: fonts.bodyMedium, fontSize: 13 },
   routeCard: { backgroundColor: colors.surface, borderRadius: radii.lg, padding: 18, borderWidth: 1, borderColor: colors.border },
   routeRow: { flexDirection: 'row', alignItems: 'center' },
+  pickerList: {
+    marginTop: 10,
+    marginLeft: 28,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    overflow: 'hidden',
+    backgroundColor: colors.bg,
+  },
+  pickerItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
+  pickerItemActive: { backgroundColor: colors.greenLight },
+  pickerText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
+  pickerTextActive: { color: colors.greenDark, fontFamily: fonts.bodySemiBold },
   routeLabel: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
   routeCity: { fontFamily: fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginTop: 2 },
   routeDivider: { height: 1, backgroundColor: colors.borderSoft, marginVertical: 12, marginLeft: 28 },
+  swapWrap: { alignItems: 'center', marginTop: -4, marginBottom: 8 },
+  swapBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   dotGreenOutline: { width: 14, height: 14, borderRadius: 7, borderWidth: 2.5, borderColor: colors.green, backgroundColor: colors.surface },
   dotGreenFill: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 12 },
