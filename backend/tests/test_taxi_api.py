@@ -204,7 +204,11 @@ class TestOfflineSeats:
         req = api.post(f"{API}/requests", json={
             "ride_id": rid, "user_phone": SEED_USER_PHONE, "seat_numbers": [5]
         }, timeout=20).json()
-        api.post(f"{API}/requests/{req['id']}/confirm", timeout=20).raise_for_status()
+        api.post(
+            f"{API}/requests/{req['id']}/confirm",
+            params={"driver_phone": SEED_BOLERO_DRIVER},
+            timeout=20,
+        ).raise_for_status()
 
         # Now try to mark seat 5 offline -> should 400
         bad = api.post(f"{API}/rides/{rid}/offline-seats",
@@ -276,7 +280,11 @@ class TestRequestFlow:
         assert r.status_code == 400
 
     def test_confirm_adds_to_booked(self, api):
-        r = api.post(f"{API}/requests/{TestRequestFlow.req_id}/confirm", timeout=20)
+        r = api.post(
+            f"{API}/requests/{TestRequestFlow.req_id}/confirm",
+            params={"driver_phone": SEED_BOLERO_DRIVER},
+            timeout=20,
+        )
         assert r.status_code == 200
         assert r.json()["status"] == "confirmed"
         ride = api.get(f"{API}/rides/{TestRequestFlow.ride_id}", timeout=20).json()
@@ -289,3 +297,93 @@ class TestRequestFlow:
             "user_phone": SEED_USER_PHONE, "seat_numbers": [7],
         }, timeout=20)
         assert r.status_code == 400
+
+
+class TestMultiRequestRules:
+    ride_ids: list[str] = []
+    user_phone: str = ""
+
+    def test_setup_user_and_rides(self, api):
+        phone = f"+91 77111 {uuid.uuid4().hex[:5]}"
+        TestMultiRequestRules.user_phone = phone
+        reg = api.post(
+            f"{API}/auth/register",
+            json={"phone": phone, "name": "TEST_multi", "role": "user"},
+            timeout=20,
+        )
+        assert reg.status_code == 200
+
+        dates = [_future_date(50), _future_date(51), _future_date(52), _future_date(53), _future_date(54)]
+        ride_ids: list[str] = []
+        for idx, date in enumerate(dates):
+            ride = api.post(
+                f"{API}/rides",
+                json={
+                    "driver_phone": SEED_BOLERO_DRIVER,
+                    "from_city": "UK",
+                    "to_city": f"DDN-{idx}",
+                    "from_stand": "x",
+                    "to_stand": "y",
+                    "date": date,
+                    "depart_time": "10:00 AM",
+                    "arrive_time": "02:00 PM",
+                    "duration": "4h",
+                    "price": 400,
+                    "offline_seats": [],
+                },
+                timeout=20,
+            )
+            assert ride.status_code == 200, ride.text
+            ride_ids.append(ride.json()["id"])
+        TestMultiRequestRules.ride_ids = ride_ids
+
+    def test_max_four_active_pending(self, api):
+        for idx, ride_id in enumerate(TestMultiRequestRules.ride_ids[:4]):
+            r = api.post(
+                f"{API}/requests",
+                json={
+                    "ride_id": ride_id,
+                    "user_phone": TestMultiRequestRules.user_phone,
+                    "seat_numbers": [idx + 1],
+                },
+                timeout=20,
+            )
+            assert r.status_code == 200, r.text
+            assert r.json()["status"] == "pending"
+
+        fifth = api.post(
+            f"{API}/requests",
+            json={
+                "ride_id": TestMultiRequestRules.ride_ids[4],
+                "user_phone": TestMultiRequestRules.user_phone,
+                "seat_numbers": [1],
+            },
+            timeout=20,
+        )
+        assert fifth.status_code == 400
+        assert "Maximum 4 active pending requests allowed" in fifth.text
+
+    def test_confirm_cancels_other_pending_requests(self, api):
+        pending = api.get(
+            f"{API}/requests", params={"user_phone": TestMultiRequestRules.user_phone}, timeout=20
+        )
+        assert pending.status_code == 200
+        items = pending.json()
+        target = items[0]
+        confirm = api.post(
+            f"{API}/requests/{target['id']}/confirm",
+            params={"driver_phone": SEED_BOLERO_DRIVER},
+            timeout=20,
+        )
+        assert confirm.status_code == 200, confirm.text
+        assert confirm.json()["status"] == "confirmed"
+
+        after = api.get(
+            f"{API}/requests", params={"user_phone": TestMultiRequestRules.user_phone}, timeout=20
+        ).json()
+        confirmed = [x for x in after if x["status"] == "confirmed"]
+        cancelled = [x for x in after if x["status"] == "cancelled"]
+        assert len(confirmed) == 1
+        assert len(cancelled) >= 3
+        for req in cancelled:
+            assert req.get("cancel_reason") == "Ride is booked by other Driver"

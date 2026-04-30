@@ -76,6 +76,10 @@ agenthub/agents/youtube/db
 # Build caches
 .cache/
 
+# Local agent + graph artifacts
+.cursor/
+graphify-out/
+
 memory/test_credentials.md
 
 # Mobile development

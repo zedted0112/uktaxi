@@ -1,12 +1,27 @@
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List
+import uuid
 from fastapi import APIRouter, HTTPException
 from ..database import get_db
-from ..models.request import BookingRequest, CreateRequestIn
+from ..models.request import BookingRequest, CreateRequestIn, SEAT_HOLD_MINUTES
 from ..helpers import generate_ref, can_cancel
 from ..notifications import send_notification
 from .rides import auto_mark_departed_rides
 
 router = APIRouter(prefix="/requests", tags=["requests"])
+
+
+def _parse_utc(iso_value: str) -> datetime:
+    return datetime.fromisoformat(iso_value.replace("Z", "+00:00")).astimezone(timezone.utc)
+
+
+def _is_active_hold(req: dict, now: datetime) -> bool:
+    if req.get("status") != "pending":
+        return False
+    hold_expires_at = req.get("hold_expires_at")
+    if not hold_expires_at:
+        return True
+    return _parse_utc(hold_expires_at) >= now
 
 
 @router.post("", response_model=BookingRequest)
@@ -20,11 +35,22 @@ async def create_request(payload: CreateRequestIn):
     user = await db.users.find_one({"phone": payload.user_phone}, {"_id": 0})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if not payload.seat_numbers:
+        raise HTTPException(status_code=400, detail="At least one seat is required")
+    if len(set(payload.seat_numbers)) != len(payload.seat_numbers):
+        raise HTTPException(status_code=400, detail="Duplicate seat numbers are not allowed")
+
+    now = datetime.now(timezone.utc)
+    canonical_phone = user["phone"]
+    pending_count = await db.requests.count_documents({"user_phone": canonical_phone, "status": "pending"})
+    if pending_count >= 4:
+        raise HTTPException(status_code=400, detail="Maximum 4 active pending requests allowed")
+
     booked = set(ride.get("booked_seats", []))
     pending = await db.requests.find(
         {"ride_id": payload.ride_id, "status": "pending"}, {"_id": 0}
     ).to_list(200)
-    reserved = {s for p in pending for s in p["seat_numbers"]}
+    reserved = {s for p in pending if _is_active_hold(p, now) for s in p["seat_numbers"]}
     all_seats = {s for row in ride.get("seat_layout", []) for s in row}
     for s in payload.seat_numbers:
         if s in booked:
@@ -36,10 +62,11 @@ async def create_request(payload: CreateRequestIn):
     req = BookingRequest(
         booking_ref=generate_ref(),
         ride_id=ride["id"],
-        user_phone=user["phone"],
+        user_phone=canonical_phone,
         user_name=user["name"],
         seat_numbers=payload.seat_numbers,
         total_price=ride["price"] * len(payload.seat_numbers),
+        hold_expires_at=(now + timedelta(minutes=SEAT_HOLD_MINUTES)).replace(microsecond=0).isoformat(),
         from_city=ride["from_city"], to_city=ride["to_city"],
         from_stand=ride["from_stand"], to_stand=ride["to_stand"],
         date=ride["date"], depart_time=ride["depart_time"],
@@ -84,7 +111,7 @@ async def get_request(req_id: str):
 
 
 @router.post("/{req_id}/confirm", response_model=BookingRequest)
-async def confirm_request(req_id: str):
+async def confirm_request(req_id: str, driver_phone: str):
     # Confirmation moves seats from "requested" to "booked" on the ride and
     # transitions request state in one handler.
     db = get_db()
@@ -98,6 +125,8 @@ async def confirm_request(req_id: str):
         raise HTTPException(status_code=404, detail="Ride not found")
     if ride["status"] != "published":
         raise HTTPException(status_code=400, detail=f"Cannot confirm request for a {ride['status']} ride")
+    if driver_phone != r["driver_phone"]:
+        raise HTTPException(status_code=403, detail="Only this ride's driver can confirm the request")
     booked = set(ride.get("booked_seats", []))
     for s in r["seat_numbers"]:
         if s in booked:
@@ -114,6 +143,45 @@ async def confirm_request(req_id: str):
         body=f"Your seat(s) on the {r['date']} ride to {r['to_city']} are confirmed.",
         data={"type": "booking_confirmed", "request_id": req_id},
     )
+
+    # Once any ride is confirmed for this passenger, all other pending requests
+    # are auto-cancelled to avoid multiple concurrent active bookings.
+    cancel_batch = str(uuid.uuid4())
+    await db.requests.update_many(
+        {"user_phone": r["user_phone"], "status": "pending", "id": {"$ne": req_id}},
+        {
+            "$set": {
+                "status": "cancelled",
+                "cancel_reason": "Ride is booked by other Driver",
+                "_auto_cancel_batch": cancel_batch,
+            }
+        },
+    )
+    auto_cancelled = await db.requests.find(
+        {"_auto_cancel_batch": cancel_batch},
+        {"_id": 0},
+    ).to_list(200)
+    if auto_cancelled:
+        await db.requests.update_many(
+            {"_auto_cancel_batch": cancel_batch},
+            {"$unset": {"_auto_cancel_batch": ""}},
+        )
+        for pending_req in auto_cancelled:
+            await send_notification(
+                recipient_phone=pending_req["driver_phone"],
+                title="Booking Request Auto-Cancelled",
+                body=(
+                    f"Passenger {pending_req['user_name']} request was cancelled. "
+                    "Reason: Ride is booked by other Driver."
+                ),
+                data={"type": "booking_auto_cancelled", "request_id": pending_req["id"]},
+            )
+        await send_notification(
+            recipient_phone=r["user_phone"],
+            title="Other Requests Cancelled",
+            body="Your remaining pending requests were cancelled. Reason: Ride is booked by other Driver.",
+            data={"type": "booking_auto_cancelled_others", "request_id": req_id},
+        )
 
     return BookingRequest(**r)
 

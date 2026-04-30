@@ -32,7 +32,10 @@ export default function Requests() {
 
   const act = async (id: string, action: 'confirm' | 'reject') => {
     try {
-      if (action === 'confirm') await api.confirmRequest(id);
+      if (action === 'confirm') {
+        if (!user?.phone) throw new Error('Driver phone not available');
+        await api.confirmRequest(id, user.phone);
+      }
       else await api.rejectRequest(id);
       reload();
     } catch (e: any) { Alert.alert('Error', e?.message || 'Failed'); }

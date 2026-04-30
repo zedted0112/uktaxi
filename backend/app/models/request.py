@@ -1,7 +1,9 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Literal, List
+from datetime import datetime, timedelta, timezone
+from typing import Literal, List, Optional
 from pydantic import BaseModel, Field
+
+SEAT_HOLD_MINUTES = 2
 
 
 class BookingRequest(BaseModel):
@@ -14,6 +16,10 @@ class BookingRequest(BaseModel):
     total_price: int
     status: Literal["pending", "confirmed", "rejected", "cancelled", "completed"] = "pending"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    hold_expires_at: str = Field(
+        default_factory=lambda: (datetime.now(timezone.utc) + timedelta(minutes=SEAT_HOLD_MINUTES)).isoformat()
+    )
+    cancel_reason: Optional[str] = None
     # Snapshot fields from the ride at booking time
     from_city: str
     to_city: str

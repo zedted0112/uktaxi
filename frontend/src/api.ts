@@ -193,7 +193,11 @@ export const api = {
     return req<BookingRequest[]>(`/requests${q.toString() ? `?${q.toString()}` : ''}`);
   },
   getRequest: (id: string) => req<BookingRequest>(`/requests/${id}`),
-  confirmRequest: (id: string) => req<BookingRequest>(`/requests/${id}/confirm`, { method: 'POST' }),
+  confirmRequest: (id: string, driver_phone: string) =>
+    req<BookingRequest>(
+      `/requests/${id}/confirm?driver_phone=${encodeURIComponent(driver_phone)}`,
+      { method: 'POST' },
+    ),
   rejectRequest: (id: string) => req<BookingRequest>(`/requests/${id}/reject`, { method: 'POST' }),
   cancelRequest: (id: string) => req<BookingRequest>(`/requests/${id}/cancel`, { method: 'POST' }),
 
