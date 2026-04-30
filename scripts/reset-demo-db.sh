@@ -24,6 +24,19 @@ fi
 
 cd "${BACKEND_DIR}"
 
+# Safety guard: never wipe production DB by accident.
+TARGET_DB_NAME="$("${PYTHON_BIN}" - <<'PY'
+from app.config import DB_NAME
+print(DB_NAME)
+PY
+)"
+
+if [[ "${TARGET_DB_NAME}" == "UKTaxi_PROD" ]]; then
+  echo "Refusing to reset production database (DB_NAME=${TARGET_DB_NAME})." >&2
+  echo "Switch backend/.env to DB_NAME=UKTaxi_Dev before running this script." >&2
+  exit 1
+fi
+
 "${PYTHON_BIN}" - <<'PY'
 import asyncio
 from app.database import get_db

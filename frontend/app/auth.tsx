@@ -222,7 +222,7 @@ export default function Auth() {
           <View style={styles.logoCircle}>
             <MaterialCommunityIcons name="car-estate" size={28} color="#fff" />
           </View>
-          <Text style={styles.brand}>Uttarkashi Taxi Union</Text>
+          <Text style={styles.brand}>UKTaxi</Text>
           <Text style={styles.tagline}>Your mountain travel, simplified</Text>
         </View>
 

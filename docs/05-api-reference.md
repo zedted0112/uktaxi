@@ -13,7 +13,7 @@ Returns API identity, schema version, and demo-mode flag.
 
 Response:
 ```json
-{ "message": "Uttarkashi Taxi Union API", "schema": 5, "demo_mode": true }
+{ "message": "UKTaxi API", "schema": 5, "demo_mode": true }
 ```
 
 ### `GET /demo/accounts`

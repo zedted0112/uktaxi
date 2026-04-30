@@ -1,7 +1,7 @@
 # UKTaxi Tech Stack
 
 ## Overview
-UKTaxi is a mobile-first ride publishing and booking app for Uttarkashi Taxi Union.
+UKTaxi is a mobile-first ride publishing and booking app for UKTaxi.
 The repository contains:
 - `frontend`: Expo + React Native client app
 - `backend`: FastAPI + MongoDB API server

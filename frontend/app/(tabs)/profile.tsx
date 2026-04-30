@@ -59,7 +59,7 @@ export default function Profile() {
         </TouchableOpacity>
 
         <View style={styles.infoCard}>
-          <Text style={styles.infoHeading}>Uttarkashi Taxi Union</Text>
+          <Text style={styles.infoHeading}>UKTaxi</Text>
           <Text style={styles.infoTxt}>
             A cooperative of licensed private taxi operators serving Uttarkashi, Dehradun & Rishikesh.
           </Text>

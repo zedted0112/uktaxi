@@ -66,7 +66,8 @@ export default function Publish() {
   const layout = user?.seat_layout || [[1]];
   const totalSeats = user?.total_seats || 0;
 
-  const statusOf = (n: number): SeatStatus => offline.includes(n) ? 'offline' : 'available';
+  // During publish, offline selection is a local draft until final "Publish Ride".
+  const statusOf = (n: number): SeatStatus => offline.includes(n) ? 'selected' : 'available';
   const toggleOffline = (n: number) => setOffline(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
   const todayIso = new Date().toISOString().slice(0, 10);
   const availableTimes = useMemo(() => {
@@ -198,18 +199,18 @@ export default function Publish() {
           <View style={{ flex: 1 }}>
             <Text style={styles.sectionTitle}>Offline Bookings</Text>
             <Text style={styles.seatsSub}>
-              Tap seats already booked offline (walk-in / phone). Rest go online.
+              Tap seats for offline draft (walk-in / phone). Changes apply only on Publish Ride.
             </Text>
           </View>
           <View style={styles.availPill}>
-            <Text style={styles.availPillTxt} testID="avail-count">{availableCount} online</Text>
+            <Text style={styles.availPillTxt} testID="avail-count">{offline.length} offline draft • {availableCount} online</Text>
           </View>
         </View>
 
         <View style={{ marginTop: 10 }}>
           <SeatMap layout={layout} statusOf={statusOf} onPress={toggleOffline} compact />
         </View>
-        <SeatLegend items={['available', 'offline']} />
+        <SeatLegend items={['available', 'selected']} />
 
         <View style={styles.summaryCard}>
           <View style={styles.summaryHead}>

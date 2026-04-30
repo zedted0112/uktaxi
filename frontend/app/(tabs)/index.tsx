@@ -53,7 +53,7 @@ export default function Home() {
         </View>
 
         <Text style={styles.heading}>Find a Taxi</Text>
-        <Text style={styles.subheading}>Rides published by Uttarkashi Taxi Union drivers</Text>
+        <Text style={styles.subheading}>Rides published by UKTaxi drivers</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
           {ROUTES.map((r, i) => {

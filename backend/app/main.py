@@ -5,8 +5,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from .config import SCHEMA_VERSION, CORS_ORIGINS, ENABLE_DEMO_MODE
-from .database import get_db, close_client
+from .config import SCHEMA_VERSION, CORS_ORIGINS, ENABLE_DEMO_MODE, DB_NAME
+from .database import get_db, close_client, ensure_indexes
 from .seed import seed_demo
 from .routers import auth, vehicles, drivers, rides, requests, demo, notifications
 
@@ -34,7 +34,7 @@ def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> N
     except Exception:
         pass
 
-app = FastAPI(title="Uttarkashi Taxi Union API", version=str(SCHEMA_VERSION))
+app = FastAPI(title="UKTaxi API", version=str(SCHEMA_VERSION))
 
 # The API keeps CORS policy centralized so local mobile devices and production
 # domains can be controlled from environment variables without code changes.
@@ -66,7 +66,7 @@ async def root():
     # This endpoint gives clients a fast sanity check that backend schema and
     # server process are aligned.
     return {
-        "message": "Uttarkashi Taxi Union API",
+        "message": "UKTaxi API",
         "schema": SCHEMA_VERSION,
         "demo_mode": ENABLE_DEMO_MODE,
     }
@@ -83,6 +83,8 @@ async def startup_event():
         {"schema_version": SCHEMA_VERSION, "cors_any": "*" in CORS_ORIGINS},
     )
     # endregion
+    await ensure_indexes()
+    logger.info("Mongo DB ready: DB_NAME=%s ENABLE_DEMO_MODE=%s", DB_NAME, ENABLE_DEMO_MODE)
     if ENABLE_DEMO_MODE:
         try:
             await seed_demo(get_db())

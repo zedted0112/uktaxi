@@ -10,6 +10,34 @@ BACKEND_PORT="${BACKEND_PORT:-8000}"
 FRONTEND_PORT="${FRONTEND_PORT:-8081}"
 BACKEND_PID=""
 
+free_port() {
+  local port="$1"
+  local label="${2:-Port}"
+  local pids
+  pids="$(lsof -ti :"${port}" 2>/dev/null || true)"
+  if [[ -z "${pids}" ]]; then
+    return 0
+  fi
+
+  echo "${label} port ${port} is in use. Stopping existing process(es): ${pids}"
+  while IFS= read -r pid; do
+    [[ -z "${pid}" ]] && continue
+    kill "${pid}" 2>/dev/null || true
+  done <<< "${pids}"
+
+  sleep 1
+
+  local still_running
+  still_running="$(lsof -ti :"${port}" 2>/dev/null || true)"
+  if [[ -n "${still_running}" ]]; then
+    echo "Force-stopping remaining process(es) on port ${port}: ${still_running}"
+    while IFS= read -r pid; do
+      [[ -z "${pid}" ]] && continue
+      kill -9 "${pid}" 2>/dev/null || true
+    done <<< "${still_running}"
+  fi
+}
+
 cleanup() {
   if [[ -n "${BACKEND_PID}" ]] && kill -0 "${BACKEND_PID}" 2>/dev/null; then
     echo ""
@@ -35,6 +63,9 @@ if [[ ! -d "${ROOT}/frontend/node_modules" ]]; then
   echo "Missing frontend/node_modules — run: cd frontend && yarn install"
   exit 1
 fi
+
+free_port "${BACKEND_PORT}" "Backend"
+free_port "${FRONTEND_PORT}" "Frontend"
 
 echo "Starting backend on 0.0.0.0:${BACKEND_PORT} ..."
 cd "${ROOT}/backend"

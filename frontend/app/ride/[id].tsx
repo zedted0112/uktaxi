@@ -19,6 +19,8 @@ export default function RideDetail() {
   const [pendingSeats, setPendingSeats] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number[]>([]);
+  const [driverOfflineDraft, setDriverOfflineDraft] = useState<number[]>([]);
+  const [updatingOffline, setUpdatingOffline] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [guestModalOpen, setGuestModalOpen] = useState(false);
   const [guestName, setGuestName] = useState('');
@@ -28,6 +30,7 @@ export default function RideDetail() {
     try {
       const r = await api.getRide(id);
       setRide(r);
+      setDriverOfflineDraft(r.offline_seats || []);
       try {
         const reqs = await api.listRequests({ driver_phone: r.driver_phone });
         const ps = new Set<number>();
@@ -44,12 +47,24 @@ export default function RideDetail() {
   );
 
   const isDriver = user?.role === 'driver' && user.phone === ride.driver_phone;
-  const offlineSet = new Set(ride.offline_seats || []);
-  const confirmedOnlineSet = new Set((ride.booked_seats || []).filter(s => !offlineSet.has(s)));
+  const driverEditable = isDriver && ride.status === 'published';
+  const persistedOfflineSet = new Set(ride.offline_seats || []);
+  const draftOfflineSet = new Set(driverOfflineDraft);
+  const offlineSet = persistedOfflineSet;
+  const confirmedOnlineSet = new Set((ride.booked_seats || []).filter(s => !persistedOfflineSet.has(s)));
   const pendingSet = new Set(pendingSeats);
+  const hasDraftChanges =
+    draftOfflineSet.size !== persistedOfflineSet.size ||
+    Array.from(draftOfflineSet).some(s => !persistedOfflineSet.has(s));
 
   const statusOf = (n: number): SeatStatus => {
-    if (offlineSet.has(n)) return 'offline';
+    if (driverEditable) {
+      const changed = draftOfflineSet.has(n) !== persistedOfflineSet.has(n);
+      if (changed) return 'selected';
+      if (persistedOfflineSet.has(n)) return 'offline';
+    } else if (offlineSet.has(n)) {
+      return 'offline';
+    }
     if (confirmedOnlineSet.has(n)) return 'booked';
     if (pendingSet.has(n)) return 'pending';
     if (selected.includes(n)) return 'selected';
@@ -57,10 +72,33 @@ export default function RideDetail() {
   };
 
   const toggleSeat = (n: number) => {
+    if (driverEditable) {
+      if (confirmedOnlineSet.has(n) || pendingSet.has(n)) {
+        Alert.alert('Seat locked', 'This seat is already pending/confirmed online and cannot be changed.');
+        return;
+      }
+      setDriverOfflineDraft(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
+      return;
+    }
     if (isDriver) return;
     const st = statusOf(n);
     if (st !== 'available' && st !== 'selected') return;
     setSelected(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
+  };
+
+  const updateOfflineSeats = async () => {
+    if (!ride) return;
+    setUpdatingOffline(true);
+    try {
+      const updated = await api.setOfflineSeats(ride.id, driverOfflineDraft);
+      setRide(updated);
+      setDriverOfflineDraft(updated.offline_seats || []);
+      Alert.alert('Updated', 'Offline seats updated successfully');
+    } catch (e: any) {
+      Alert.alert('Update failed', e?.message || 'Try again');
+    } finally {
+      setUpdatingOffline(false);
+    }
   };
 
   const total = selected.length * ride.price;
@@ -145,7 +183,24 @@ export default function RideDetail() {
           <SeatMap layout={ride.seat_layout} statusOf={statusOf} onPress={toggleSeat} />
         </View>
 
-        <SeatLegend items={['available', 'selected', 'booked', 'pending', 'offline']} />
+        <SeatLegend items={driverEditable ? ['available', 'selected', 'booked', 'pending', 'offline'] : ['available', 'selected', 'booked', 'pending', 'offline']} />
+
+        {driverEditable && hasDraftChanges && (
+          <TouchableOpacity
+            style={[styles.updateOfflineBtn, updatingOffline && { opacity: 0.6 }]}
+            onPress={updateOfflineSeats}
+            disabled={updatingOffline}
+            testID="update-offline-btn"
+          >
+            {updatingOffline ? <ActivityIndicator color="#fff" /> : <>
+              <Text style={styles.updateOfflineTxt}>Update Offline Seats</Text>
+              <Feather name="save" size={16} color="#fff" />
+            </>}
+          </TouchableOpacity>
+        )}
+        {driverEditable && (
+          <Text style={styles.helperText}>Draft changes apply only after Update Offline Seats.</Text>
+        )}
 
         <View style={{ height: isDriver ? 40 : 120 }} />
 
@@ -262,6 +317,9 @@ const styles = StyleSheet.create({
   bookBtn: { backgroundColor: colors.green, paddingHorizontal: 22, paddingVertical: 14, borderRadius: radii.full, flexDirection: 'row', alignItems: 'center', gap: 8 },
   bookBtnDisabled: { backgroundColor: '#9CA3AF' },
   bookBtnTxt: { color: '#fff', fontFamily: fonts.bodySemiBold, fontSize: 14 },
+  updateOfflineBtn: { marginTop: 14, backgroundColor: colors.black, paddingHorizontal: 18, paddingVertical: 12, borderRadius: radii.full, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  updateOfflineTxt: { color: '#fff', fontFamily: fonts.bodySemiBold, fontSize: 13 },
+  helperText: { marginTop: 8, textAlign: 'center', fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary },
   cancelRideBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20, paddingVertical: 13, borderWidth: 1, borderColor: '#FECACA', borderRadius: radii.full, backgroundColor: '#FEF2F2' },
   cancelRideTxt: { color: '#B91C1C', fontFamily: fonts.bodySemiBold, fontSize: 13 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center', justifyContent: 'center', padding: 24 },

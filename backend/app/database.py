@@ -1,11 +1,15 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo import ASCENDING, DESCENDING, IndexModel
+from pymongo.errors import DuplicateKeyError
 from .config import MONGO_URL, DB_NAME
 import json
 import time
 from pathlib import Path
+import logging
 
 _client: AsyncIOMotorClient | None = None
 _DEBUG_LOG_PATH = Path("/Users/himalayancoder/Downloads/UKParivahan-sync/.cursor/debug-e76646.log")
+logger = logging.getLogger(__name__)
 
 
 def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> None:
@@ -65,3 +69,61 @@ def close_client() -> None:
         # Explicit close is used during shutdown/reload to release sockets cleanly.
         _client.close()
         _client = None
+
+
+async def ensure_indexes() -> None:
+    """
+    Ensure critical indexes exist for booking/ride integrity and query performance.
+    Safe to call repeatedly on startup.
+    """
+    db = get_db()
+
+    await db.users.create_indexes(
+        [
+            IndexModel([("id", ASCENDING)], name="users_id_unique", unique=True),
+            IndexModel([("phone", ASCENDING)], name="users_phone_unique", unique=True),
+        ]
+    )
+
+    await db.rides.create_indexes(
+        [
+            IndexModel([("id", ASCENDING)], name="rides_id_unique", unique=True),
+            IndexModel([("driver_phone", ASCENDING), ("date", ASCENDING), ("status", ASCENDING)], name="rides_driver_date_status"),
+        ]
+    )
+    # Existing duplicate active rides in legacy data can block adding this unique
+    # guard; in that case we log and continue startup so environments stay usable.
+    try:
+        await db.rides.create_indexes(
+            [
+                IndexModel(
+                    [("driver_phone", ASCENDING), ("date", ASCENDING)],
+                    name="rides_one_active_driver_day",
+                    unique=True,
+                    partialFilterExpression={"status": {"$in": ["published", "departed"]}},
+                ),
+            ]
+        )
+    except DuplicateKeyError:
+        logger.warning(
+            "Skipped unique index rides_one_active_driver_day due to existing duplicate active rides in %s. "
+            "Clean duplicate active rides and restart to enforce DB-level guard.",
+            DB_NAME,
+        )
+
+    await db.requests.create_indexes(
+        [
+            IndexModel([("id", ASCENDING)], name="requests_id_unique", unique=True),
+            IndexModel([("booking_ref", ASCENDING)], name="requests_booking_ref_unique", unique=True),
+            IndexModel([("user_phone", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_user_status_created"),
+            IndexModel([("ride_id", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_ride_status_created"),
+            IndexModel([("driver_phone", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)], name="requests_driver_status_created"),
+        ]
+    )
+
+    await db.notifications.create_indexes(
+        [
+            IndexModel([("id", ASCENDING)], name="notifications_id_unique", unique=True),
+            IndexModel([("recipient_phone", ASCENDING), ("read", ASCENDING), ("created_at", DESCENDING)], name="notifications_recipient_read_created"),
+        ]
+    )

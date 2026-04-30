@@ -157,12 +157,29 @@ async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Ride not found")
+    if r["status"] != "published":
+        raise HTTPException(status_code=400, detail="Offline seats can only be updated for published rides")
+    if not can_cancel(r["date"], r["depart_time"]):
+        raise HTTPException(status_code=400, detail="Cannot update offline seats within 30 minutes of departure")
     cur_offline = set(r.get("offline_seats", []))
     confirmed_online = set(r.get("booked_seats", [])) - cur_offline
+    pending_requests = await db.requests.find(
+        {"ride_id": ride_id, "status": "pending"},
+        {"_id": 0, "seat_numbers": 1},
+    ).to_list(500)
+    pending_online = {
+        seat
+        for req in pending_requests
+        for seat in req.get("seat_numbers", [])
+        if seat not in cur_offline
+    }
     new_offline = set(payload.offline_seats)
-    conflict = confirmed_online & new_offline
+    conflict = (confirmed_online | pending_online) & new_offline
     if conflict:
-        raise HTTPException(status_code=400, detail=f"Seats already booked online: {sorted(conflict)}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot mark as offline; seats already pending/confirmed online: {sorted(conflict)}",
+        )
     all_seats = {s for row in r.get("seat_layout", []) for s in row}
     for s in new_offline:
         if s not in all_seats:

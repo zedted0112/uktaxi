@@ -1,12 +1,12 @@
-# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-04-29)
+# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-04-30)
 
 ## Corpus Check
-- 61 files · ~81,339 words
+- 61 files · ~86,005 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 212 nodes · 285 edges · 41 communities detected
-- Extraction: 74% EXTRACTED · 26% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.75)
+- 233 nodes · 330 edges · 42 communities detected
+- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 78 edges (avg confidence: 0.75)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -51,79 +51,80 @@
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
 - [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `get_db()` - 26 edges
+1. `get_db()` - 27 edges
 2. `Notification` - 12 edges
-3. `send_notification()` - 10 edges
-4. `auto_mark_departed_rides()` - 10 edges
-5. `User` - 9 edges
-6. `BookingRequest` - 8 edges
-7. `TestRequestFlow` - 8 edges
-8. `Ride` - 7 edges
-9. `_future_date()` - 6 edges
-10. `TestAuthRegister` - 6 edges
+3. `auto_mark_departed_rides()` - 11 edges
+4. `_future_date_unique()` - 11 edges
+5. `send_notification()` - 10 edges
+6. `User` - 9 edges
+7. `TestRequestFlow` - 9 edges
+8. `BookingRequest` - 8 edges
+9. `_register_driver()` - 8 edges
+10. `create_request()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `get_db()` --calls--> `verify_otp()`  [INFERRED]
   /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py
-- `Persist a notification to MongoDB so the user can read it in the     in-app inbo` --uses--> `Notification`  [INFERRED]
-  /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/notifications.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/notification.py
 - `get_db()` --calls--> `startup_event()`  [INFERRED]
   /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py
 - `get_db()` --calls--> `register_user()`  [INFERRED]
   /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py
 - `get_db()` --calls--> `me()`  [INFERRED]
   /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py
+- `get_db()` --calls--> `update_vehicle()`  [INFERRED]
+  /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py → /Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/drivers.py
 
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.13
-Nodes (28): _debug_log(), get_client(), get_db(), can_cancel(), generate_ref(), is_completed_after_arrival(), is_departed(), parse_depart() (+20 more)
+Cohesion: 0.09
+Nodes (10): _future_date(), _future_date_series(), _future_date_unique(), Uttarkashi Taxi Union — Phase 3 API tests (vehicles / driver-first rides / reque, _register_driver(), TestMultiRequestRules, TestOfflineSeats, TestPublishRide (+2 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.08
-Nodes (7): _future_date(), Uttarkashi Taxi Union — Phase 3 API tests (vehicles / driver-first rides / reque, TestAuthRegister, TestOfflineSeats, TestPublishRide, TestRequestFlow, TestVehicles
+Cohesion: 0.14
+Nodes (29): get_db(), can_cancel(), generate_ref(), is_completed_after_arrival(), is_departed(), parse_depart(), Convert date + 12-hour departure text into a comparable datetime., Return True when cancellation is allowed by the 30-minute cutoff rule. (+21 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (15): me(), quickSignIn(), register_user(), verify_otp(), BaseModel, demo_accounts(), Return all seeded demo accounts in a fixed display order., Return all seeded demo accounts in a fixed display order. (+7 more)
+Cohesion: 0.1
+Nodes (20): register_user(), verify_otp(), BaseModel, demo_accounts(), Return all seeded demo accounts in a fixed display order., Return all seeded demo accounts in a fixed display order., update_vehicle(), CreateRequestIn (+12 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.16
-Nodes (12): close_client(), _debug_log(), shutdown_event(), startup_event(), OfflineSeatsIn, PublishRideIn, Ride, RidePublic (+4 more)
+Cohesion: 0.18
+Nodes (13): Notification, list_notifications(), mark_all_read(), mark_read(), Return all notifications for the given phone, newest first., Persist a notification to MongoDB so the user can read it in the     in-app inbo, Return the number of unread notifications for the given phone., Return the number of unread notifications for the given phone. (+5 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.21
-Nodes (12): Notification, list_notifications(), mark_all_read(), mark_read(), Return all notifications for the given phone, newest first., Return the number of unread notifications for the given phone., Return the number of unread notifications for the given phone., Mark a single notification as read. (+4 more)
+Cohesion: 0.22
+Nodes (8): close_client(), _debug_log(), ensure_indexes(), get_client(), Ensure critical indexes exist for booking/ride integrity and query performance., _debug_log(), shutdown_event(), startup_event()
 
 ### Community 5 - "Community 5"
 Cohesion: 0.17
 Nodes (5): useAuth(), BellIcon(), DriverNotifications(), PassengerNotifications(), useNotifications()
 
 ### Community 6 - "Community 6"
-Cohesion: 0.4
-Nodes (2): formattedPhone(), sendOtp()
+Cohesion: 0.29
+Nodes (4): formattedPhone(), me(), quickSignIn(), sendOtp()
 
 ### Community 7 - "Community 7"
-Cohesion: 0.5
-Nodes (2): statusOf(), toggleSeat()
+Cohesion: 0.38
+Nodes (4): request(), statusOf(), submitRequest(), toggleSeat()
 
 ### Community 8 - "Community 8"
-Cohesion: 0.4
+Cohesion: 0.33
 Nodes (0): 
 
 ### Community 9 - "Community 9"
+Cohesion: 0.33
+Nodes (1): TestAuthRegister
+
+### Community 10 - "Community 10"
 Cohesion: 0.7
 Nodes (4): buildBaseCandidates(), getHostIpBase(), normalizeBase(), req()
 
-### Community 10 - "Community 10"
-Cohesion: 0.4
-Nodes (0): 
-
 ### Community 11 - "Community 11"
-Cohesion: 0.5
+Cohesion: 0.4
 Nodes (0): 
 
 ### Community 12 - "Community 12"
@@ -131,12 +132,12 @@ Cohesion: 0.5
 Nodes (0): 
 
 ### Community 13 - "Community 13"
-Cohesion: 0.67
-Nodes (1): confirmLogout()
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 14 - "Community 14"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): confirmLogout()
 
 ### Community 15 - "Community 15"
 Cohesion: 0.67
@@ -151,7 +152,7 @@ Cohesion: 0.67
 Nodes (0): 
 
 ### Community 18 - "Community 18"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 19 - "Community 19"
@@ -240,72 +241,76 @@ Nodes (0):
 
 ### Community 40 - "Community 40"
 Cohesion: 1.0
+Nodes (0): 
+
+### Community 41 - "Community 41"
+Cohesion: 1.0
 Nodes (1): Returns True when departure is more than 30 minutes away (IST).
 
 ## Knowledge Gaps
-- **12 isolated node(s):** `Attach seats_left and strip the MongoDB _id field.`, `Convert date + 12-hour departure text into a comparable datetime.`, `Return True when cancellation is allowed by the 30-minute cutoff rule.`, `Generate a short human-readable booking reference.`, `Generate a short human-readable booking reference.` (+7 more)
+- **13 isolated node(s):** `Ensure critical indexes exist for booking/ride integrity and query performance.`, `Attach seats_left and strip the MongoDB _id field.`, `Convert date + 12-hour departure text into a comparable datetime.`, `Return True when cancellation is allowed by the 30-minute cutoff rule.`, `Generate a short human-readable booking reference.` (+8 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 18`** (2 nodes): `cancel()`, `bookings.tsx`
+- **Thin community `Community 19`** (2 nodes): `cancel()`, `bookings.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 19`** (2 nodes): `cancel()`, `[id].tsx`
+- **Thin community `Community 20`** (2 nodes): `cancel()`, `[id].tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 20`** (2 nodes): `moveDirectories()`, `reset-project.js`
+- **Thin community `Community 21`** (2 nodes): `moveDirectories()`, `reset-project.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 21`** (2 nodes): `Card()`, `Card.tsx`
+- **Thin community `Community 22`** (2 nodes): `Card()`, `Card.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 22`** (2 nodes): `timeAgo()`, `NotificationsScreen.tsx`
+- **Thin community `Community 23`** (2 nodes): `timeAgo()`, `NotificationsScreen.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 23`** (2 nodes): `LoadingSpinner()`, `LoadingSpinner.tsx`
+- **Thin community `Community 24`** (2 nodes): `LoadingSpinner()`, `LoadingSpinner.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 24`** (2 nodes): `Button()`, `Button.tsx`
+- **Thin community `Community 25`** (2 nodes): `Button()`, `Button.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 25`** (2 nodes): `EmptyState()`, `EmptyState.tsx`
+- **Thin community `Community 26`** (2 nodes): `EmptyState()`, `EmptyState.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 26`** (2 nodes): `useVehicles.ts`, `useVehicles()`
+- **Thin community `Community 27`** (2 nodes): `useVehicles.ts`, `useVehicles()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 27`** (1 nodes): `expo-env.d.ts`
+- **Thin community `Community 28`** (1 nodes): `expo-env.d.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 28`** (1 nodes): `metro.config.js`
+- **Thin community `Community 29`** (1 nodes): `metro.config.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 29`** (1 nodes): `eslint.config.js`
+- **Thin community `Community 30`** (1 nodes): `eslint.config.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 30`** (1 nodes): `_layout.tsx`
+- **Thin community `Community 31`** (1 nodes): `_layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 31`** (1 nodes): `+html.tsx`
+- **Thin community `Community 32`** (1 nodes): `+html.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 32`** (1 nodes): `index.tsx`
+- **Thin community `Community 33`** (1 nodes): `index.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 33`** (1 nodes): `rides.tsx`
+- **Thin community `Community 34`** (1 nodes): `rides.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 34`** (1 nodes): `theme.ts`
+- **Thin community `Community 35`** (1 nodes): `theme.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 35`** (1 nodes): `Badge.tsx`
+- **Thin community `Community 36`** (1 nodes): `Badge.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 36`** (1 nodes): `__init__.py`
+- **Thin community `Community 37`** (1 nodes): `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 37`** (1 nodes): `server.py`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 38`** (1 nodes): `__init__.py`
+- **Thin community `Community 38`** (1 nodes): `server.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 39`** (1 nodes): `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 40`** (1 nodes): `Returns True when departure is more than 30 minutes away (IST).`
+- **Thin community `Community 40`** (1 nodes): `__init__.py`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 41`** (1 nodes): `Returns True when departure is more than 30 minutes away (IST).`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `get_db()` connect `Community 0` to `Community 2`, `Community 3`, `Community 4`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
-- **Why does `me()` connect `Community 2` to `Community 0`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `quickSignIn()` connect `Community 2` to `Community 6`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `get_db()` connect `Community 1` to `Community 2`, `Community 3`, `Community 4`, `Community 6`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+- **Why does `me()` connect `Community 6` to `Community 1`, `Community 2`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Are the 23 inferred relationships involving `get_db()` (e.g. with `send_notification()` and `startup_event()`) actually correct?**
   _`get_db()` has 23 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 10 inferred relationships involving `Notification` (e.g. with `Persist a notification to MongoDB so the user can read it in the     in-app inbo` and `Return all notifications for the given phone, newest first.`) actually correct?**
   _`Notification` has 10 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 8 inferred relationships involving `send_notification()` (e.g. with `Notification` and `get_db()`) actually correct?**
-  _`send_notification()` has 8 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 6 inferred relationships involving `auto_mark_departed_rides()` (e.g. with `get_db()` and `is_departed()`) actually correct?**
   _`auto_mark_departed_rides()` has 6 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Ensure critical indexes exist for booking/ride integrity and query performance.`, `Attach seats_left and strip the MongoDB _id field.`, `Convert date + 12-hour departure text into a comparable datetime.` to the rest of the system?**
+  _13 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
+  _Cohesion score 0.09 - nodes in this community are weakly interconnected._

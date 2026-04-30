@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Platform, View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts } from '../../src/theme';
 import { useAuth } from '../../src/auth';
 import { useNotifications } from '../../src/hooks/useNotifications';
@@ -31,6 +32,9 @@ const styles = StyleSheet.create({
 });
 
 export default function UserTabs() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 14 : 0);
+
   return (
     <Tabs
       screenOptions={{
@@ -43,8 +47,8 @@ export default function UserTabs() {
           borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 10,
-          height: Platform.OS === 'ios' ? 82 : 64,
+          paddingBottom: bottomInset + (Platform.OS === 'ios' ? 6 : 8),
+          height: 54 + bottomInset,
         },
       }}
     >

@@ -11,7 +11,7 @@ The fastest phase. None of this touches business logic.
 
 ### 1.1 App Identity (`frontend/app.json`)
 
-- Change `name` from `"frontend"` to `"Uttarkashi Taxi Union"` (or short brand name)
+- Change `name` from `"frontend"` to `"UKTaxi"` (or short brand name)
 - Change `slug` from `"frontend"` to `"uktaxi"`
 - Change `scheme` from `"frontend"` to `"uktaxi"`
 - Add `android.package`: `"com.uktaxi.app"` (unique reverse-domain ID for Play Store)
