@@ -188,6 +188,30 @@ class TestPublishRide:
         assert r.status_code == 400
         assert "Departure time already passed" in r.text
 
+    def test_publish_rejects_second_active_ride_same_day(self, api):
+        same_day = _future_date(20)
+        first = {
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "Uttarkashi", "to_city": "Dehradun",
+            "from_stand": "UK Stand", "to_stand": "Dehradun ISBT",
+            "date": same_day, "depart_time": "08:00 AM",
+            "arrive_time": "12:30 PM", "duration": "4h 30m",
+            "price": 450, "offline_seats": [],
+        }
+        second = {
+            "driver_phone": SEED_BOLERO_DRIVER,
+            "from_city": "Uttarkashi", "to_city": "Rishikesh",
+            "from_stand": "UK Stand", "to_stand": "Rishikesh Tapovan",
+            "date": same_day, "depart_time": "02:00 PM",
+            "arrive_time": "07:00 PM", "duration": "5h 00m",
+            "price": 400, "offline_seats": [],
+        }
+        r1 = api.post(f"{API}/rides", json=first, timeout=20)
+        assert r1.status_code == 200, r1.text
+        r2 = api.post(f"{API}/rides", json=second, timeout=20)
+        assert r2.status_code == 400
+        assert "existing ride for this date" in r2.text
+
     def test_list_rides_has_seat_layout(self, api):
         r = api.get(f"{API}/rides",
                     params={"from_city": "Uttarkashi", "to_city": "Dehradun",

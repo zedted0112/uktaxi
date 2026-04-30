@@ -73,6 +73,7 @@ async def publish_ride(payload: PublishRideIn):
     # Ride publishing copies vehicle snapshot data from driver profile so later
     # profile edits do not rewrite historical ride records.
     db = get_db()
+    await auto_mark_departed_rides()
     driver = await db.users.find_one({"phone": payload.driver_phone, "role": "driver"}, {"_id": 0})
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
@@ -80,6 +81,19 @@ async def publish_ride(payload: PublishRideIn):
         raise HTTPException(status_code=400, detail="Driver has no vehicle set up")
     if is_departed(payload.date, payload.depart_time):
         raise HTTPException(status_code=400, detail="Departure time already passed")
+    same_day_active = await db.rides.find_one(
+        {
+            "driver_phone": payload.driver_phone,
+            "date": payload.date,
+            "status": {"$in": ["published", "departed"]},
+        },
+        {"_id": 0, "id": 1},
+    )
+    if same_day_active:
+        raise HTTPException(
+            status_code=400,
+            detail="Finish or cancel your existing ride for this date before publishing a new one",
+        )
     all_seats = {s for row in driver["seat_layout"] for s in row}
     for s in payload.offline_seats:
         if s not in all_seats:
