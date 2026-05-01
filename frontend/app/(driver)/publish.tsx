@@ -169,7 +169,8 @@ export default function Publish() {
       await api.publishRide({
         driver_phone: user.phone,
         from_city: from, to_city: to,
-        from_stand: defaultStandForCity(from), to_stand: defaultStandForCity(to),
+        from_stand: (user.preferred_taxi_stand?.trim() || defaultStandForCity(from)),
+        to_stand: defaultStandForCity(to),
         date, depart_time: selectedTime.dep, arrive_time: selectedTime.arr, duration: selectedTime.dur,
         price: p, offline_seats: offline,
       });
