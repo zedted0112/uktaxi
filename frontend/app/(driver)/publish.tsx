@@ -10,8 +10,8 @@ import { colors, fonts, radii } from '../../src/theme';
 import { api } from '../../src/api';
 import { useAuth } from '../../src/auth';
 import { SeatMap, SeatLegend, SeatStatus } from '../../src/SeatMap';
-
-const CITIES = ['Uttarkashi', 'Dehradun', 'Rishikesh'];
+import { RoutePickerCard } from '../../src/components/RoutePickerCard';
+import { ROUTES, defaultStandForCity, hasRouteLeg } from '../../src/data/unionRoutes';
 
 function next7() {
   const out: { iso: string; day: string; date: string }[] = [];
@@ -35,12 +35,6 @@ const TIMES = [
   { label: '04:00 PM', dep: '04:00 PM', arr: '08:30 PM', dur: '4h 30m' },
 ];
 
-const STANDS: Record<string, string> = {
-  Uttarkashi: 'Uttarkashi Bus Stand',
-  Dehradun: 'Dehradun ISBT',
-  Rishikesh: 'Rishikesh Tapovan',
-};
-
 function parseSlotDateTime(dateIso: string, dep: string): Date {
   const [time, meridiem] = dep.split(' ');
   const [hh, mm] = time.split(':').map(Number);
@@ -55,8 +49,8 @@ export default function Publish() {
   const router = useRouter();
   const { user } = useAuth();
   const dates = next7();
-  const [from, setFrom] = useState('Uttarkashi');
-  const [to, setTo] = useState('Dehradun');
+  const [from, setFrom] = useState(ROUTES[0].from);
+  const [to, setTo] = useState(ROUTES[0].to);
   const [date, setDate] = useState(dates[0].iso);
   const [timeIdx, setTimeIdx] = useState(0);
   const [price, setPrice] = useState('450');
@@ -82,6 +76,9 @@ export default function Publish() {
   const onPublish = async () => {
     if (!user) return;
     if (from === to) return Alert.alert('Invalid', 'From and To cannot be same');
+    if (!hasRouteLeg(from, to)) {
+      return Alert.alert('Route not available', 'Choose a supported route from the list.');
+    }
     const p = parseInt(price, 10);
     if (isNaN(p) || p <= 0) return Alert.alert('Invalid', 'Price must be a positive number');
     if (availableTimes.length === 0) {
@@ -93,7 +90,7 @@ export default function Publish() {
       await api.publishRide({
         driver_phone: user.phone,
         from_city: from, to_city: to,
-        from_stand: STANDS[from], to_stand: STANDS[to],
+        from_stand: defaultStandForCity(from), to_stand: defaultStandForCity(to),
         date, depart_time: t.dep, arrive_time: t.arr, duration: t.dur,
         price: p, offline_seats: offline,
       });
@@ -135,29 +132,17 @@ export default function Publish() {
         <Text style={styles.heading}>Publish a Ride</Text>
         <Text style={styles.subheading}>Set route, date, time & price</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>From</Text>
-          <View style={styles.row}>
-            {CITIES.map(c => (
-              <TouchableOpacity key={`f-${c}`} onPress={() => setFrom(c)}
-                style={[styles.chip, from === c && styles.chipActive]} testID={`pub-from-${c}`}>
-                <Text style={[styles.chipTxt, from === c && styles.chipTxtActive]}>{c}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Text style={[styles.label, { marginTop: 18 }]}>To</Text>
-          <View style={styles.row}>
-            {CITIES.map(c => {
-              const dis = c === from;
-              return (
-                <TouchableOpacity key={`t-${c}`} onPress={() => !dis && setTo(c)} disabled={dis}
-                  style={[styles.chip, to === c && styles.chipActive, dis && { opacity: 0.35 }]} testID={`pub-to-${c}`}>
-                  <Text style={[styles.chipTxt, to === c && styles.chipTxtActive]}>{c}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
+        <Text style={[styles.label, { marginBottom: 6 }]}>Route</Text>
+        <Text style={styles.routeHint}>Same search as passenger home — type to find a corridor, then pick a row.</Text>
+        <RoutePickerCard
+          fromCity={from}
+          toCity={to}
+          onChange={(f, t) => {
+            setFrom(f);
+            setTo(t);
+          }}
+          testIdPrefix="publish"
+        />
 
         <Text style={[styles.sectionTitle, { marginTop: 22 }]}>Date</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateRow}>
@@ -252,11 +237,7 @@ const styles = StyleSheet.create({
   subheading: { fontFamily: fonts.body, fontSize: 13, color: colors.textSecondary, marginTop: 4, marginBottom: 18 },
   card: { backgroundColor: colors.surface, borderRadius: radii.lg, padding: 18, borderWidth: 1, borderColor: colors.border },
   label: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10 },
-  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radii.full, backgroundColor: colors.borderSoft },
-  chipActive: { backgroundColor: colors.black },
-  chipTxt: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
-  chipTxtActive: { color: '#fff' },
+  routeHint: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted, marginBottom: 12 },
   sectionTitle: { fontFamily: fonts.heading, fontSize: 20, color: colors.textPrimary, marginBottom: 10 },
   dateRow: { gap: 8, paddingRight: 24 },
   dateChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radii.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: 'center', minWidth: 56 },

@@ -1,6 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Alert,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -12,13 +18,11 @@ import { useRides } from '../../src/hooks/useRides';
 import { LoadingSpinner } from '../../src/components/LoadingSpinner';
 import { EmptyState } from '../../src/components/EmptyState';
 import { formatDate } from '../../src/utils/date';
+import { ROUTES } from '../../src/data/unionRoutes';
+import { RoutePickerCard } from '../../src/components/RoutePickerCard';
 
-const ROUTES = [
-  { from: 'Uttarkashi', to: 'Dehradun' },
-  { from: 'Dehradun', to: 'Uttarkashi' },
-  { from: 'Uttarkashi', to: 'Rishikesh' },
-  { from: 'Rishikesh', to: 'Uttarkashi' },
-];
+/** Quick chips (first legs only); full network stays in search + `ROUTES`). */
+const ROUTE_CHIPS_SHOWN = 16;
 
 export default function Home() {
   const insets = useSafeAreaInsets();
@@ -26,75 +30,11 @@ export default function Home() {
   const { user } = useAuth();
   const [fromCity, setFromCity] = useState(ROUTES[0].from);
   const [toCity, setToCity] = useState(ROUTES[0].to);
-  const [pickerFor, setPickerFor] = useState<'from' | 'to' | null>(null);
-  const [routeIdx, setRouteIdx] = useState(0);
-
-  const fromOptions = useMemo(
-    () => Array.from(new Set(ROUTES.map((r) => r.from))),
-    [],
-  );
-  const toOptions = useMemo(
-    () => Array.from(new Set(ROUTES.filter((r) => r.from === fromCity).map((r) => r.to))),
-    [fromCity],
-  );
-
-  const hasRoute = (from: string, to: string) =>
-    ROUTES.some((r) => r.from === from && r.to === to);
-
-  const syncChipIndex = (from: string, to: string) => {
-    const idx = ROUTES.findIndex((r) => r.from === from && r.to === to);
-    if (idx >= 0) setRouteIdx(idx);
-  };
-
-  const applyFrom = (nextFrom: string) => {
-    if (nextFrom === toCity) {
-      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
-      return;
-    }
-    const validForFrom = ROUTES.filter((r) => r.from === nextFrom).map((r) => r.to);
-    if (validForFrom.length === 0) return;
-    const nextTo = validForFrom.includes(toCity) ? toCity : validForFrom[0];
-    setFromCity(nextFrom);
-    setToCity(nextTo);
-    syncChipIndex(nextFrom, nextTo);
-  };
-
-  const applyTo = (nextTo: string) => {
-    if (nextTo === fromCity) {
-      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
-      return;
-    }
-    if (!hasRoute(fromCity, nextTo)) {
-      Alert.alert('Route not available', 'This route is not available yet.');
-      return;
-    }
-    setToCity(nextTo);
-    syncChipIndex(fromCity, nextTo);
-  };
 
   const onChipSelect = (index: number) => {
     const selected = ROUTES[index];
-    setRouteIdx(index);
     setFromCity(selected.from);
     setToCity(selected.to);
-    setPickerFor(null);
-  };
-
-  const reverseRoute = () => {
-    if (fromCity === toCity) {
-      Alert.alert('Invalid selection', 'From and To cannot be the same city.');
-      return;
-    }
-    if (!hasRoute(toCity, fromCity)) {
-      Alert.alert('Route not available', 'Reverse direction is not available yet.');
-      return;
-    }
-    const nextFrom = toCity;
-    const nextTo = fromCity;
-    setFromCity(nextFrom);
-    setToCity(nextTo);
-    syncChipIndex(nextFrom, nextTo);
-    setPickerFor(null);
   };
 
   const { rides, loading, refreshing, onRefresh } = useRides({ from_city: fromCity, to_city: toCity });
@@ -126,14 +66,15 @@ export default function Home() {
         <Text style={styles.subheading}>Rides published by UKTaxi drivers</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-          {ROUTES.map((r, i) => {
-            const active = i === routeIdx;
+          {ROUTES.slice(0, ROUTE_CHIPS_SHOWN).map((r, i) => {
+            const fullIdx = ROUTES.findIndex((x) => x.from === r.from && x.to === r.to);
+            const active = fromCity === r.from && toCity === r.to;
             return (
               <TouchableOpacity
-                key={`${r.from}-${r.to}`}
-                onPress={() => onChipSelect(i)}
+                key={`${r.from}-${r.to}-${i}`}
+                onPress={() => onChipSelect(fullIdx)}
                 style={[styles.chip, active ? styles.chipActive : styles.chipInactive]}
-                testID={`route-chip-${i}`}
+                testID={`route-chip-${fullIdx}`}
               >
                 <Text style={active ? styles.chipTextActive : styles.chipTextInactive}>
                   {r.from} → {r.to}
@@ -142,79 +83,19 @@ export default function Home() {
             );
           })}
         </ScrollView>
+        {ROUTES.length > ROUTE_CHIPS_SHOWN && (
+          <Text style={styles.chipsHint}>More routes: use From / To search below.</Text>
+        )}
 
-        <View style={styles.routeCard}>
-          <TouchableOpacity
-            style={styles.routeRow}
-            activeOpacity={0.8}
-            onPress={() => setPickerFor((p) => (p === 'from' ? null : 'from'))}
-            testID="from-picker-toggle"
-          >
-            <View style={styles.dotGreenOutline} />
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.routeLabel}>From</Text>
-              <Text style={styles.routeCity}>{fromCity}</Text>
-            </View>
-            <Feather name="chevron-down" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-          {pickerFor === 'from' && (
-            <View style={styles.pickerList} testID="from-picker-list">
-              {fromOptions.map((city) => (
-                <TouchableOpacity
-                  key={`from-${city}`}
-                  style={[styles.pickerItem, city === fromCity && styles.pickerItemActive]}
-                  onPress={() => {
-                    applyFrom(city);
-                    setPickerFor(null);
-                  }}
-                  testID={`from-option-${city}`}
-                >
-                  <Text style={[styles.pickerText, city === fromCity && styles.pickerTextActive]}>{city}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-          <View style={styles.routeDivider} />
-          <View style={styles.swapWrap}>
-            <TouchableOpacity
-              style={styles.swapBtn}
-              onPress={reverseRoute}
-              testID="route-reverse-btn"
-            >
-              <Feather name="repeat" size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={styles.routeRow}
-            activeOpacity={0.8}
-            onPress={() => setPickerFor((p) => (p === 'to' ? null : 'to'))}
-            testID="to-picker-toggle"
-          >
-            <View style={styles.dotGreenFill} />
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.routeLabel}>To</Text>
-              <Text style={styles.routeCity}>{toCity}</Text>
-            </View>
-            <Feather name="chevron-down" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-          {pickerFor === 'to' && (
-            <View style={styles.pickerList} testID="to-picker-list">
-              {toOptions.map((city) => (
-                <TouchableOpacity
-                  key={`to-${city}`}
-                  style={[styles.pickerItem, city === toCity && styles.pickerItemActive]}
-                  onPress={() => {
-                    applyTo(city);
-                    setPickerFor(null);
-                  }}
-                  testID={`to-option-${city}`}
-                >
-                  <Text style={[styles.pickerText, city === toCity && styles.pickerTextActive]}>{city}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
+        <RoutePickerCard
+          fromCity={fromCity}
+          toCity={toCity}
+          onChange={(f, t) => {
+            setFromCity(f);
+            setToCity(t);
+          }}
+          testIdPrefix="home"
+        />
 
         <View style={styles.sectionRow}>
           <Text style={styles.sectionTitle}>Published Rides</Text>
@@ -309,42 +190,13 @@ const styles = StyleSheet.create({
   chipInactive: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   chipTextActive: { color: '#fff', fontFamily: fonts.bodyMedium, fontSize: 13 },
   chipTextInactive: { color: colors.textSecondary, fontFamily: fonts.bodyMedium, fontSize: 13 },
-  routeCard: { backgroundColor: colors.surface, borderRadius: radii.lg, padding: 18, borderWidth: 1, borderColor: colors.border },
-  routeRow: { flexDirection: 'row', alignItems: 'center' },
-  pickerList: {
-    marginTop: 10,
-    marginLeft: 28,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    overflow: 'hidden',
-    backgroundColor: colors.bg,
+  chipsHint: {
+    fontFamily: fonts.body,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: -8,
+    marginBottom: 14,
   },
-  pickerItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
-  },
-  pickerItemActive: { backgroundColor: colors.greenLight },
-  pickerText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
-  pickerTextActive: { color: colors.greenDark, fontFamily: fonts.bodySemiBold },
-  routeLabel: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  routeCity: { fontFamily: fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginTop: 2 },
-  routeDivider: { height: 1, backgroundColor: colors.borderSoft, marginVertical: 12, marginLeft: 28 },
-  swapWrap: { alignItems: 'center', marginTop: -4, marginBottom: 8 },
-  swapBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dotGreenOutline: { width: 14, height: 14, borderRadius: 7, borderWidth: 2.5, borderColor: colors.green, backgroundColor: colors.surface },
-  dotGreenFill: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 12 },
   sectionTitle: { fontFamily: fonts.heading, fontSize: 22, color: colors.textPrimary, letterSpacing: -0.5 },
   filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.surface, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.full, borderWidth: 1, borderColor: colors.border },
