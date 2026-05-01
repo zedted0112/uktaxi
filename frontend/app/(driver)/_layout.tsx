@@ -8,7 +8,7 @@ import { useNotifications } from '../../src/hooks/useNotifications';
 
 function BellIcon({ color, size }: { color: string; size: number }) {
   const { user } = useAuth();
-  const { unreadCount } = useNotifications(user?.phone);
+  const { unreadCount } = useNotifications(user?.phone, { includeList: false, pollMs: 60_000 });
   return (
     <View>
       <Feather name="bell" size={size} color={color} />

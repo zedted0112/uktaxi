@@ -45,6 +45,13 @@ const LOCAL_DEMOS: DemoAccount[] = [
   { phone: '+91 98765 00002', name: 'Priya Nautiyal', role: 'user' },
 ];
 
+const HERO_SLIDES = [
+  require('../assets/images/home-carousel/Slide_1.jpg'),
+  require('../assets/images/home-carousel/Slide_2.jpg'),
+  require('../assets/images/home-carousel/slide_show_3.jpg'),
+  require('../assets/images/home-carousel/Slide_4.jpeg'),
+];
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Auth() {
@@ -71,6 +78,7 @@ export default function Auth() {
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(true);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
@@ -106,6 +114,13 @@ export default function Auth() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 3500);
+    return () => clearInterval(timer);
   }, []);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -637,11 +652,19 @@ export default function Auth() {
         {/* ── Hero image ── */}
         <View style={styles.heroImgWrap}>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1738482223844-7ff598553cf7?w=600&q=80' }}
+            source={HERO_SLIDES[heroIndex]}
             style={styles.heroImg}
           />
           <View style={styles.heroOverlay} />
           <Text style={styles.heroTxt}>Uttarkashi · Dehradun · Rishikesh</Text>
+          <View style={styles.heroDots} testID="hero-carousel-dots">
+            {HERO_SLIDES.map((_, idx) => (
+              <View
+                key={`dot-${idx}`}
+                style={[styles.heroDot, idx === heroIndex && styles.heroDotActive]}
+              />
+            ))}
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -804,5 +827,34 @@ const styles = StyleSheet.create({
   heroImgWrap: { marginTop: 28, borderRadius: radii.xl, overflow: 'hidden', height: 140, justifyContent: 'flex-end' },
   heroImg: { position: 'absolute', width: '100%', height: '100%' },
   heroOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)' },
-  heroTxt: { fontFamily: fonts.heading, color: '#fff', fontSize: 18, padding: 18, letterSpacing: -0.3 },
+  heroTxt: {
+    fontFamily: fonts.heading,
+    color: '#fff',
+    fontSize: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+    width: '100%',
+    alignSelf: 'center',
+  },
+  heroDots: {
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  heroDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.45)',
+  },
+  heroDotActive: {
+    width: 18,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+  },
 });

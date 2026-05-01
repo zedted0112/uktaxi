@@ -57,7 +57,7 @@ function NotifRow({
 
 export default function NotificationsScreen({ phone }: { phone: string }) {
   const insets = useSafeAreaInsets();
-  const { notifications, unreadCount, loading, refresh, markRead, markAllRead } = useNotifications(phone);
+  const { notifications, unreadCount, loading, refresh, markRead, markAllRead } = useNotifications(phone, { includeList: true, pollMs: 45_000 });
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
