@@ -41,6 +41,7 @@ export type User = {
   vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
+  driving_license?: string | null;
   total_seats?: number | null;
   seat_layout?: number[][] | null;
 };
@@ -169,7 +170,14 @@ export const api = {
   verifyOtp: (phone: string, otp: string) => req<{ ok: boolean; user: User | null }>(`/auth/verify-otp`, {
     method: 'POST', body: JSON.stringify({ phone, otp }),
   }),
-  register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
+  register: (payload: {
+    phone: string;
+    name: string;
+    role: Role;
+    vehicle_preset?: string;
+    vehicle_number?: string;
+    driving_license?: string;
+  }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
   demoAccounts: () => req<User[]>(`/demo/accounts`),

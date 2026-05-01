@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -35,13 +36,30 @@ const TIMES = [
   { label: '04:00 PM', dep: '04:00 PM', arr: '08:30 PM', dur: '4h 30m' },
 ];
 
-function parseSlotDateTime(dateIso: string, dep: string): Date {
-  const [time, meridiem] = dep.split(' ');
+function parseSlotDateTime(dateIso: string, clockLabel: string): Date | null {
+  const parts = clockLabel.trim().toUpperCase().split(/\s+/);
+  if (parts.length !== 2) return null;
+  const [time, meridiem] = parts;
+  if (meridiem !== 'AM' && meridiem !== 'PM') return null;
+  if (!/^\d{1,2}:\d{2}$/.test(time)) return null;
   const [hh, mm] = time.split(':').map(Number);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm) || hh < 1 || hh > 12 || mm < 0 || mm > 59) return null;
   let hours = hh % 12;
   if (meridiem === 'PM') hours += 12;
   const [y, m, d] = dateIso.split('-').map(Number);
   return new Date(y, m - 1, d, hours, mm, 0, 0);
+}
+
+function formatDuration(from: Date, to: Date): string {
+  const diffMs = to.getTime() - from.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h}h ${String(m).padStart(2, '0')}m`;
+}
+
+function formatTimeLabel(d: Date): string {
+  return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 export default function Publish() {
@@ -53,6 +71,11 @@ export default function Publish() {
   const [to, setTo] = useState(ROUTES[0].to);
   const [date, setDate] = useState(dates[0].iso);
   const [timeIdx, setTimeIdx] = useState(0);
+  const [useCustomTime, setUseCustomTime] = useState(false);
+  const [customDep, setCustomDep] = useState('');
+  const [customArr, setCustomArr] = useState('');
+  const [showDepPicker, setShowDepPicker] = useState(false);
+  const [showArrPicker, setShowArrPicker] = useState(false);
   const [price, setPrice] = useState('450');
   const [offline, setOffline] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,12 +89,53 @@ export default function Publish() {
   const todayIso = new Date().toISOString().slice(0, 10);
   const availableTimes = useMemo(() => {
     const now = new Date();
-    return TIMES.filter(t => date !== todayIso || parseSlotDateTime(date, t.dep) > now);
+    return TIMES.filter(t => {
+      const depAt = parseSlotDateTime(date, t.dep);
+      if (!depAt) return false;
+      return date !== todayIso || depAt > now;
+    });
   }, [date, todayIso]);
 
   useEffect(() => {
     if (timeIdx >= availableTimes.length) setTimeIdx(0);
   }, [availableTimes.length, timeIdx]);
+
+  const selectedTime = useMemo(() => {
+    if (!useCustomTime) {
+      const t = availableTimes[timeIdx];
+      return t ? { dep: t.dep, arr: t.arr, dur: t.dur, label: t.label } : null;
+    }
+    const depAt = parseSlotDateTime(date, customDep);
+    const arrAt = parseSlotDateTime(date, customArr);
+    if (!depAt || !arrAt) return null;
+    if (arrAt <= depAt) return null;
+    return {
+      dep: customDep.trim().toUpperCase(),
+      arr: customArr.trim().toUpperCase(),
+      dur: formatDuration(depAt, arrAt),
+      label: `${customDep.trim().toUpperCase()} → ${customArr.trim().toUpperCase()}`,
+    };
+  }, [useCustomTime, availableTimes, timeIdx, date, customDep, customArr]);
+
+  const customDepDate = useMemo(
+    () => parseSlotDateTime(date, customDep) ?? new Date(),
+    [date, customDep],
+  );
+  const customArrDate = useMemo(
+    () => parseSlotDateTime(date, customArr) ?? new Date(Date.now() + 60 * 60 * 1000),
+    [date, customArr],
+  );
+
+  const onPickCustomDep = (_e: DateTimePickerEvent, picked?: Date) => {
+    if (Platform.OS === 'android') setShowDepPicker(false);
+    if (!picked) return;
+    setCustomDep(formatTimeLabel(picked).toUpperCase());
+  };
+  const onPickCustomArr = (_e: DateTimePickerEvent, picked?: Date) => {
+    if (Platform.OS === 'android') setShowArrPicker(false);
+    if (!picked) return;
+    setCustomArr(formatTimeLabel(picked).toUpperCase());
+  };
 
   const onPublish = async () => {
     if (!user) return;
@@ -81,17 +145,32 @@ export default function Publish() {
     }
     const p = parseInt(price, 10);
     if (isNaN(p) || p <= 0) return Alert.alert('Invalid', 'Price must be a positive number');
-    if (availableTimes.length === 0) {
+    if (!useCustomTime && availableTimes.length === 0) {
       return Alert.alert('No slots available', 'All departure times for this date have already passed.');
+    }
+    if (useCustomTime) {
+      const depAt = parseSlotDateTime(date, customDep);
+      const arrAt = parseSlotDateTime(date, customArr);
+      if (!depAt || !arrAt) {
+        return Alert.alert('Invalid time', 'Use format like 09:15 AM for departure and arrival.');
+      }
+      if (arrAt <= depAt) {
+        return Alert.alert('Invalid time', 'Arrival time must be later than departure time.');
+      }
+      if (date === todayIso && depAt <= new Date()) {
+        return Alert.alert('Invalid time', 'Custom departure time has already passed for today.');
+      }
+    }
+    if (!selectedTime) {
+      return Alert.alert('Invalid time', 'Please choose a valid departure slot.');
     }
     setLoading(true);
     try {
-      const t = availableTimes[timeIdx];
       await api.publishRide({
         driver_phone: user.phone,
         from_city: from, to_city: to,
         from_stand: defaultStandForCity(from), to_stand: defaultStandForCity(to),
-        date, depart_time: t.dep, arrive_time: t.arr, duration: t.dur,
+        date, depart_time: selectedTime.dep, arrive_time: selectedTime.arr, duration: selectedTime.dur,
         price: p, offline_seats: offline,
       });
       Alert.alert('Published!', 'Your ride is now visible to passengers', [
@@ -161,17 +240,65 @@ export default function Publish() {
         <Text style={[styles.sectionTitle, { marginTop: 18 }]}>Departure Time</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 24 }}>
           {availableTimes.map((t, i) => {
-            const active = timeIdx === i;
+            const active = !useCustomTime && timeIdx === i;
             return (
-              <TouchableOpacity key={t.label} onPress={() => setTimeIdx(i)}
+              <TouchableOpacity key={t.label} onPress={() => { setUseCustomTime(false); setTimeIdx(i); }}
                 style={[styles.timeChip, active && styles.timeChipActive]} testID={`pub-time-${i}`}>
                 <Text style={[styles.timeChipTxt, active && { color: '#fff' }]}>{t.label}</Text>
               </TouchableOpacity>
             );
           })}
+          <TouchableOpacity
+            onPress={() => setUseCustomTime(true)}
+            style={[styles.timeChip, useCustomTime && styles.timeChipActive]}
+            testID="pub-time-custom"
+          >
+            <Text style={[styles.timeChipTxt, useCustomTime && { color: '#fff' }]}>Custom</Text>
+          </TouchableOpacity>
         </ScrollView>
-        {availableTimes.length === 0 && (
+        {!useCustomTime && availableTimes.length === 0 && (
           <Text style={styles.noSlotsText}>No departure slots left for this date. Pick another date.</Text>
+        )}
+        {useCustomTime && (
+          <View style={[styles.card, { marginTop: 12 }]}>
+            <Text style={styles.label}>Custom time</Text>
+            <TouchableOpacity
+              onPress={() => setShowDepPicker(true)}
+              style={styles.timePickerBtn}
+              testID="pub-custom-depart"
+            >
+              <Text style={styles.timePickerLabel}>Departure</Text>
+              <Text style={styles.timePickerValue}>{customDep || 'Select departure time'}</Text>
+            </TouchableOpacity>
+            <View style={{ height: 10 }} />
+            <TouchableOpacity
+              onPress={() => setShowArrPicker(true)}
+              style={styles.timePickerBtn}
+              testID="pub-custom-arrive"
+            >
+              <Text style={styles.timePickerLabel}>Arrival</Text>
+              <Text style={styles.timePickerValue}>{customArr || 'Select arrival time'}</Text>
+            </TouchableOpacity>
+            <Text style={styles.noSlotsText}>Pick departure and arrival using the native time picker.</Text>
+            {showDepPicker && (
+              <DateTimePicker
+                mode="time"
+                value={customDepDate}
+                is24Hour={false}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onPickCustomDep}
+              />
+            )}
+            {showArrPicker && (
+              <DateTimePicker
+                mode="time"
+                value={customArrDate}
+                is24Hour={false}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onPickCustomArr}
+              />
+            )}
+          </View>
         )}
 
         <View style={[styles.card, { marginTop: 22 }]}>
@@ -209,14 +336,14 @@ export default function Publish() {
             <Text style={styles.summaryCity}>{to}</Text>
           </View>
           <Text style={styles.summaryMeta}>
-            {date} • {(availableTimes[timeIdx]?.label || 'No slot')} • {availableCount}/{totalSeats} available × ₹{price}
+            {date} • {(selectedTime?.label || 'No slot')} • {availableCount}/{totalSeats} available × ₹{price}
           </Text>
         </View>
 
         <TouchableOpacity
-          style={[styles.publishBtn, (loading || availableTimes.length === 0) && { opacity: 0.6 }]}
+          style={[styles.publishBtn, (loading || !selectedTime) && { opacity: 0.6 }]}
           onPress={onPublish}
-          disabled={loading || availableTimes.length === 0}
+          disabled={loading || !selectedTime}
           testID="publish-btn"
         >
           {loading ? <ActivityIndicator color="#fff" /> : <>
@@ -247,6 +374,16 @@ const styles = StyleSheet.create({
   timeChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radii.full, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   timeChipActive: { backgroundColor: colors.green, borderColor: colors.green },
   timeChipTxt: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
+  timePickerBtn: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+  },
+  timePickerLabel: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 },
+  timePickerValue: { fontFamily: fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginTop: 4 },
   input: { fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.textPrimary, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, paddingHorizontal: 14, paddingVertical: 12 },
   noSlotsText: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 8 },
   seatsHeader: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 24, gap: 10 },

@@ -20,6 +20,7 @@ type DemoAccount = {
   vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
+  driving_license?: string | null;
   total_seats?: number | null;
 };
 
@@ -69,6 +70,7 @@ export default function Auth() {
   const [name, setName] = useState('');
   const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [drivingLicense, setDrivingLicense] = useState('');
 
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -148,6 +150,7 @@ export default function Auth() {
           phone: acct.phone, name: acct.name, role: acct.role,
           vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
           vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
+          driving_license: acct.role === 'driver' ? (acct.driving_license ?? undefined) : undefined,
         });
       }
       await signIn(u);
@@ -204,6 +207,7 @@ export default function Auth() {
         phone, name: name.trim(), role: 'driver',
         vehicle_preset: vehiclePreset,
         vehicle_number: vehicleNumber.trim(),
+        driving_license: drivingLicense.trim().toUpperCase(),
       });
       await signIn(u);
     } catch (e: any) {
@@ -543,11 +547,11 @@ export default function Auth() {
               </>
             )}
 
-            {/* ── Sub-step 3: Plate number ── */}
+            {/* ── Sub-step 3: Vehicle & license ── */}
             {driverSubStep === 3 && (
               <>
                 <Text style={styles.heading}>Vehicle number</Text>
-                <Text style={styles.sub}>Your registered vehicle plate number</Text>
+                <Text style={styles.sub}>Enter your vehicle plate and driving license</Text>
                 <Text style={styles.label}>Plate number</Text>
                 <TextInput
                   value={vehicleNumber}
@@ -559,13 +563,25 @@ export default function Auth() {
                   testID="vehicle-number-input"
                 />
                 <Text style={styles.hintTxt}>Format: UK 07 TA 1234</Text>
+                <Text style={styles.label}>Driving license number</Text>
+                <TextInput
+                  value={drivingLicense}
+                  onChangeText={(t) => setDrivingLicense(t.toUpperCase())}
+                  placeholder="e.g. UK-0620111234567"
+                  placeholderTextColor={colors.textMuted}
+                  style={[styles.inputSingle, { letterSpacing: 1 }]}
+                  autoCapitalize="characters"
+                  testID="driver-license-input"
+                />
+                <Text style={styles.hintTxt}>Enter your valid DL number (uppercase)</Text>
                 <TouchableOpacity
-                  style={[styles.primaryBtn, !vehicleNumber.trim() && styles.btnDisabled, { marginTop: 20 }]}
+                  style={[styles.primaryBtn, (!vehicleNumber.trim() || !drivingLicense.trim()) && styles.btnDisabled, { marginTop: 20 }]}
                   onPress={() => {
                     if (!vehicleNumber.trim()) return Alert.alert('Missing', 'Please enter your vehicle number');
+                    if (!drivingLicense.trim()) return Alert.alert('Missing', 'Please enter your driving license number');
                     setDriverSubStep(4);
                   }}
-                  disabled={!vehicleNumber.trim()}
+                  disabled={!vehicleNumber.trim() || !drivingLicense.trim()}
                   testID="driver-next-3"
                 >
                   <Text style={styles.primaryBtnTxt}>Next</Text>
@@ -591,6 +607,8 @@ export default function Auth() {
                   />
                   <View style={styles.reviewDivider} />
                   <ReviewRow icon="credit-card" label="Plate" value={vehicleNumber} />
+                  <View style={styles.reviewDivider} />
+                  <ReviewRow icon="file-text" label="License" value={drivingLicense} />
                   <View style={styles.reviewDivider} />
                   <ReviewRow icon="phone" label="Phone" value={phone} />
                 </View>

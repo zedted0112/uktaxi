@@ -14,6 +14,7 @@ class User(BaseModel):
     vehicle_preset: Optional[str] = None
     vehicle_type: Optional[str] = None
     vehicle_number: Optional[str] = None
+    driving_license: Optional[str] = None
     total_seats: Optional[int] = None
     seat_layout: Optional[List[List[int]]] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -34,6 +35,7 @@ class RegisterIn(BaseModel):
     role: Role
     vehicle_preset: Optional[str] = None
     vehicle_number: Optional[str] = None
+    driving_license: Optional[str] = None
 
 
 class UpdateDriverVehicleIn(BaseModel):
