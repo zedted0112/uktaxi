@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -12,22 +18,26 @@ import { useRides } from '../../src/hooks/useRides';
 import { LoadingSpinner } from '../../src/components/LoadingSpinner';
 import { EmptyState } from '../../src/components/EmptyState';
 import { formatDate } from '../../src/utils/date';
+import { ROUTES } from '../../src/data/unionRoutes';
+import { RoutePickerCard } from '../../src/components/RoutePickerCard';
 
-const ROUTES = [
-  { from: 'Uttarkashi', to: 'Dehradun' },
-  { from: 'Dehradun', to: 'Uttarkashi' },
-  { from: 'Uttarkashi', to: 'Rishikesh' },
-  { from: 'Rishikesh', to: 'Uttarkashi' },
-];
+/** Quick chips (first legs only); full network stays in search + `ROUTES`). */
+const ROUTE_CHIPS_SHOWN = 16;
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const [routeIdx, setRouteIdx] = useState(0);
+  const [fromCity, setFromCity] = useState(ROUTES[0].from);
+  const [toCity, setToCity] = useState(ROUTES[0].to);
 
-  const { from, to } = ROUTES[routeIdx];
-  const { rides, loading, refreshing, onRefresh } = useRides({ from_city: from, to_city: to });
+  const onChipSelect = (index: number) => {
+    const selected = ROUTES[index];
+    setFromCity(selected.from);
+    setToCity(selected.to);
+  };
+
+  const { rides, loading, refreshing, onRefresh } = useRides({ from_city: fromCity, to_city: toCity });
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="home-screen">
@@ -56,14 +66,15 @@ export default function Home() {
         <Text style={styles.subheading}>Rides published by UKTaxi drivers</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-          {ROUTES.map((r, i) => {
-            const active = i === routeIdx;
+          {ROUTES.slice(0, ROUTE_CHIPS_SHOWN).map((r, i) => {
+            const fullIdx = ROUTES.findIndex((x) => x.from === r.from && x.to === r.to);
+            const active = fromCity === r.from && toCity === r.to;
             return (
               <TouchableOpacity
-                key={`${r.from}-${r.to}`}
-                onPress={() => setRouteIdx(i)}
+                key={`${r.from}-${r.to}-${i}`}
+                onPress={() => onChipSelect(fullIdx)}
                 style={[styles.chip, active ? styles.chipActive : styles.chipInactive]}
-                testID={`route-chip-${i}`}
+                testID={`route-chip-${fullIdx}`}
               >
                 <Text style={active ? styles.chipTextActive : styles.chipTextInactive}>
                   {r.from} → {r.to}
@@ -72,24 +83,19 @@ export default function Home() {
             );
           })}
         </ScrollView>
+        {ROUTES.length > ROUTE_CHIPS_SHOWN && (
+          <Text style={styles.chipsHint}>More routes: use From / To search below.</Text>
+        )}
 
-        <View style={styles.routeCard}>
-          <View style={styles.routeRow}>
-            <View style={styles.dotGreenOutline} />
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.routeLabel}>From</Text>
-              <Text style={styles.routeCity}>{ROUTES[routeIdx].from}</Text>
-            </View>
-          </View>
-          <View style={styles.routeDivider} />
-          <View style={styles.routeRow}>
-            <View style={styles.dotGreenFill} />
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.routeLabel}>To</Text>
-              <Text style={styles.routeCity}>{ROUTES[routeIdx].to}</Text>
-            </View>
-          </View>
-        </View>
+        <RoutePickerCard
+          fromCity={fromCity}
+          toCity={toCity}
+          onChange={(f, t) => {
+            setFromCity(f);
+            setToCity(t);
+          }}
+          testIdPrefix="home"
+        />
 
         <View style={styles.sectionRow}>
           <Text style={styles.sectionTitle}>Published Rides</Text>
@@ -184,13 +190,13 @@ const styles = StyleSheet.create({
   chipInactive: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   chipTextActive: { color: '#fff', fontFamily: fonts.bodyMedium, fontSize: 13 },
   chipTextInactive: { color: colors.textSecondary, fontFamily: fonts.bodyMedium, fontSize: 13 },
-  routeCard: { backgroundColor: colors.surface, borderRadius: radii.lg, padding: 18, borderWidth: 1, borderColor: colors.border },
-  routeRow: { flexDirection: 'row', alignItems: 'center' },
-  routeLabel: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  routeCity: { fontFamily: fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginTop: 2 },
-  routeDivider: { height: 1, backgroundColor: colors.borderSoft, marginVertical: 12, marginLeft: 28 },
-  dotGreenOutline: { width: 14, height: 14, borderRadius: 7, borderWidth: 2.5, borderColor: colors.green, backgroundColor: colors.surface },
-  dotGreenFill: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
+  chipsHint: {
+    fontFamily: fonts.body,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: -8,
+    marginBottom: 14,
+  },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 12 },
   sectionTitle: { fontFamily: fonts.heading, fontSize: 22, color: colors.textPrimary, letterSpacing: -0.5 },
   filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.surface, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.full, borderWidth: 1, borderColor: colors.border },

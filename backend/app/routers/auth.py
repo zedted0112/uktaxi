@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from ..database import get_db
-from ..models.user import User, OtpRequest, OtpVerify, RegisterIn
+from ..models.user import User, OtpRequest, OtpVerify, RegisterIn, UpdateProfileIn
 from ..models.vehicle import VEHICLES
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -61,3 +61,35 @@ async def me(phone: str):
     if not u:
         raise HTTPException(status_code=404, detail="User not found")
     return User(**u)
+
+
+@router.patch("/me", response_model=User)
+async def update_me(phone: str, payload: UpdateProfileIn):
+    db = get_db()
+    current = await db.users.find_one({"phone": phone}, {"_id": 0})
+    if not current:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    updates = payload.dict(exclude_none=True)
+    if "name" in updates:
+        updates["name"] = updates["name"].strip()
+        if not updates["name"]:
+            raise HTTPException(status_code=400, detail="Name cannot be empty")
+    if "default_pickup_note" in updates and len(updates["default_pickup_note"]) > 220:
+        raise HTTPException(status_code=400, detail="Pickup note must be 220 characters or less")
+    if "emergency_contact_phone" in updates:
+        raw = updates["emergency_contact_phone"].strip()
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if digits and len(digits) < 10:
+            raise HTTPException(status_code=400, detail="Emergency contact phone looks invalid")
+        updates["emergency_contact_phone"] = raw
+
+    # Explicit read-only protections: these are managed via onboarding/help flow.
+    readonly_keys = {"vehicle_preset", "vehicle_type", "vehicle_number", "driving_license", "seat_layout", "total_seats"}
+    if any(k in updates for k in readonly_keys):
+        raise HTTPException(status_code=400, detail="Vehicle and license details are read-only here")
+
+    if updates:
+        await db.users.update_one({"phone": phone}, {"$set": updates})
+        current.update(updates)
+    return User(**current)

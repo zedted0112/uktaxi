@@ -41,6 +41,14 @@ export type User = {
   vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
+  driving_license?: string | null;
+  preferred_taxi_stand?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
+  default_pickup_note?: string | null;
+  preferred_language?: 'en' | 'hi' | null;
+  notify_booking_updates?: boolean | null;
+  notify_promotions?: boolean | null;
   total_seats?: number | null;
   seat_layout?: number[][] | null;
 };
@@ -169,9 +177,29 @@ export const api = {
   verifyOtp: (phone: string, otp: string) => req<{ ok: boolean; user: User | null }>(`/auth/verify-otp`, {
     method: 'POST', body: JSON.stringify({ phone, otp }),
   }),
-  register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
+  register: (payload: {
+    phone: string;
+    name: string;
+    role: Role;
+    vehicle_preset?: string;
+    vehicle_number?: string;
+    driving_license?: string;
+  }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+  updateMe: (
+    phone: string,
+    payload: {
+      name?: string;
+      preferred_taxi_stand?: string;
+      emergency_contact_name?: string;
+      emergency_contact_phone?: string;
+      default_pickup_note?: string;
+      preferred_language?: 'en' | 'hi';
+      notify_booking_updates?: boolean;
+      notify_promotions?: boolean;
+    },
+  ) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`, { method: 'PATCH', body: JSON.stringify(payload) }),
   demoAccounts: () => req<User[]>(`/demo/accounts`),
   listVehicles: () => req<Vehicle[]>(`/vehicles`),
   updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>

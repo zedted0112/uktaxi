@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api, AppNotification } from '../api';
 
-export function useNotifications(phone: string | undefined) {
+type NotificationPollOptions = {
+  includeList?: boolean;
+  pollMs?: number;
+};
+
+export function useNotifications(phone: string | undefined, options: NotificationPollOptions = {}) {
+  const { includeList = true, pollMs = 45_000 } = options;
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -11,17 +17,19 @@ export function useNotifications(phone: string | undefined) {
     setLoading(true);
     try {
       const [items, badge] = await Promise.all([
-        api.listNotifications(phone),
+        includeList ? api.listNotifications(phone) : Promise.resolve([]),
         api.unreadCount(phone),
       ]);
-      setNotifications(items);
+      if (includeList) {
+        setNotifications(items);
+      }
       setUnreadCount(badge.count);
     } catch {
       // non-fatal
     } finally {
       setLoading(false);
     }
-  }, [phone]);
+  }, [phone, includeList]);
 
   const markRead = useCallback(async (id: string) => {
     await api.markRead(id).catch(() => {});
@@ -40,9 +48,9 @@ export function useNotifications(phone: string | undefined) {
 
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, 30_000); // poll every 30 s
+    const interval = setInterval(refresh, pollMs);
     return () => clearInterval(interval);
-  }, [refresh]);
+  }, [refresh, pollMs]);
 
   return { notifications, unreadCount, loading, refresh, markRead, markAllRead };
 }

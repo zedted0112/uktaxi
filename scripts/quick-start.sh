@@ -3,7 +3,8 @@
 # Usage from repo root: ./scripts/quick-start.sh
 # Optional overrides:
 #   BACKEND_PORT=8000 FRONTEND_PORT=8081 ./scripts/quick-start.sh
-#   EXPO_TUNNEL=1 ./scripts/quick-start.sh   # enable tunnel when backend is publicly exposed
+#   EXPO_TUNNEL=0 ./scripts/quick-start.sh   # force LAN mode
+#   EXPO_CLEAR=1 ./scripts/quick-start.sh    # clear Metro cache on startup
 
 set -euo pipefail
 
@@ -101,9 +102,24 @@ else
 fi
 
 EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
+EXPO_CLEAR="${EXPO_CLEAR:-1}"
 EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
 if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
   EXPO_ARGS+=(--tunnel)
 fi
+if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
+  EXPO_ARGS+=(--clear)
+fi
 
-npx expo "${EXPO_ARGS[@]}"
+if ! npx expo "${EXPO_ARGS[@]}"; then
+  if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
+    echo "Tunnel failed, falling back to LAN mode..."
+    EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
+    if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
+      EXPO_ARGS+=(--clear)
+    fi
+    npx expo "${EXPO_ARGS[@]}"
+  else
+    exit 1
+  fi
+fi

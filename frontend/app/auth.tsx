@@ -17,10 +17,11 @@ type DemoAccount = {
   phone: string;
   name: string;
   role: 'user' | 'driver';
-  vehicle_preset?: string;
-  vehicle_type?: string;
-  vehicle_number?: string;
-  total_seats?: number;
+  vehicle_preset?: string | null;
+  vehicle_type?: string | null;
+  vehicle_number?: string | null;
+  driving_license?: string | null;
+  total_seats?: number | null;
 };
 
 // ─── Local demo accounts (shown offline) ─────────────────────────────────────
@@ -45,6 +46,13 @@ const LOCAL_DEMOS: DemoAccount[] = [
   { phone: '+91 98765 00002', name: 'Priya Nautiyal', role: 'user' },
 ];
 
+const HERO_SLIDES = [
+  require('../assets/images/home-carousel/Slide_1.jpg'),
+  require('../assets/images/home-carousel/Slide_2.jpg'),
+  require('../assets/images/home-carousel/slide_show_3.jpg'),
+  require('../assets/images/home-carousel/Slide_4.jpeg'),
+];
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Auth() {
@@ -62,15 +70,17 @@ export default function Auth() {
   const [name, setName] = useState('');
   const [vehiclePreset, setVehiclePreset] = useState('bolero');
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [drivingLicense, setDrivingLicense] = useState('');
 
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Mirrors backend `GET /api/` `demo_mode`; false until server responds or on error. */
-  const [demoUiEnabled, setDemoUiEnabled] = useState(false);
-  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([]);
+  /** Default on for resilient demo UX; backend root can still explicitly turn it off. */
+  const [demoUiEnabled, setDemoUiEnabled] = useState(true);
+  const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(true);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
@@ -97,14 +107,22 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          setDemoUiEnabled(false);
-          setDemoAccts([]);
+          // Keep local demo access available if root check fails (tunnel/LAN blips).
+          setDemoUiEnabled(true);
+          setDemoAccts([...LOCAL_DEMOS]);
         }
       }
     })();
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 3500);
+    return () => clearInterval(timer);
   }, []);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -130,8 +148,9 @@ export default function Auth() {
       catch {
         u = await api.register({
           phone: acct.phone, name: acct.name, role: acct.role,
-          vehicle_preset: acct.role === 'driver' ? acct.vehicle_preset : undefined,
-          vehicle_number: acct.role === 'driver' ? acct.vehicle_number : undefined,
+          vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
+          vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
+          driving_license: acct.role === 'driver' ? (acct.driving_license ?? undefined) : undefined,
         });
       }
       await signIn(u);
@@ -188,6 +207,7 @@ export default function Auth() {
         phone, name: name.trim(), role: 'driver',
         vehicle_preset: vehiclePreset,
         vehicle_number: vehicleNumber.trim(),
+        driving_license: drivingLicense.trim().toUpperCase(),
       });
       await signIn(u);
     } catch (e: any) {
@@ -527,11 +547,11 @@ export default function Auth() {
               </>
             )}
 
-            {/* ── Sub-step 3: Plate number ── */}
+            {/* ── Sub-step 3: Vehicle & license ── */}
             {driverSubStep === 3 && (
               <>
                 <Text style={styles.heading}>Vehicle number</Text>
-                <Text style={styles.sub}>Your registered vehicle plate number</Text>
+                <Text style={styles.sub}>Enter your vehicle plate and driving license</Text>
                 <Text style={styles.label}>Plate number</Text>
                 <TextInput
                   value={vehicleNumber}
@@ -543,13 +563,25 @@ export default function Auth() {
                   testID="vehicle-number-input"
                 />
                 <Text style={styles.hintTxt}>Format: UK 07 TA 1234</Text>
+                <Text style={styles.label}>Driving license number</Text>
+                <TextInput
+                  value={drivingLicense}
+                  onChangeText={(t) => setDrivingLicense(t.toUpperCase())}
+                  placeholder="e.g. UK-0620111234567"
+                  placeholderTextColor={colors.textMuted}
+                  style={[styles.inputSingle, { letterSpacing: 1 }]}
+                  autoCapitalize="characters"
+                  testID="driver-license-input"
+                />
+                <Text style={styles.hintTxt}>Enter your valid DL number (uppercase)</Text>
                 <TouchableOpacity
-                  style={[styles.primaryBtn, !vehicleNumber.trim() && styles.btnDisabled, { marginTop: 20 }]}
+                  style={[styles.primaryBtn, (!vehicleNumber.trim() || !drivingLicense.trim()) && styles.btnDisabled, { marginTop: 20 }]}
                   onPress={() => {
                     if (!vehicleNumber.trim()) return Alert.alert('Missing', 'Please enter your vehicle number');
+                    if (!drivingLicense.trim()) return Alert.alert('Missing', 'Please enter your driving license number');
                     setDriverSubStep(4);
                   }}
-                  disabled={!vehicleNumber.trim()}
+                  disabled={!vehicleNumber.trim() || !drivingLicense.trim()}
                   testID="driver-next-3"
                 >
                   <Text style={styles.primaryBtnTxt}>Next</Text>
@@ -575,6 +607,8 @@ export default function Auth() {
                   />
                   <View style={styles.reviewDivider} />
                   <ReviewRow icon="credit-card" label="Plate" value={vehicleNumber} />
+                  <View style={styles.reviewDivider} />
+                  <ReviewRow icon="file-text" label="License" value={drivingLicense} />
                   <View style={styles.reviewDivider} />
                   <ReviewRow icon="phone" label="Phone" value={phone} />
                 </View>
@@ -636,11 +670,19 @@ export default function Auth() {
         {/* ── Hero image ── */}
         <View style={styles.heroImgWrap}>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1738482223844-7ff598553cf7?w=600&q=80' }}
+            source={HERO_SLIDES[heroIndex]}
             style={styles.heroImg}
           />
           <View style={styles.heroOverlay} />
           <Text style={styles.heroTxt}>Uttarkashi · Dehradun · Rishikesh</Text>
+          <View style={styles.heroDots} testID="hero-carousel-dots">
+            {HERO_SLIDES.map((_, idx) => (
+              <View
+                key={`dot-${idx}`}
+                style={[styles.heroDot, idx === heroIndex && styles.heroDotActive]}
+              />
+            ))}
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -803,5 +845,34 @@ const styles = StyleSheet.create({
   heroImgWrap: { marginTop: 28, borderRadius: radii.xl, overflow: 'hidden', height: 140, justifyContent: 'flex-end' },
   heroImg: { position: 'absolute', width: '100%', height: '100%' },
   heroOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)' },
-  heroTxt: { fontFamily: fonts.heading, color: '#fff', fontSize: 18, padding: 18, letterSpacing: -0.3 },
+  heroTxt: {
+    fontFamily: fonts.heading,
+    color: '#fff',
+    fontSize: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+    width: '100%',
+    alignSelf: 'center',
+  },
+  heroDots: {
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  heroDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.45)',
+  },
+  heroDotActive: {
+    width: 18,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+  },
 });
