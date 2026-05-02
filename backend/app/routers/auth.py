@@ -1,8 +1,11 @@
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+import requests
 from ..database import get_db
-from ..models.user import User, OtpRequest, OtpVerify, RegisterIn, UpdateProfileIn
+from ..models.user import User, OtpRequest, OtpVerify, RegisterIn, UpdateProfileIn, GoogleVerifyIn, AuthOut
 from ..models.vehicle import VEHICLES
+from ..config import ENABLE_DEMO_MODE, GOOGLE_WEB_CLIENT_ID
+from ..security import create_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = logging.getLogger(__name__)
@@ -10,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 @router.post("/request-otp")
 async def request_otp(payload: OtpRequest):
+    if not ENABLE_DEMO_MODE:
+        raise HTTPException(status_code=400, detail="Phone OTP demo mode is disabled. Use Google sign-in.")
     # Demo mode always accepts a synthetic OTP flow so frontend onboarding can
     # be developed before integrating a real SMS provider.
     logger.info(f"OTP requested for {payload.phone}")
@@ -18,23 +23,28 @@ async def request_otp(payload: OtpRequest):
 
 @router.post("/verify-otp")
 async def verify_otp(payload: OtpVerify):
+    if not ENABLE_DEMO_MODE:
+        raise HTTPException(status_code=400, detail="Phone OTP demo mode is disabled. Use Google sign-in.")
     # Validation stays intentionally lightweight: it verifies format and then
     # returns existing user record if the phone already exists.
     if len(payload.otp) != 6 or not payload.otp.isdigit():
         raise HTTPException(status_code=400, detail="Invalid OTP")
     db = get_db()
     user = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
-    return {"ok": True, "user": user}
+    if not user:
+        return {"ok": True, "user": None, "token": None}
+    token = create_access_token(user)
+    return {"ok": True, "user": user, "token": token}
 
 
-@router.post("/register", response_model=User)
+@router.post("/register", response_model=AuthOut)
 async def register_user(payload: RegisterIn):
     # Registration is idempotent by phone number. If the user already exists,
     # the same profile is returned instead of creating duplicates.
     db = get_db()
     existing = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
     if existing:
-        return User(**existing)
+        return AuthOut(user=User(**existing), token=create_access_token(existing))
     data = payload.dict()
     if payload.role == "driver":
         # Driver accounts are enriched from vehicle presets so seat layout and
@@ -50,26 +60,59 @@ async def register_user(payload: RegisterIn):
         })
     u = User(**data)
     await db.users.insert_one(u.dict())
-    return u
+    return AuthOut(user=u, token=create_access_token(u.dict()))
+
+
+@router.post("/google-verify")
+async def google_verify(payload: GoogleVerifyIn):
+    try:
+        r = requests.get(
+            "https://oauth2.googleapis.com/tokeninfo",
+            params={"id_token": payload.id_token},
+            timeout=8,
+        )
+        info = r.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Google token verification failed")
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=400, detail=info.get("error_description") or "Invalid Google token")
+    if info.get("email_verified") not in ("true", True):
+        raise HTTPException(status_code=400, detail="Google email is not verified")
+    if GOOGLE_WEB_CLIENT_ID and info.get("aud") != GOOGLE_WEB_CLIENT_ID:
+        raise HTTPException(status_code=400, detail="Google token audience mismatch")
+
+    db = get_db()
+    email = (info.get("email") or "").strip().lower()
+    sub = (info.get("sub") or "").strip()
+    if not email or not sub:
+        raise HTTPException(status_code=400, detail="Google token missing identity fields")
+
+    existing = await db.users.find_one(
+        {"$or": [{"google_sub": sub}, {"email": email}]},
+        {"_id": 0},
+    )
+    if existing:
+        return {"ok": True, "user": User(**existing), "token": create_access_token(existing), "profile": None}
+
+    profile = {
+        "email": email,
+        "google_sub": sub,
+        "name": (info.get("name") or "").strip() or email.split("@")[0],
+        "picture": info.get("picture"),
+    }
+    return {"ok": True, "user": None, "token": None, "profile": profile}
 
 
 @router.get("/me")
-async def me(phone: str):
+async def me(current=Depends(get_current_user)):
     # Frontend session restore calls this endpoint to refresh user profile.
-    db = get_db()
-    u = await db.users.find_one({"phone": phone}, {"_id": 0})
-    if not u:
-        raise HTTPException(status_code=404, detail="User not found")
-    return User(**u)
+    return User(**current)
 
 
 @router.patch("/me", response_model=User)
-async def update_me(phone: str, payload: UpdateProfileIn):
+async def update_me(payload: UpdateProfileIn, current=Depends(get_current_user)):
     db = get_db()
-    current = await db.users.find_one({"phone": phone}, {"_id": 0})
-    if not current:
-        raise HTTPException(status_code=404, detail="User not found")
-
     updates = payload.dict(exclude_none=True)
     if "name" in updates:
         updates["name"] = updates["name"].strip()
@@ -90,6 +133,6 @@ async def update_me(phone: str, payload: UpdateProfileIn):
         raise HTTPException(status_code=400, detail="Vehicle and license details are read-only here")
 
     if updates:
-        await db.users.update_one({"phone": phone}, {"$set": updates})
+        await db.users.update_one({"id": current["id"]}, {"$set": updates})
         current.update(updates)
     return User(**current)

@@ -5,9 +5,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Constants from 'expo-constants';
 import { colors, fonts, radii } from '../src/theme';
 import { api, Vehicle } from '../src/api';
 import { useAuth } from '../src/auth';
+
+WebBrowser.maybeCompleteAuthSession();
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -58,6 +63,15 @@ const HERO_SLIDES = [
 export default function Auth() {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
+  const forceDemoOtp = String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
+  const isExpoGo = Constants.appOwnership === 'expo';
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      offlineAccess: true,
+    });
+  }, []);
 
   // Navigation state
   const [step, setStep] = useState<Step>('role_select');
@@ -75,12 +89,17 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Default on for resilient demo UX; backend root can still explicitly turn it off. */
-  const [demoUiEnabled, setDemoUiEnabled] = useState(true);
+  /** Controlled by backend root flag (or forced locally via EXPO_PUBLIC_FORCE_DEMO_OTP). */
+  const [demoUiEnabled, setDemoUiEnabled] = useState(forceDemoOtp);
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [googleProfile, setGoogleProfile] = useState<{
+    email: string;
+    google_sub: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     api.listVehicles().then(setVehicles).catch(() => {});
@@ -89,7 +108,7 @@ export default function Auth() {
       try {
         const root = await api.getApiRoot();
         if (cancelled) return;
-        const enabled = root.demo_mode === true;
+        const enabled = forceDemoOtp || root.demo_mode === true;
         setDemoUiEnabled(enabled);
         if (!enabled) {
           setDemoAccts([]);
@@ -107,16 +126,16 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          // Keep local demo access available if root check fails (tunnel/LAN blips).
-          setDemoUiEnabled(true);
-          setDemoAccts([...LOCAL_DEMOS]);
+          // If backend root cannot be reached, only use demo fallback when explicitly forced.
+          setDemoUiEnabled(forceDemoOtp);
+          setDemoAccts(forceDemoOtp ? [...LOCAL_DEMOS] : []);
         }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [forceDemoOtp]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -140,33 +159,78 @@ export default function Auth() {
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
+  const onSelectRole = async (nextRole: 'user' | 'driver') => {
+    setRole(nextRole);
+    if (demoUiEnabled) {
+      setStep('phone');
+      return;
+    }
+    await signInWithGoogle();
+  };
+
   const quickSignIn = async (acct: DemoAccount) => {
     setQuickLoading(acct.phone);
     try {
-      let u;
-      try { u = await api.me(acct.phone); }
-      catch {
-        u = await api.register({
-          phone: acct.phone, name: acct.name, role: acct.role,
-          vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
-          vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
-          driving_license: acct.role === 'driver' ? (acct.driving_license ?? undefined) : undefined,
-        });
-      }
-      await signIn(u);
+      const res = await api.register({
+        phone: acct.phone, name: acct.name, role: acct.role,
+        vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
+        vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
+        driving_license: acct.role === 'driver' ? (acct.driving_license ?? undefined) : undefined,
+      });
+      if (!res.user || !res.token) throw new Error('Demo sign-in token missing');
+      await signIn(res.user, res.token);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed to sign in');
     } finally { setQuickLoading(null); }
   };
 
-  const sendOtp = async () => {
-    const p = formattedPhone();
-    if (p.replace(/\D/g, '').length < 12) return Alert.alert('Invalid', 'Enter a valid 10-digit number');
+  const signInWithGoogle = async () => {
     setLoading(true);
     try {
-      await api.requestOtp(p);
-      setPhone(p);
-      setStep('otp');
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      const idToken = response.data?.idToken;
+      if (!idToken) throw new Error('Google did not return an ID token');
+
+      const verify = await api.verifyGoogle(idToken);
+      if (verify.user) {
+        if (!verify.token) throw new Error('Google auth token missing');
+        await signIn(verify.user, verify.token);
+        return;
+      }
+      if (!verify.profile) throw new Error('Google profile missing from server response');
+      const profile = verify.profile;
+      setGoogleProfile(profile);
+      setName((prev) => prev || profile.name);
+      setStep('phone');
+    } catch (e: any) {
+      Alert.alert('Google sign-in failed', e?.message || 'Please try again');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendOtp = async () => {
+    const p = formattedPhone();
+    const digits = phone.replace(/\D/g, '');
+    if (!(digits.startsWith('91') && digits.length === 12) && digits.length !== 10) {
+      return Alert.alert('Invalid', 'Enter a valid 10-digit number');
+    }
+    setLoading(true);
+    try {
+      if (googleProfile) {
+        setPhone(p);
+        setDriverSubStep(1);
+        setStep(role === 'driver' ? 'onboard_driver' : 'onboard_passenger');
+        return;
+      }
+      if (demoUiEnabled) {
+        await api.requestOtp(p);
+        setPhone(p);
+        setStep('otp');
+      } else {
+        throw new Error('Phone OTP is disabled. Use Continue with Google.');
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }
@@ -184,8 +248,8 @@ export default function Auth() {
     setLoading(true);
     try {
       const res = await api.verifyOtp(phone, otp);
-      if (res.user) {
-        await signIn(res.user);
+      if (res.user && res.token) {
+        await signIn(res.user, res.token);
       } else {
         // New number — go to role-specific onboarding
         setDriverSubStep(1);
@@ -194,8 +258,7 @@ export default function Auth() {
     } catch (e: any) {
       Alert.alert(
         'Verification failed',
-        e?.message ||
-          (demoUiEnabled ? 'Please try OTP 123456' : 'Check the code and try again'),
+        e?.message || 'Please try OTP 123456',
       );
     } finally { setLoading(false); }
   };
@@ -205,11 +268,15 @@ export default function Auth() {
     try {
       const u = await api.register({
         phone, name: name.trim(), role: 'driver',
+        email: googleProfile?.email,
+        google_sub: googleProfile?.google_sub,
+        auth_provider: googleProfile ? 'google' : 'phone',
         vehicle_preset: vehiclePreset,
         vehicle_number: vehicleNumber.trim(),
         driving_license: drivingLicense.trim().toUpperCase(),
       });
-      await signIn(u);
+      if (!u.user || !u.token) throw new Error('Registration token missing');
+      await signIn(u.user, u.token);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }
@@ -219,8 +286,16 @@ export default function Auth() {
     if (!name.trim()) return Alert.alert('Missing', 'Please enter your name');
     setLoading(true);
     try {
-      const u = await api.register({ phone, name: name.trim(), role: 'user' });
-      await signIn(u);
+      const u = await api.register({
+        phone,
+        name: name.trim(),
+        role: 'user',
+        email: googleProfile?.email,
+        google_sub: googleProfile?.google_sub,
+        auth_provider: googleProfile ? 'google' : 'phone',
+      });
+      if (!u.user || !u.token) throw new Error('Registration token missing');
+      await signIn(u.user, u.token);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Failed');
     } finally { setLoading(false); }
@@ -314,7 +389,7 @@ export default function Auth() {
               {/* Driver card */}
               <TouchableOpacity
                 style={styles.roleSelectCard}
-                onPress={() => { setRole('driver'); setStep('phone'); }}
+                onPress={() => { void onSelectRole('driver'); }}
                 testID="select-driver"
                 activeOpacity={0.85}
               >
@@ -331,7 +406,7 @@ export default function Auth() {
               {/* Passenger card */}
               <TouchableOpacity
                 style={styles.roleSelectCard}
-                onPress={() => { setRole('user'); setStep('phone'); }}
+                onPress={() => { void onSelectRole('user'); }}
                 testID="select-passenger"
                 activeOpacity={0.85}
               >
@@ -345,6 +420,19 @@ export default function Auth() {
                 </View>
               </TouchableOpacity>
             </View>
+            {!demoUiEnabled && (
+              <TouchableOpacity
+                style={[styles.googleBtn, loading && styles.btnDisabled]}
+                onPress={signInWithGoogle}
+                disabled={loading}
+                testID="google-signin-btn"
+              >
+                {loading ? <ActivityIndicator color={colors.textPrimary} /> : <>
+                  <MaterialCommunityIcons name="google" size={18} color={colors.textPrimary} />
+                  <Text style={styles.googleBtnTxt}>Continue with Google</Text>
+                </>}
+              </TouchableOpacity>
+            )}
 
             <Text style={styles.legal}>By continuing you agree to our terms of service</Text>
           </View>
@@ -368,7 +456,11 @@ export default function Auth() {
             </TouchableOpacity>
 
             <Text style={styles.heading}>Enter your number</Text>
-            <Text style={styles.sub}>We'll send you a 6-digit OTP to verify</Text>
+            <Text style={styles.sub}>
+              {googleProfile
+                ? `Google verified: ${googleProfile.email}. Add phone for ride coordination.`
+                : "We'll send you a 6-digit OTP to verify"}
+            </Text>
 
             <View style={styles.inputWrap}>
               <Text style={styles.prefix}>+91</Text>
@@ -391,7 +483,7 @@ export default function Auth() {
               testID="send-otp-btn"
             >
               {loading ? <ActivityIndicator color="#fff" /> : <>
-                <Text style={styles.primaryBtnTxt}>Send OTP</Text>
+                <Text style={styles.primaryBtnTxt}>{googleProfile ? 'Continue' : 'Send OTP'}</Text>
                 <Feather name="arrow-right" size={18} color="#fff" />
               </>}
             </TouchableOpacity>
@@ -401,7 +493,7 @@ export default function Auth() {
         {/* ══════════════════════════════════════════════
             STEP 3 — OTP
         ══════════════════════════════════════════════ */}
-        {step === 'otp' && (
+        {demoUiEnabled && step === 'otp' && (
           <View style={styles.card} testID="otp-step">
             <TouchableOpacity onPress={() => setStep('phone')} style={styles.backInline} testID="back-to-phone">
               <Feather name="chevron-left" size={18} color={colors.textSecondary} />
@@ -461,7 +553,7 @@ export default function Auth() {
             {/* Back / context header */}
             <TouchableOpacity
               onPress={() => {
-                if (driverSubStep === 1) setStep('otp');
+                if (driverSubStep === 1) setStep(googleProfile || !demoUiEnabled ? 'phone' : 'otp');
                 else setDriverSubStep((driverSubStep - 1) as 1 | 2 | 3 | 4);
               }}
               style={styles.backInline}
@@ -634,7 +726,7 @@ export default function Auth() {
         ══════════════════════════════════════════════ */}
         {step === 'onboard_passenger' && (
           <View style={styles.card} testID="onboard-passenger-step">
-            <TouchableOpacity onPress={() => setStep('otp')} style={styles.backInline} testID="passenger-back">
+            <TouchableOpacity onPress={() => setStep(googleProfile || !demoUiEnabled ? 'phone' : 'otp')} style={styles.backInline} testID="passenger-back">
               <Feather name="chevron-left" size={18} color={colors.textSecondary} />
               <Text style={styles.backTxt}>Back</Text>
             </TouchableOpacity>
@@ -750,6 +842,19 @@ const styles = StyleSheet.create({
   roleSelectTitle: { fontFamily: fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary },
   roleSelectSub: { fontFamily: fonts.body, fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 17 },
   roleSelectArrow: { marginTop: 16 },
+  googleBtn: {
+    marginTop: 14,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.borderSoft,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  googleBtnTxt: { fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary },
 
   // Role pill (shown in phone step header)
   rolePill: {
