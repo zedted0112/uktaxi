@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../src/theme';
-import { api, IS_APP_DEMO_MODE, Vehicle } from '../src/api';
+import { api, Vehicle, FORCE_DEMO_AUTH_UI, IS_APP_DEMO_MODE } from '../src/api';
 import { useAuth } from '../src/auth';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -58,8 +58,7 @@ const HERO_SLIDES = [
 export default function Auth() {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
-  const forceDemoOtp =
-    IS_APP_DEMO_MODE || String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
+  const forceDemoOtp = IS_APP_DEMO_MODE || FORCE_DEMO_AUTH_UI;
 
   // Navigation state
   const [step, setStep] = useState<Step>('role_select');
@@ -77,7 +76,7 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Backend `demo_mode`, or forced via EXPO_PUBLIC_DEMO_MODE / EXPO_PUBLIC_FORCE_DEMO_OTP. */
+  /** Backend `demo_mode`, or forced via EXPO_PUBLIC_DEMO_MODE / SHOW_DEMO_AUTH / FORCE_DEMO_OTP. */
   const [demoUiEnabled, setDemoUiEnabled] = useState(forceDemoOtp);
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
@@ -109,8 +108,9 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          setDemoUiEnabled(forceDemoOtp);
-          setDemoAccts(forceDemoOtp ? [...LOCAL_DEMOS] : []);
+          // Root unreachable (tunnel/LAN blips): keep quick picks; cannot know backend demo flag.
+          setDemoUiEnabled(true);
+          setDemoAccts([...LOCAL_DEMOS]);
         }
       }
     })();

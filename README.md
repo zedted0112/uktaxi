@@ -125,8 +125,10 @@ In a second terminal:
 
 ```bash
 cd frontend
-npx expo start --port 8081
+npx expo start --go --lan --port 8081
 ```
+
+(`--go` = Expo Go, `--lan` = same Wi‑Fi / stable Metro host.) Or use `./scripts/quick-start.sh` from the repo root.
 
 Then:
 1. Open **Expo Go** on phone.

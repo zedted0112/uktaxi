@@ -10,6 +10,11 @@ const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
 export const IS_APP_DEMO_MODE =
   String(process.env.EXPO_PUBLIC_DEMO_MODE || '').toLowerCase() === 'true';
 
+/** When true, auth shows quick demo + OTP hints even if the API reports `demo_mode: false` (e.g. cloud build). */
+export const FORCE_DEMO_AUTH_UI =
+  String(process.env.EXPO_PUBLIC_SHOW_DEMO_AUTH || '').toLowerCase() === 'true' ||
+  String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
+
 function normalizeBase(url: string): string {
   return url.trim().replace(/\/+$/, '');
 }

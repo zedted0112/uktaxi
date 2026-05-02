@@ -5,6 +5,8 @@
 #   BACKEND_PORT=8000 FRONTEND_PORT=8081 ./scripts/quick-start.sh
 #   EXPO_TUNNEL=0 ./scripts/quick-start.sh   # force LAN mode
 #   EXPO_CLEAR=1 ./scripts/quick-start.sh    # clear Metro cache on startup
+# Exports for local API (see frontend/src/api.ts): EXPO_PUBLIC_DEMO_MODE=true (default),
+# EXPO_PUBLIC_BACKEND_PORT, EXPO_PUBLIC_BACKEND_URL=http://<LAN-IP>:PORT for device builds.
 
 set -euo pipefail
 
@@ -89,23 +91,33 @@ fi
 
 echo "Backend pid ${BACKEND_PID} — API: http://127.0.0.1:${BACKEND_PORT}/api/"
 echo ""
-echo "Starting Expo on port ${FRONTEND_PORT} (QR below; Ctrl+C stops Expo and backend)..."
+echo "Starting Expo Go (--go) on port ${FRONTEND_PORT} — scan QR in Expo Go app (not Chrome). Ctrl+C stops Expo and backend."
 echo ""
 
 cd "${ROOT}/frontend"
 LOCAL_IP="$(detect_local_ip)"
+# Match frontend api.ts: local-only bases + correct port when EXPO_PUBLIC_DEMO_MODE=true.
+export EXPO_PUBLIC_BACKEND_PORT="${BACKEND_PORT}"
+export EXPO_PUBLIC_DEMO_MODE="${EXPO_PUBLIC_DEMO_MODE:-true}"
 if [[ -n "${LOCAL_IP}" ]]; then
   export EXPO_PUBLIC_BACKEND_URL="http://${LOCAL_IP}:${BACKEND_PORT}"
-  echo "Using phone-reachable backend URL: ${EXPO_PUBLIC_BACKEND_URL}"
+  # Metro / Expo Go use this so the phone loads JS from your LAN IP (not localhost/tunnel guesswork).
+  export REACT_NATIVE_PACKAGER_HOSTNAME="${LOCAL_IP}"
+  echo "Local API for Expo: EXPO_PUBLIC_DEMO_MODE=${EXPO_PUBLIC_DEMO_MODE} EXPO_PUBLIC_BACKEND_PORT=${BACKEND_PORT}"
+  echo "Phone / same Wi-Fi: ${EXPO_PUBLIC_BACKEND_URL} (also used when demo mode is off)"
+  echo "Metro hostname for device: REACT_NATIVE_PACKAGER_HOSTNAME=${LOCAL_IP}"
 else
-  echo "Could not detect local IP; keeping EXPO_PUBLIC_BACKEND_URL as-is."
+  echo "Could not detect LAN IP (en0/en1); EXPO_PUBLIC_BACKEND_URL unchanged — simulator may use localhost/10.0.2.2 via app."
 fi
 
 EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
 EXPO_CLEAR="${EXPO_CLEAR:-1}"
-EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
+# --go = Expo Go. --lan = Metro manifest/QR use LAN only (same Wi-Fi as phone); avoids flaky tunnel/localhost.
+EXPO_ARGS=(start "--go" "--port" "${FRONTEND_PORT}")
 if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
   EXPO_ARGS+=(--tunnel)
+else
+  EXPO_ARGS+=(--lan)
 fi
 if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
   EXPO_ARGS+=(--clear)
@@ -114,7 +126,7 @@ fi
 if ! npx expo "${EXPO_ARGS[@]}"; then
   if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
     echo "Tunnel failed, falling back to LAN mode..."
-    EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
+    EXPO_ARGS=(start "--go" "--lan" "--port" "${FRONTEND_PORT}")
     if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
       EXPO_ARGS+=(--clear)
     fi
