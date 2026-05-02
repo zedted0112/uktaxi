@@ -4,7 +4,7 @@
     "slug": "uktaxi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/home-carousel/Slide_2.jpg",
+    "icon": "./assets/images/app-icon.png",
     "scheme": "com.ukparivahan.app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,29 +19,30 @@
         "POST_NOTIFICATIONS"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/home-carousel/Slide_2.jpg",
-        "backgroundColor": "#000"
+        "foregroundImage": "./assets/images/app-icon.png",
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/home-carousel/Slide_2.jpg"
+      "favicon": "./assets/images/app-icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/home-carousel/Slide_2.jpg",
+          "image": "./assets/images/app-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#000000"
         }
       ],
       "@react-native-community/datetimepicker",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -52,6 +53,9 @@
         "projectId": "cae667c0-4293-41d4-82a2-8025bb92420f"
       }
     },
-    "owner": "himalayancoder"
+    "owner": "himalayancoder",
+    "androidStatusBar": {
+      "backgroundColor": "#000000"
+    }
   }
 }
