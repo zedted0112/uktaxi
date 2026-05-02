@@ -101,18 +101,23 @@ export EXPO_PUBLIC_BACKEND_PORT="${BACKEND_PORT}"
 export EXPO_PUBLIC_DEMO_MODE="${EXPO_PUBLIC_DEMO_MODE:-true}"
 if [[ -n "${LOCAL_IP}" ]]; then
   export EXPO_PUBLIC_BACKEND_URL="http://${LOCAL_IP}:${BACKEND_PORT}"
+  # Metro / Expo Go use this so the phone loads JS from your LAN IP (not localhost/tunnel guesswork).
+  export REACT_NATIVE_PACKAGER_HOSTNAME="${LOCAL_IP}"
   echo "Local API for Expo: EXPO_PUBLIC_DEMO_MODE=${EXPO_PUBLIC_DEMO_MODE} EXPO_PUBLIC_BACKEND_PORT=${BACKEND_PORT}"
   echo "Phone / same Wi-Fi: ${EXPO_PUBLIC_BACKEND_URL} (also used when demo mode is off)"
+  echo "Metro hostname for device: REACT_NATIVE_PACKAGER_HOSTNAME=${LOCAL_IP}"
 else
   echo "Could not detect LAN IP (en0/en1); EXPO_PUBLIC_BACKEND_URL unchanged — simulator may use localhost/10.0.2.2 via app."
 fi
 
 EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
 EXPO_CLEAR="${EXPO_CLEAR:-1}"
-# --go = Expo Go + Metro JS bundle (QR). Without it, CLI may open web or a dev client when present.
+# --go = Expo Go. --lan = Metro manifest/QR use LAN only (same Wi-Fi as phone); avoids flaky tunnel/localhost.
 EXPO_ARGS=(start "--go" "--port" "${FRONTEND_PORT}")
 if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
   EXPO_ARGS+=(--tunnel)
+else
+  EXPO_ARGS+=(--lan)
 fi
 if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
   EXPO_ARGS+=(--clear)
@@ -121,7 +126,7 @@ fi
 if ! npx expo "${EXPO_ARGS[@]}"; then
   if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
     echo "Tunnel failed, falling back to LAN mode..."
-    EXPO_ARGS=(start "--go" "--port" "${FRONTEND_PORT}")
+    EXPO_ARGS=(start "--go" "--lan" "--port" "${FRONTEND_PORT}")
     if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
       EXPO_ARGS+=(--clear)
     fi

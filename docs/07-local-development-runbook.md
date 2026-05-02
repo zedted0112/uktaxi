@@ -81,10 +81,12 @@ uvicorn server:app --reload --host 0.0.0.0 --port 8000
 ### Start frontend (with QR code for device)
 ```bash
 cd frontend
-npx expo start --port 8081
+npx expo start --go --lan --port 8081
 ```
 
-Scan the QR code in Expo Go on your device. Device and laptop must be on the same WiFi network.
+`--go` targets Expo Go; `--lan` keeps Metro on your Wi‑Fi IP so the phone can load the bundle (avoid relying on tunnel/localhost). Scan the QR in Expo Go; device and laptop must be on the same Wi‑Fi.
+
+`./scripts/quick-start.sh` sets the same flags plus `REACT_NATIVE_PACKAGER_HOSTNAME` to your LAN IP when it can detect `en0`/`en1`.
 
 ### Start frontend (tunnel mode — any network)
 ```bash
@@ -127,6 +129,8 @@ Demo OTP: `123456` (any 6-digit code also accepted).
 - Kill stale Metro/backend processes: `lsof -ti:8000 | xargs kill -9`.
 
 ### Expo starts but app blank/loading
+- Prefer **LAN**: `./scripts/quick-start.sh` or `yarn start` (uses `--go --lan`). Phone and Mac on same Wi‑Fi.
+- If Metro still picks the wrong host, set your LAN IP then start: `export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.x.x` (same IP as `EXPO_PUBLIC_BACKEND_URL`).
 ```bash
 cd frontend
 yarn start --clear
