@@ -32,3 +32,10 @@ ENABLE_DEMO_MODE: bool = _env_bool("ENABLE_DEMO_MODE", True)
 _raw_origins = os.getenv("CORS_ORIGINS", "*")
 # Splitting here keeps `main.py` middleware wiring simple and declarative.
 CORS_ORIGINS: list[str] = [o.strip() for o in _raw_origins.split(",")]
+
+# Optional strict audience check for Google ID tokens.
+GOOGLE_WEB_CLIENT_ID: str = os.getenv("GOOGLE_WEB_CLIENT_ID", "").strip()
+
+JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
+JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_EXPIRE_HOURS: int = int(os.getenv("JWT_EXPIRE_HOURS", "168"))

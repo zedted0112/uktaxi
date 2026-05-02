@@ -3,16 +3,20 @@ from pymongo import ASCENDING, DESCENDING, IndexModel
 from pymongo.errors import DuplicateKeyError
 from .config import MONGO_URL, DB_NAME
 import json
+import os
 import time
 from pathlib import Path
 import logging
 
 _client: AsyncIOMotorClient | None = None
-_DEBUG_LOG_PATH = Path("/Users/himalayancoder/Downloads/UKParivahan-sync/.cursor/debug-e76646.log")
+_debug_log_raw = os.getenv("DEBUG_LOG_PATH", "").strip()
+_DEBUG_LOG_PATH: Path | None = Path(_debug_log_raw) if _debug_log_raw else None
 logger = logging.getLogger(__name__)
 
 
 def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> None:
+    if _DEBUG_LOG_PATH is None:
+        return
     payload = {
         "sessionId": "e76646",
         "runId": "initial",
@@ -23,6 +27,7 @@ def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> N
         "timestamp": int(time.time() * 1000),
     }
     try:
+        _DEBUG_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with _DEBUG_LOG_PATH.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, separators=(",", ":")) + "\n")
     except Exception:

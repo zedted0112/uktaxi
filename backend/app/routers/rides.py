@@ -1,9 +1,10 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from ..database import get_db
 from ..models.ride import Ride, PublishRideIn, OfflineSeatsIn
 from ..helpers import ride_public, can_cancel, is_departed, is_completed_after_arrival
 from ..notifications import send_notification
+from ..security import get_current_user
 
 router = APIRouter(prefix="/rides", tags=["rides"])
 
@@ -69,12 +70,16 @@ async def auto_mark_departed_rides() -> None:
 
 
 @router.post("", response_model=Ride)
-async def publish_ride(payload: PublishRideIn):
+async def publish_ride(payload: PublishRideIn, current=Depends(get_current_user)):
     # Ride publishing copies vehicle snapshot data from driver profile so later
     # profile edits do not rewrite historical ride records.
     db = get_db()
     await auto_mark_departed_rides()
-    driver = await db.users.find_one({"phone": payload.driver_phone, "role": "driver"}, {"_id": 0})
+    if current["role"] != "driver":
+        raise HTTPException(status_code=403, detail="Only drivers can publish rides")
+    if payload.driver_phone != current["phone"]:
+        raise HTTPException(status_code=403, detail="driver_phone does not match authenticated user")
+    driver = await db.users.find_one({"id": current["id"], "role": "driver"}, {"_id": 0})
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
     if not driver.get("seat_layout"):
@@ -120,6 +125,7 @@ async def list_rides(
     to_city: Optional[str] = None,
     date: Optional[str] = None,
     driver_phone: Optional[str] = None,
+    current=Depends(get_current_user),
 ):
     # Default listing is passenger-safe (published only). Driver-specific query
     # can include non-published records for management screens.
@@ -133,6 +139,8 @@ async def list_rides(
     if date:
         q["date"] = date
     if driver_phone:
+        if current["role"] != "driver" or driver_phone != current["phone"]:
+            raise HTTPException(status_code=403, detail="You can only list your own driver rides")
         q.pop("status", None)
         q["driver_phone"] = driver_phone
     rides = await db.rides.find(q, {"_id": 0}).sort("date", 1).to_list(500)
@@ -150,13 +158,15 @@ async def get_ride(ride_id: str):
 
 
 @router.post("/{ride_id}/offline-seats", response_model=Ride)
-async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
+async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn, current=Depends(get_current_user)):
     # Offline-seat edits preserve already confirmed online seats so driver
     # manual blocks never overwrite paid/accepted passenger allocations.
     db = get_db()
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Ride not found")
+    if current["role"] != "driver" or r.get("driver_phone") != current["phone"]:
+        raise HTTPException(status_code=403, detail="Only this ride's driver can update offline seats")
     if r["status"] != "published":
         raise HTTPException(status_code=400, detail="Offline seats can only be updated for published rides")
     if not can_cancel(r["date"], r["depart_time"]):
@@ -195,13 +205,15 @@ async def update_offline_seats(ride_id: str, payload: OfflineSeatsIn):
 
 
 @router.post("/{ride_id}/cancel")
-async def cancel_ride(ride_id: str):
+async def cancel_ride(ride_id: str, current=Depends(get_current_user)):
     # Ride cancellation cascades to active requests and informs affected
     # passengers through the in-app notification stream.
     db = get_db()
     r = await db.rides.find_one({"id": ride_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Ride not found")
+    if current["role"] != "driver" or r.get("driver_phone") != current["phone"]:
+        raise HTTPException(status_code=403, detail="Only this ride's driver can cancel the ride")
     if not can_cancel(r["date"], r["depart_time"]):
         raise HTTPException(status_code=400, detail="Cannot cancel within 30 minutes of departure")
     # Fetch affected passengers before cancelling so we can notify them
