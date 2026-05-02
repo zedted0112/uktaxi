@@ -3,8 +3,10 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).parent.parent
-# Backend config is loaded once from backend/.env at import time.
+# Load `.env` then optional `.env.local` (gitignored) so laptops can override DB_NAME /
+# ENABLE_DEMO_MODE without editing the shared Atlas `.env`.
 load_dotenv(ROOT_DIR / ".env")
+load_dotenv(ROOT_DIR / ".env.local", override=True)
 
 
 def _env_bool(name: str, default: bool) -> bool:

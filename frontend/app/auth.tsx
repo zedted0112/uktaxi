@@ -58,6 +58,7 @@ const HERO_SLIDES = [
 export default function Auth() {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
+  const forceDemoOtp = String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
 
   // Navigation state
   const [step, setStep] = useState<Step>('role_select');
@@ -75,8 +76,8 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Default on for resilient demo UX; backend root can still explicitly turn it off. */
-  const [demoUiEnabled, setDemoUiEnabled] = useState(true);
+  /** Backend `demo_mode`, or forced on via EXPO_PUBLIC_FORCE_DEMO_OTP (Expo Go + prod-like API). */
+  const [demoUiEnabled, setDemoUiEnabled] = useState(forceDemoOtp);
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(true);
@@ -89,7 +90,7 @@ export default function Auth() {
       try {
         const root = await api.getApiRoot();
         if (cancelled) return;
-        const enabled = root.demo_mode === true;
+        const enabled = forceDemoOtp || root.demo_mode === true;
         setDemoUiEnabled(enabled);
         if (!enabled) {
           setDemoAccts([]);
@@ -107,16 +108,15 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          // Keep local demo access available if root check fails (tunnel/LAN blips).
-          setDemoUiEnabled(true);
-          setDemoAccts([...LOCAL_DEMOS]);
+          setDemoUiEnabled(forceDemoOtp);
+          setDemoAccts(forceDemoOtp ? [...LOCAL_DEMOS] : []);
         }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [forceDemoOtp]);
 
   useEffect(() => {
     const timer = setInterval(() => {

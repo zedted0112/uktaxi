@@ -3,6 +3,10 @@ import { Platform } from 'react-native';
 
 const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
 
+/** When true, try LAN/Metro/local bases before EXPO_PUBLIC_BACKEND_URL (Expo Go + laptop API). */
+const ENV_MODE_DEV =
+  String(process.env.EXPO_PUBLIC_ENV_MODE_DEV || '').toLowerCase() === 'true';
+
 function normalizeBase(url: string): string {
   return url.trim().replace(/\/+$/, '');
 }
@@ -15,20 +19,31 @@ function getHostIpBase(): string | null {
   return `http://${host}:${BACKEND_PORT}`;
 }
 
-function buildBaseCandidates(): string[] {
-  const candidates: string[] = [];
-  const envBase = process.env.EXPO_PUBLIC_BACKEND_URL;
-  if (envBase) candidates.push(normalizeBase(envBase));
+function localBaseCandidates(): string[] {
+  const locals: string[] = [];
   const hostIpBase = getHostIpBase();
-  if (hostIpBase) candidates.push(hostIpBase);
-
+  if (hostIpBase) locals.push(hostIpBase);
   if (Platform.OS === 'android') {
-    candidates.push(`http://10.0.2.2:${BACKEND_PORT}`);
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://10.0.2.2:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   } else {
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   }
-  return [...new Set(candidates)];
+  return [...new Set(locals)];
+}
+
+function buildBaseCandidates(): string[] {
+  const envRaw = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const envBase = envRaw ? normalizeBase(envRaw) : null;
+  const locals = localBaseCandidates();
+
+  if (ENV_MODE_DEV) {
+    const merged = [...locals, ...(envBase ? [envBase] : [])];
+    return [...new Set(merged)];
+  }
+
+  const merged = [...(envBase ? [envBase] : []), ...locals];
+  return [...new Set(merged)];
 }
 
 export type Role = 'user' | 'driver';
