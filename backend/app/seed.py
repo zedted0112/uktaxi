@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from .config import SCHEMA_VERSION
+from .config import SCHEMA_VERSION, ENABLE_DEMO_MODE
 from .models.user import User
 from .models.ride import Ride
 from .models.vehicle import VEHICLES
@@ -11,10 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 async def seed_demo(db: AsyncIOMotorDatabase) -> None:
+    if not ENABLE_DEMO_MODE:
+        return
+    # Demo seed runs only when schema changes or when DB is empty.
+    # This keeps local environments reproducible for onboarding and tests.
     meta = await db.meta.find_one({"key": "schema"}) or {}
     if meta.get("version") == SCHEMA_VERSION and await db.users.count_documents({}) > 0:
         return
 
+    # Seed reset is intentionally destructive for demo collections so stale
+    # records never conflict with latest schema assumptions.
     await db.users.drop()
     await db.rides.drop()
     await db.requests.drop()
@@ -83,6 +89,7 @@ async def seed_demo(db: AsyncIOMotorDatabase) -> None:
     for r in rides:
         await db.rides.insert_one(r.dict())
 
+    # Schema marker allows future startups to skip unnecessary reseeding.
     await db.meta.update_one(
         {"key": "schema"},
         {"$set": {"key": "schema", "version": SCHEMA_VERSION}},

@@ -44,6 +44,7 @@ export default function Ticket() {
     b.status === 'confirmed' ? 'Confirmed by Driver' :
     b.status === 'pending' ? 'Awaiting Driver Confirmation' :
     b.status === 'rejected' ? 'Rejected by Driver' : 'Cancelled';
+  const bookingRefText = b.booking_ref || 'AWAITING CONFIRMATION';
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="ticket-screen">
@@ -83,18 +84,28 @@ export default function Ticket() {
 
           <View style={styles.dash} />
           <Text style={styles.label}>Booking Reference</Text>
-          <Text style={styles.ref} testID="ticket-ref">{b.booking_ref}</Text>
+          <Text style={styles.ref} testID="ticket-ref">{bookingRefText}</Text>
 
           <View style={styles.grid}>
             <View style={styles.gridItem}><Text style={styles.label}>Vehicle</Text><Text style={styles.gridVal}>{b.vehicle_number}</Text></View>
             <View style={styles.gridItem}><Text style={styles.label}>Type</Text><Text style={styles.gridVal} numberOfLines={1}>{b.vehicle_type}</Text></View>
             <View style={styles.gridItem}><Text style={styles.label}>Seat(s)</Text><Text style={styles.gridVal}>{b.seat_numbers.join(', ')}</Text></View>
           </View>
+          {(b.guest_passengers?.length || 0) > 0 && (
+            <View style={styles.guestSection}>
+              <Text style={styles.label}>Guest Passenger(s)</Text>
+              {b.guest_passengers?.map((g) => (
+                <Text key={`${g.seat_number}-${g.phone}`} style={styles.guestLine}>
+                  Seat {g.seat_number}: {g.name} ({g.phone})
+                </Text>
+              ))}
+            </View>
+          )}
 
           <View style={styles.dash} />
           <View style={styles.barcodeWrap}>
             <Image source={{ uri: barcodeUri }} style={styles.barcode} resizeMode="stretch" />
-            <Text style={styles.barcodeTxt}>{b.booking_ref}</Text>
+            <Text style={styles.barcodeTxt}>{bookingRefText}</Text>
           </View>
           <View style={styles.notchLb} /><View style={styles.notchRb} />
         </View>
@@ -172,6 +183,8 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, gap: 8 },
   gridItem: { flex: 1 },
   gridVal: { fontFamily: fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 3 },
+  guestSection: { marginTop: 12 },
+  guestLine: { fontFamily: fonts.body, fontSize: 12, color: colors.textPrimary, marginTop: 4 },
   barcodeWrap: { alignItems: 'center' },
   barcode: { width: '100%', height: 50, backgroundColor: colors.black },
   barcodeTxt: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textSecondary, marginTop: 8, letterSpacing: 2 },

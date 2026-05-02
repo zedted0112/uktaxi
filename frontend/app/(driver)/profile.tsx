@@ -1,19 +1,57 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, TextInput, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../../src/theme';
 import { useAuth } from '../../src/auth';
 import { SeatMap } from '../../src/SeatMap';
+import { api } from '../../src/api';
 
 export default function DriverProfile() {
   const insets = useSafeAreaInsets();
-  const { user, signOut } = useAuth();
+  const { user, signOut, refresh } = useAuth();
+  const [openPersonal, setOpenPersonal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState(user?.name || '');
+  const [preferredStand, setPreferredStand] = useState(user?.preferred_taxi_stand || '');
+  const [emergencyName, setEmergencyName] = useState(user?.emergency_contact_name || '');
+  const [emergencyPhone, setEmergencyPhone] = useState(user?.emergency_contact_phone || '');
+  const [language, setLanguage] = useState<'en' | 'hi'>((user?.preferred_language as 'en' | 'hi') || 'en');
+  const [notifyBooking, setNotifyBooking] = useState(user?.notify_booking_updates ?? true);
+  const [notifyPromos, setNotifyPromos] = useState(user?.notify_promotions ?? false);
 
   const confirmLogout = () =>
     Alert.alert('Sign out?', 'You will need to login again.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
     ]);
+
+  const comingSoon = (label: string) =>
+    Alert.alert('Coming Soon', `${label} will be available in a later update.`);
+
+  const savePersonal = async () => {
+    if (!user?.phone) return;
+    if (!name.trim()) return Alert.alert('Missing', 'Please enter your name');
+    setSaving(true);
+    try {
+      await api.updateMe(user.phone, {
+        name: name.trim(),
+        preferred_taxi_stand: preferredStand.trim(),
+        emergency_contact_name: emergencyName.trim(),
+        emergency_contact_phone: emergencyPhone.trim(),
+        preferred_language: language,
+        notify_booking_updates: notifyBooking,
+        notify_promotions: notifyPromos,
+      });
+      await refresh();
+      Alert.alert('Saved', 'Personal details updated.');
+      setOpenPersonal(false);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'Could not save profile details');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]} testID="driver-profile">
@@ -61,18 +99,75 @@ export default function DriverProfile() {
         )}
 
         <View style={styles.list}>
-          {[
-            { i: 'user', l: 'Personal Details' },
-            { i: 'credit-card', l: 'Earnings' },
-            { i: 'bell', l: 'Notifications' },
-            { i: 'help-circle', l: 'Help & Support' },
-          ].map((r, idx, arr) => (
-            <TouchableOpacity key={r.l} style={[styles.row, idx < arr.length - 1 && styles.rowBorder]} testID={`dp-${r.i}`}>
-              <View style={styles.rowIcon}><Feather name={r.i as any} size={18} color={colors.textPrimary} /></View>
-              <Text style={styles.rowLabel}>{r.l}</Text>
-              <Feather name="chevron-right" size={18} color={colors.textMuted} />
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            style={[styles.row, openPersonal && styles.rowBorder]}
+            testID="dp-user"
+            onPress={() => setOpenPersonal((p) => !p)}
+          >
+            <View style={styles.rowIcon}><Feather name="user" size={18} color={colors.textPrimary} /></View>
+            <Text style={styles.rowLabel}>Personal Details</Text>
+            <Feather name={openPersonal ? 'chevron-up' : 'chevron-right'} size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+          {openPersonal && (
+            <View style={styles.personalWrap}>
+              <Text style={styles.fieldLabel}>Full Name</Text>
+              <TextInput value={name} onChangeText={setName} style={styles.input} testID="driver-profile-name-input" />
+              <Text style={styles.fieldLabel}>Phone (read-only)</Text>
+              <View style={styles.readonlyBox}><Text style={styles.readonlyText}>{user?.phone}</Text></View>
+
+              <Text style={styles.fieldLabel}>Vehicle Preset (read-only)</Text>
+              <View style={styles.readonlyBox}><Text style={styles.readonlyText}>{user?.vehicle_preset || '—'}</Text></View>
+              <Text style={styles.fieldLabel}>Vehicle Number (read-only)</Text>
+              <View style={styles.readonlyBox}><Text style={styles.readonlyText}>{user?.vehicle_number || '—'}</Text></View>
+              <Text style={styles.fieldLabel}>Driving License (read-only)</Text>
+              <View style={styles.readonlyBox}><Text style={styles.readonlyText}>{user?.driving_license || '—'}</Text></View>
+              <Text style={styles.readonlyHint}>Need changes? Please request via Help & Support.</Text>
+
+              <Text style={styles.fieldLabel}>Preferred Taxi Stand</Text>
+              <TextInput value={preferredStand} onChangeText={setPreferredStand} style={styles.input} testID="driver-profile-stand-input" />
+              <Text style={styles.fieldLabel}>Emergency Contact Name</Text>
+              <TextInput value={emergencyName} onChangeText={setEmergencyName} style={styles.input} testID="driver-profile-emg-name-input" />
+              <Text style={styles.fieldLabel}>Emergency Contact Phone</Text>
+              <TextInput value={emergencyPhone} onChangeText={setEmergencyPhone} style={styles.input} keyboardType="phone-pad" testID="driver-profile-emg-phone-input" />
+
+              <Text style={styles.fieldLabel}>Language</Text>
+              <View style={styles.langRow}>
+                <TouchableOpacity style={[styles.langChip, language === 'en' && styles.langChipActive]} onPress={() => setLanguage('en')} testID="driver-profile-lang-en">
+                  <Text style={[styles.langChipTxt, language === 'en' && styles.langChipTxtActive]}>English</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.langChip, language === 'hi' && styles.langChipActive]} onPress={() => setLanguage('hi')} testID="driver-profile-lang-hi">
+                  <Text style={[styles.langChipTxt, language === 'hi' && styles.langChipTxtActive]}>Hindi</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Booking Updates</Text>
+                <Switch value={notifyBooking} onValueChange={setNotifyBooking} trackColor={{ true: colors.green, false: colors.border }} />
+              </View>
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Promotional Notifications</Text>
+                <Switch value={notifyPromos} onValueChange={setNotifyPromos} trackColor={{ true: colors.green, false: colors.border }} />
+              </View>
+
+              <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={savePersonal} disabled={saving} testID="driver-profile-save-btn">
+                <Text style={styles.saveBtnTxt}>{saving ? 'Saving...' : 'Save Details'}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          <TouchableOpacity style={[styles.row, styles.rowBorder]} testID="dp-credit-card" onPress={() => comingSoon('Earnings')}>
+            <View style={styles.rowIcon}><Feather name="credit-card" size={18} color={colors.textPrimary} /></View>
+            <Text style={styles.rowLabel}>Earnings</Text>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.row, styles.rowBorder]} testID="dp-bell" onPress={() => comingSoon('Notifications section')}>
+            <View style={styles.rowIcon}><Feather name="bell" size={18} color={colors.textPrimary} /></View>
+            <Text style={styles.rowLabel}>Notifications</Text>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.row} testID="dp-help-circle" onPress={() => comingSoon('Help & Support')}>
+            <View style={styles.rowIcon}><Feather name="help-circle" size={18} color={colors.textPrimary} /></View>
+            <Text style={styles.rowLabel}>Help & Support</Text>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout} testID="driver-logout">
@@ -108,6 +203,21 @@ const styles = StyleSheet.create({
   rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
   rowIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.borderSoft, alignItems: 'center', justifyContent: 'center' },
   rowLabel: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textPrimary },
+  personalWrap: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
+  fieldLabel: { fontFamily: fonts.bodySemiBold, fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 8 },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.surface, paddingHorizontal: 12, paddingVertical: 10, fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textPrimary },
+  readonlyBox: { borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.borderSoft, paddingHorizontal: 12, paddingVertical: 10 },
+  readonlyText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textSecondary },
+  readonlyHint: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  langRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  langChip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: radii.full, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  langChipActive: { backgroundColor: colors.black, borderColor: colors.black },
+  langChipTxt: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textSecondary },
+  langChipTxtActive: { color: '#fff' },
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  switchLabel: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textPrimary },
+  saveBtn: { marginTop: 12, backgroundColor: colors.green, borderRadius: radii.full, paddingVertical: 13, alignItems: 'center' },
+  saveBtnTxt: { color: '#fff', fontFamily: fonts.bodySemiBold, fontSize: 14 },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, paddingVertical: 14, borderWidth: 1, borderColor: '#FECACA', borderRadius: radii.full, backgroundColor: '#FEF2F2' },
   logoutTxt: { color: '#B91C1C', fontFamily: fonts.bodySemiBold, fontSize: 14 },
 });

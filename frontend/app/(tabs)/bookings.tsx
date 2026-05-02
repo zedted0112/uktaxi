@@ -20,7 +20,8 @@ export default function Bookings() {
   );
 
   const cancel = async (b: BookingRequest) => {
-    Alert.alert('Cancel booking?', `Cancel ${b.booking_ref}? Allowed up to 30 min before departure.`, [
+    const bookingRefText = b.booking_ref || 'AWAITING CONFIRMATION';
+    Alert.alert('Cancel booking?', `Cancel ${bookingRefText}? Allowed up to 30 min before departure.`, [
       { text: 'Keep', style: 'cancel' },
       { text: 'Cancel booking', style: 'destructive', onPress: async () => {
         try { await api.cancelRequest(b.id); reload(); }
@@ -50,11 +51,12 @@ export default function Bookings() {
           />
         ) : (
           items.map((b) => {
+            const bookingRefText = b.booking_ref || 'AWAITING CONFIRMATION';
             return (
               <View key={b.id} style={styles.card} testID={`booking-${b.id}`}>
                 <TouchableOpacity onPress={() => router.push(`/ticket/${b.id}`)} activeOpacity={0.85}>
                   <View style={styles.top}>
-                    <Text style={styles.ref}>{b.booking_ref}</Text>
+                    <Text style={styles.ref}>{bookingRefText}</Text>
                     <Badge status={b.status} showIcon />
                   </View>
                   <View style={styles.route}>
@@ -83,6 +85,11 @@ export default function Bookings() {
                     </View>
                     <Text style={styles.price}>₹{b.total_price}</Text>
                   </View>
+                  {(b.guest_passengers?.length || 0) > 0 && (
+                    <Text style={styles.guestTxt}>
+                      Guests: {b.guest_passengers?.map(g => `${g.name} (Seat ${g.seat_number})`).join(', ')}
+                    </Text>
+                  )}
                 </TouchableOpacity>
                 {(b.status === 'pending' || b.status === 'confirmed') && (
                   <TouchableOpacity style={styles.cancelBtn} onPress={() => cancel(b)} testID={`cancel-${b.id}`}>
@@ -117,6 +124,7 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaTxt: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textSecondary },
   price: { fontFamily: fonts.heading, fontSize: 18, color: colors.textPrimary, marginLeft: 'auto' },
+  guestTxt: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary, marginTop: 8 },
   cancelBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
     marginTop: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#FEE2E2',

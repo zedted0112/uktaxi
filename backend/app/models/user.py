@@ -14,6 +14,14 @@ class User(BaseModel):
     vehicle_preset: Optional[str] = None
     vehicle_type: Optional[str] = None
     vehicle_number: Optional[str] = None
+    driving_license: Optional[str] = None
+    preferred_taxi_stand: Optional[str] = None
+    emergency_contact_name: Optional[str] = None
+    emergency_contact_phone: Optional[str] = None
+    default_pickup_note: Optional[str] = None
+    preferred_language: Optional[Literal["en", "hi"]] = None
+    notify_booking_updates: Optional[bool] = True
+    notify_promotions: Optional[bool] = False
     total_seats: Optional[int] = None
     seat_layout: Optional[List[List[int]]] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -34,6 +42,18 @@ class RegisterIn(BaseModel):
     role: Role
     vehicle_preset: Optional[str] = None
     vehicle_number: Optional[str] = None
+    driving_license: Optional[str] = None
+
+
+class UpdateProfileIn(BaseModel):
+    name: Optional[str] = None
+    preferred_taxi_stand: Optional[str] = None
+    emergency_contact_name: Optional[str] = None
+    emergency_contact_phone: Optional[str] = None
+    default_pickup_note: Optional[str] = None
+    preferred_language: Optional[Literal["en", "hi"]] = None
+    notify_booking_updates: Optional[bool] = None
+    notify_promotions: Optional[bool] = None
 
 
 class UpdateDriverVehicleIn(BaseModel):

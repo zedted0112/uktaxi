@@ -24,7 +24,7 @@ class Ride(BaseModel):
     total_seats: int
     booked_seats: List[int] = []
     offline_seats: List[int] = []
-    status: Literal["published", "cancelled", "completed"] = "published"
+    status: Literal["published", "departed", "cancelled", "completed"] = "published"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

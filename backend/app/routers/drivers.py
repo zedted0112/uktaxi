@@ -8,6 +8,8 @@ router = APIRouter(prefix="/drivers", tags=["drivers"])
 
 @router.post("/{phone}/vehicle", response_model=User)
 async def update_vehicle(phone: str, payload: UpdateDriverVehicleIn):
+    # Driver vehicle updates normalize incoming preset IDs against the canonical
+    # VEHICLES catalog before writing profile fields.
     db = get_db()
     u = await db.users.find_one({"phone": phone, "role": "driver"}, {"_id": 0})
     if not u:
@@ -22,6 +24,8 @@ async def update_vehicle(phone: str, payload: UpdateDriverVehicleIn):
         "total_seats": preset["total_seats"],
         "seat_layout": preset["seat_layout"],
     }
+    # The profile document is updated in-place so future ride publishes inherit
+    # the new vehicle metadata automatically.
     await db.users.update_one({"phone": phone}, {"$set": update})
     u.update(update)
     return User(**u)

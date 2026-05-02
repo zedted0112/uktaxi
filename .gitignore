@@ -76,31 +76,20 @@ agenthub/agents/youtube/db
 # Build caches
 .cache/
 
+# Local agent + graph artifacts
+.cursor/
+graphify-out/
+
 memory/test_credentials.md
 
 # Mobile development
-android-sdk/-e 
+android-sdk/
+
 # Environment and credential files
 .env
 .env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
+# Allow committed templates (negate after .env.*)
+!**/.env.example
 *.env
 credentials.json
 *.pem

@@ -3,6 +3,13 @@ import { Platform } from 'react-native';
 
 const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
 
+/**
+ * App demo / local dev: when true, API uses only localhost / Metro LAN bases (no cloud).
+ * When false or unset, API uses only EXPO_PUBLIC_BACKEND_URL (cloud; no local fallbacks).
+ */
+export const IS_APP_DEMO_MODE =
+  String(process.env.EXPO_PUBLIC_DEMO_MODE || '').toLowerCase() === 'true';
+
 function normalizeBase(url: string): string {
   return url.trim().replace(/\/+$/, '');
 }
@@ -15,20 +22,29 @@ function getHostIpBase(): string | null {
   return `http://${host}:${BACKEND_PORT}`;
 }
 
-function buildBaseCandidates(): string[] {
-  const candidates: string[] = [];
-  const envBase = process.env.EXPO_PUBLIC_BACKEND_URL;
-  if (envBase) candidates.push(normalizeBase(envBase));
+function localBaseCandidates(): string[] {
+  const locals: string[] = [];
   const hostIpBase = getHostIpBase();
-  if (hostIpBase) candidates.push(hostIpBase);
-
+  if (hostIpBase) locals.push(hostIpBase);
   if (Platform.OS === 'android') {
-    candidates.push(`http://10.0.2.2:${BACKEND_PORT}`);
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://10.0.2.2:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   } else {
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   }
-  return [...new Set(candidates)];
+  return [...new Set(locals)];
+}
+
+function buildBaseCandidates(): string[] {
+  const envRaw = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const envBase = envRaw ? normalizeBase(envRaw) : null;
+  const locals = localBaseCandidates();
+
+  if (IS_APP_DEMO_MODE) {
+    return locals;
+  }
+
+  return envBase ? [envBase] : [];
 }
 
 export type Role = 'user' | 'driver';
@@ -41,8 +57,33 @@ export type User = {
   vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
+  driving_license?: string | null;
+  preferred_taxi_stand?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
+  default_pickup_note?: string | null;
+  preferred_language?: 'en' | 'hi' | null;
+  notify_booking_updates?: boolean | null;
+  notify_promotions?: boolean | null;
   total_seats?: number | null;
   seat_layout?: number[][] | null;
+};
+
+export type AppNotification = {
+  id: string;
+  recipient_phone: string;
+  title: string;
+  body: string;
+  type: string;
+  data: Record<string, string>;
+  read: boolean;
+  created_at: string;
+};
+
+export type ApiRootResponse = {
+  message: string;
+  schema: number;
+  demo_mode: boolean;
 };
 
 export type Vehicle = {
@@ -75,20 +116,25 @@ export type Ride = {
   booked_seats: number[];
   offline_seats: number[];
   seats_left: number;
-  status: 'published' | 'cancelled' | 'completed';
+  status: 'published' | 'departed' | 'cancelled' | 'completed';
   created_at: string;
 };
 
 export type BookingRequest = {
   id: string;
-  booking_ref: string;
+  booking_ref?: string | null;
   ride_id: string;
   user_phone: string;
   user_name: string;
   seat_numbers: number[];
   total_price: number;
-  status: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'completed';
   created_at: string;
+  guest_passengers?: Array<{
+    seat_number: number;
+    name: string;
+    phone: string;
+  }>;
   from_city: string;
   to_city: string;
   from_stand: string;
@@ -137,6 +183,9 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
+  /** Health + flags (`demo_mode` mirrors backend `ENABLE_DEMO_MODE`). */
+  getApiRoot: () => req<ApiRootResponse>('/'),
+
   // auth
   requestOtp: (phone: string) => req<{ ok: boolean; message: string }>(`/auth/request-otp`, {
     method: 'POST', body: JSON.stringify({ phone }),
@@ -144,9 +193,29 @@ export const api = {
   verifyOtp: (phone: string, otp: string) => req<{ ok: boolean; user: User | null }>(`/auth/verify-otp`, {
     method: 'POST', body: JSON.stringify({ phone, otp }),
   }),
-  register: (payload: { phone: string; name: string; role: Role; vehicle_preset?: string; vehicle_number?: string }) =>
+  register: (payload: {
+    phone: string;
+    name: string;
+    role: Role;
+    vehicle_preset?: string;
+    vehicle_number?: string;
+    driving_license?: string;
+  }) =>
     req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
   me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+  updateMe: (
+    phone: string,
+    payload: {
+      name?: string;
+      preferred_taxi_stand?: string;
+      emergency_contact_name?: string;
+      emergency_contact_phone?: string;
+      default_pickup_note?: string;
+      preferred_language?: 'en' | 'hi';
+      notify_booking_updates?: boolean;
+      notify_promotions?: boolean;
+    },
+  ) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`, { method: 'PATCH', body: JSON.stringify(payload) }),
   demoAccounts: () => req<User[]>(`/demo/accounts`),
   listVehicles: () => req<Vehicle[]>(`/vehicles`),
   updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>
@@ -165,7 +234,13 @@ export const api = {
   cancelRide: (id: string) => req<{ ok: boolean }>(`/rides/${id}/cancel`, { method: 'POST' }),
 
   // requests
-  createRequest: (payload: { ride_id: string; user_phone: string; seat_numbers: number[] }) =>
+  createRequest: (payload: {
+    ride_id: string;
+    user_phone: string;
+    seat_numbers: number[];
+    guest_name?: string;
+    guest_phone?: string;
+  }) =>
     req<BookingRequest>(`/requests`, { method: 'POST', body: JSON.stringify(payload) }),
   listRequests: (params: { user_phone?: string; driver_phone?: string } = {}) => {
     const q = new URLSearchParams();
@@ -173,7 +248,20 @@ export const api = {
     return req<BookingRequest[]>(`/requests${q.toString() ? `?${q.toString()}` : ''}`);
   },
   getRequest: (id: string) => req<BookingRequest>(`/requests/${id}`),
-  confirmRequest: (id: string) => req<BookingRequest>(`/requests/${id}/confirm`, { method: 'POST' }),
+  confirmRequest: (id: string, driver_phone: string) =>
+    req<BookingRequest>(
+      `/requests/${id}/confirm?driver_phone=${encodeURIComponent(driver_phone)}`,
+      { method: 'POST' },
+    ),
   rejectRequest: (id: string) => req<BookingRequest>(`/requests/${id}/reject`, { method: 'POST' }),
   cancelRequest: (id: string) => req<BookingRequest>(`/requests/${id}/cancel`, { method: 'POST' }),
+
+  // notifications
+  listNotifications: (phone: string) =>
+    req<AppNotification[]>(`/notifications?phone=${encodeURIComponent(phone)}`),
+  unreadCount: (phone: string) =>
+    req<{ count: number }>(`/notifications/unread-count?phone=${encodeURIComponent(phone)}`),
+  markRead: (id: string) => req<{ ok: boolean }>(`/notifications/${id}/read`, { method: 'POST' }),
+  markAllRead: (phone: string) =>
+    req<{ ok: boolean }>(`/notifications/read-all?phone=${encodeURIComponent(phone)}`, { method: 'POST' }),
 };
