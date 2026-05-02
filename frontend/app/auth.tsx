@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../src/theme';
-import { api, Vehicle } from '../src/api';
+import { api, IS_APP_DEMO_MODE, Vehicle } from '../src/api';
 import { useAuth } from '../src/auth';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -58,7 +58,8 @@ const HERO_SLIDES = [
 export default function Auth() {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
-  const forceDemoOtp = String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
+  const forceDemoOtp =
+    IS_APP_DEMO_MODE || String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
 
   // Navigation state
   const [step, setStep] = useState<Step>('role_select');
@@ -76,7 +77,7 @@ export default function Auth() {
   // Remote data & loading
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  /** Backend `demo_mode`, or forced on via EXPO_PUBLIC_FORCE_DEMO_OTP (Expo Go + prod-like API). */
+  /** Backend `demo_mode`, or forced via EXPO_PUBLIC_DEMO_MODE / EXPO_PUBLIC_FORCE_DEMO_OTP. */
   const [demoUiEnabled, setDemoUiEnabled] = useState(forceDemoOtp);
   const [demoAccts, setDemoAccts] = useState<DemoAccount[]>([...LOCAL_DEMOS]);
   const [quickLoading, setQuickLoading] = useState<string | null>(null);

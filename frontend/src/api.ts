@@ -3,9 +3,12 @@ import { Platform } from 'react-native';
 
 const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
 
-/** When true, try LAN/Metro/local bases before EXPO_PUBLIC_BACKEND_URL (Expo Go + laptop API). */
-const ENV_MODE_DEV =
-  String(process.env.EXPO_PUBLIC_ENV_MODE_DEV || '').toLowerCase() === 'true';
+/**
+ * App demo / local dev: when true, API uses only localhost / Metro LAN bases (no cloud).
+ * When false or unset, API uses only EXPO_PUBLIC_BACKEND_URL (cloud; no local fallbacks).
+ */
+export const IS_APP_DEMO_MODE =
+  String(process.env.EXPO_PUBLIC_DEMO_MODE || '').toLowerCase() === 'true';
 
 function normalizeBase(url: string): string {
   return url.trim().replace(/\/+$/, '');
@@ -37,13 +40,11 @@ function buildBaseCandidates(): string[] {
   const envBase = envRaw ? normalizeBase(envRaw) : null;
   const locals = localBaseCandidates();
 
-  if (ENV_MODE_DEV) {
-    const merged = [...locals, ...(envBase ? [envBase] : [])];
-    return [...new Set(merged)];
+  if (IS_APP_DEMO_MODE) {
+    return locals;
   }
 
-  const merged = [...(envBase ? [envBase] : []), ...locals];
-  return [...new Set(merged)];
+  return envBase ? [envBase] : [];
 }
 
 export type Role = 'user' | 'driver';
