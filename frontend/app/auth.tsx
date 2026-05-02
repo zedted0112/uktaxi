@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../src/theme';
-import { api, Vehicle } from '../src/api';
+import { api, Vehicle, FORCE_DEMO_AUTH_UI, IS_APP_DEMO_MODE } from '../src/api';
 import { useAuth } from '../src/auth';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -89,7 +89,9 @@ export default function Auth() {
       try {
         const root = await api.getApiRoot();
         if (cancelled) return;
-        const enabled = root.demo_mode === true;
+        // Local app demo (EXPO_PUBLIC_DEMO_MODE) is documented as enabling demo OTP UI; backend
+        // `demo_mode` reflects ENABLE_DEMO_MODE (seed + /api/demo). Either can turn UI on.
+        const enabled = IS_APP_DEMO_MODE || FORCE_DEMO_AUTH_UI || root.demo_mode === true;
         setDemoUiEnabled(enabled);
         if (!enabled) {
           setDemoAccts([]);
@@ -107,7 +109,7 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          // Keep local demo access available if root check fails (tunnel/LAN blips).
+          // Root unreachable (tunnel/LAN blips): keep quick picks; cannot know backend demo flag.
           setDemoUiEnabled(true);
           setDemoAccts([...LOCAL_DEMOS]);
         }

@@ -3,6 +3,18 @@ import { Platform } from 'react-native';
 
 const BACKEND_PORT = process.env.EXPO_PUBLIC_BACKEND_PORT || '8000';
 
+/**
+ * App demo / local dev: when true, API uses only localhost / Metro LAN bases (no cloud).
+ * When false or unset, API uses only EXPO_PUBLIC_BACKEND_URL (cloud; no local fallbacks).
+ */
+export const IS_APP_DEMO_MODE =
+  String(process.env.EXPO_PUBLIC_DEMO_MODE || '').toLowerCase() === 'true';
+
+/** When true, auth shows quick demo + OTP hints even if the API reports `demo_mode: false` (e.g. cloud build). */
+export const FORCE_DEMO_AUTH_UI =
+  String(process.env.EXPO_PUBLIC_SHOW_DEMO_AUTH || '').toLowerCase() === 'true' ||
+  String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
+
 function normalizeBase(url: string): string {
   return url.trim().replace(/\/+$/, '');
 }
@@ -15,20 +27,29 @@ function getHostIpBase(): string | null {
   return `http://${host}:${BACKEND_PORT}`;
 }
 
-function buildBaseCandidates(): string[] {
-  const candidates: string[] = [];
-  const envBase = process.env.EXPO_PUBLIC_BACKEND_URL;
-  if (envBase) candidates.push(normalizeBase(envBase));
+function localBaseCandidates(): string[] {
+  const locals: string[] = [];
   const hostIpBase = getHostIpBase();
-  if (hostIpBase) candidates.push(hostIpBase);
-
+  if (hostIpBase) locals.push(hostIpBase);
   if (Platform.OS === 'android') {
-    candidates.push(`http://10.0.2.2:${BACKEND_PORT}`);
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://10.0.2.2:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   } else {
-    candidates.push(`http://localhost:${BACKEND_PORT}`);
+    locals.push(`http://localhost:${BACKEND_PORT}`);
   }
-  return [...new Set(candidates)];
+  return [...new Set(locals)];
+}
+
+function buildBaseCandidates(): string[] {
+  const envRaw = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const envBase = envRaw ? normalizeBase(envRaw) : null;
+  const locals = localBaseCandidates();
+
+  if (IS_APP_DEMO_MODE) {
+    return locals;
+  }
+
+  return envBase ? [envBase] : [];
 }
 
 export type Role = 'user' | 'driver';
