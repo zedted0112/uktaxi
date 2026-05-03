@@ -5,6 +5,7 @@
 #   BACKEND_PORT=8000 FRONTEND_PORT=8081 ./scripts/quick-start.sh
 #   EXPO_TUNNEL=0 ./scripts/quick-start.sh   # force LAN mode
 #   EXPO_CLEAR=1 ./scripts/quick-start.sh    # clear Metro cache on startup
+#   USE_DEV_CLIENT=1 ./scripts/quick-start.sh   # QR for custom dev build (default is --go = Expo Go)
 
 set -euo pipefail
 
@@ -103,21 +104,30 @@ fi
 
 EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
 EXPO_CLEAR="${EXPO_CLEAR:-1}"
-EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
-if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
-  EXPO_ARGS+=(--tunnel)
-fi
-if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
-  EXPO_ARGS+=(--clear)
-fi
+USE_DEV_CLIENT="${USE_DEV_CLIENT:-0}"
+
+expo_start_args() {
+  EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
+  if [[ "${USE_DEV_CLIENT}" == "1" ]] || [[ "${USE_DEV_CLIENT}" == "true" ]]; then
+    EXPO_ARGS+=(--dev-client)
+  else
+    EXPO_ARGS+=(--go)
+  fi
+  if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
+    EXPO_ARGS+=(--tunnel)
+  fi
+  if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
+    EXPO_ARGS+=(--clear)
+  fi
+}
+
+expo_start_args
 
 if ! npx expo "${EXPO_ARGS[@]}"; then
   if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
     echo "Tunnel failed, falling back to LAN mode..."
-    EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
-    if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
-      EXPO_ARGS+=(--clear)
-    fi
+    EXPO_TUNNEL=0
+    expo_start_args
     npx expo "${EXPO_ARGS[@]}"
   else
     exit 1

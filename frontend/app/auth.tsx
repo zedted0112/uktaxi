@@ -6,11 +6,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import Constants from 'expo-constants';
 import { colors, fonts, radii } from '../src/theme';
 import { api, Vehicle } from '../src/api';
 import { useAuth } from '../src/auth';
+import { loadGoogleSignInNative } from '../src/googleSignInNative';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -64,10 +63,10 @@ export default function Auth() {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
   const forceDemoOtp = String(process.env.EXPO_PUBLIC_FORCE_DEMO_OTP || '').toLowerCase() === 'true';
-  const isExpoGo = Constants.appOwnership === 'expo';
 
   useEffect(() => {
-    GoogleSignin.configure({
+    const mod = loadGoogleSignInNative();
+    mod?.GoogleSignin?.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       offlineAccess: true,
     });
@@ -185,6 +184,15 @@ export default function Auth() {
   };
 
   const signInWithGoogle = async () => {
+    const mod = loadGoogleSignInNative();
+    if (!mod?.GoogleSignin) {
+      Alert.alert(
+        'Google sign-in',
+        'Use a development build or APK for Google. For passwordless dev, turn on backend demo mode and use quick demo or OTP here in Expo Go.',
+      );
+      return;
+    }
+    const { GoogleSignin } = mod;
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();

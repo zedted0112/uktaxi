@@ -1,12 +1,12 @@
-# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-05-02)
+# Graph Report - /Users/himalayancoder/Downloads/UKParivahan-sync  (2026-05-04)
 
 ## Corpus Check
-- 67 files · ~316,659 words
+- 68 files · ~316,880 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 282 nodes · 409 edges · 45 communities detected
-- Extraction: 75% EXTRACTED · 25% INFERRED · 0% AMBIGUOUS · INFERRED: 101 edges (avg confidence: 0.74)
+- 284 nodes · 411 edges · 45 communities detected
+- Extraction: 75% EXTRACTED · 25% INFERRED · 0% AMBIGUOUS · INFERRED: 102 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -87,32 +87,32 @@ Cohesion: 0.07
 Nodes (11): _future_date(), _future_date_series(), _future_date_unique(), Uttarkashi Taxi Union — Phase 3 API tests (vehicles / driver-first rides / reque, _register_driver(), TestAuthRegister, TestMultiRequestRules, TestOfflineSeats (+3 more)
 
 ### Community 1 - "Community 1"
+Cohesion: 0.09
+Nodes (20): google_verify(), register_user(), update_me(), verify_otp(), close_client(), _debug_log(), ensure_indexes(), get_client() (+12 more)
+
+### Community 2 - "Community 2"
 Cohesion: 0.14
 Nodes (29): get_db(), can_cancel(), generate_ref(), is_completed_after_arrival(), is_departed(), parse_depart(), Convert date + 12-hour departure text into a comparable datetime., Return True when cancellation is allowed by the 30-minute cutoff rule. (+21 more)
 
-### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (19): google_verify(), register_user(), update_me(), verify_otp(), close_client(), _debug_log(), ensure_indexes(), get_client() (+11 more)
-
 ### Community 3 - "Community 3"
-Cohesion: 0.14
-Nodes (17): BaseModel, CreateRequestIn, GuestPassenger, OfflineSeatsIn, PublishRideIn, Ride, RidePublic, Lazily close rides whose departure time has passed.     - ride.status: published (+9 more)
-
-### Community 4 - "Community 4"
 Cohesion: 0.13
 Nodes (10): formatTimeLabel(), onPickCustomArr(), onPickCustomDep(), onPublish(), parseSlotDateTime(), applyRoute(), closePickers(), reverseRoute() (+2 more)
 
+### Community 4 - "Community 4"
+Cohesion: 0.18
+Nodes (16): BaseModel, CreateRequestIn, GuestPassenger, OfflineSeatsIn, PublishRideIn, Ride, RidePublic, Lazily close rides whose departure time has passed.     - ride.status: published (+8 more)
+
 ### Community 5 - "Community 5"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (17): Notification, list_notifications(), mark_all_read(), mark_read(), Return all notifications for the given phone, newest first., Return all notifications for the given phone, newest first., Persist a notification to MongoDB so the user can read it in the     in-app inbo, Return the number of unread notifications for the given phone. (+9 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.17
-Nodes (5): useAuth(), BellIcon(), DriverNotifications(), PassengerNotifications(), useNotifications()
+Cohesion: 0.23
+Nodes (8): formattedPhone(), me(), onSelectRole(), quickSignIn(), sendOtp(), signInWithGoogle(), verifyOtp(), loadGoogleSignInNative()
 
 ### Community 7 - "Community 7"
-Cohesion: 0.29
-Nodes (7): formattedPhone(), me(), onSelectRole(), quickSignIn(), sendOtp(), signInWithGoogle(), verifyOtp()
+Cohesion: 0.17
+Nodes (5): useAuth(), BellIcon(), DriverNotifications(), PassengerNotifications(), useNotifications()
 
 ### Community 8 - "Community 8"
 Cohesion: 0.38
@@ -319,12 +319,12 @@ Nodes (1): Returns True when departure is more than 30 minutes away (IST).
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `get_db()` connect `Community 1` to `Community 2`, `Community 5`, `Community 7`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `Notification` connect `Community 5` to `Community 1`, `Community 3`?**
+- **Why does `get_db()` connect `Community 2` to `Community 1`, `Community 5`, `Community 6`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `me()` connect `Community 6` to `Community 1`, `Community 2`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `Notification` connect `Community 5` to `Community 2`, `Community 4`?**
   _High betweenness centrality (0.027) - this node is a cross-community bridge._
-- **Why does `me()` connect `Community 7` to `Community 1`, `Community 2`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Are the 26 inferred relationships involving `get_db()` (e.g. with `get_current_user()` and `send_notification()`) actually correct?**
   _`get_db()` has 26 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 14 inferred relationships involving `Notification` (e.g. with `Persist a notification to MongoDB so the user can read it in the     in-app inbo` and `Return all notifications for the given phone, newest first.`) actually correct?**
