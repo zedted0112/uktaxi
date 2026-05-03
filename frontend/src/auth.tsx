@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api, User } from './api';
+import { api, setApiToken, User } from './api';
 
 const STORAGE_KEY = 'utk_auth_v1';
+const LEGACY_STORAGE_KEY = 'utk_auth_v0';
+
+type Session = { user: User; token: string };
 
 type AuthCtx = {
   user: User | null;
   loading: boolean;
-  signIn: (user: User) => Promise<void>;
+  signIn: (user: User, token: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -29,15 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
-          const cached: User = JSON.parse(raw);
-          // re-validate against backend
+          const cached: Session = JSON.parse(raw);
+          setApiToken(cached.token);
+          // Re-validate against backend with bearer token.
           try {
-            const fresh = await api.me(cached.phone);
+            const fresh = await api.me();
             setUser(fresh);
-            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ user: fresh, token: cached.token }));
           } catch {
-            setUser(cached);
+            setApiToken('');
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setUser(null);
           }
+        } else {
+          // Drop stale legacy user-only sessions after token migration.
+          await AsyncStorage.removeItem(LEGACY_STORAGE_KEY);
         }
       } finally {
         setLoading(false);
@@ -45,20 +54,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const signIn = async (u: User) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+  const signIn = async (u: User, token: string) => {
+    setApiToken(token);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ user: u, token }));
     setUser(u);
   };
 
   const signOut = async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
+    setApiToken('');
     setUser(null);
   };
 
   const refresh = async () => {
     if (!user) return;
-    const fresh = await api.me(user.phone);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const cached: Session = JSON.parse(raw);
+    setApiToken(cached.token);
+    const fresh = await api.me();
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ user: fresh, token: cached.token }));
     setUser(fresh);
   };
 

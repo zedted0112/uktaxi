@@ -7,6 +7,7 @@
 #   EXPO_CLEAR=1 ./scripts/quick-start.sh    # clear Metro cache on startup
 # Exports for local API (see frontend/src/api.ts): EXPO_PUBLIC_DEMO_MODE=true (default),
 # EXPO_PUBLIC_BACKEND_PORT, EXPO_PUBLIC_BACKEND_URL=http://<LAN-IP>:PORT for device builds.
+#   USE_DEV_CLIENT=1 ./scripts/quick-start.sh   # QR for custom dev build (default is --go = Expo Go)
 
 set -euo pipefail
 
@@ -91,7 +92,7 @@ fi
 
 echo "Backend pid ${BACKEND_PID} — API: http://127.0.0.1:${BACKEND_PORT}/api/"
 echo ""
-echo "Starting Expo Go (--go) on port ${FRONTEND_PORT} — scan QR in Expo Go app (not Chrome). Ctrl+C stops Expo and backend."
+echo "Starting Expo on port ${FRONTEND_PORT} (QR below; Ctrl+C stops Expo and backend)..."
 echo ""
 
 cd "${ROOT}/frontend"
@@ -112,24 +113,32 @@ fi
 
 EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
 EXPO_CLEAR="${EXPO_CLEAR:-1}"
-# --go = Expo Go. --lan = Metro manifest/QR use LAN only (same Wi-Fi as phone); avoids flaky tunnel/localhost.
-EXPO_ARGS=(start "--go" "--port" "${FRONTEND_PORT}")
-if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
-  EXPO_ARGS+=(--tunnel)
-else
-  EXPO_ARGS+=(--lan)
-fi
-if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
-  EXPO_ARGS+=(--clear)
-fi
+USE_DEV_CLIENT="${USE_DEV_CLIENT:-0}"
+
+expo_start_args() {
+  EXPO_ARGS=(start "--port" "${FRONTEND_PORT}")
+  if [[ "${USE_DEV_CLIENT}" == "1" ]] || [[ "${USE_DEV_CLIENT}" == "true" ]]; then
+    EXPO_ARGS+=(--dev-client)
+  else
+    EXPO_ARGS+=(--go)
+  fi
+  if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
+    EXPO_ARGS+=(--tunnel)
+  else
+    EXPO_ARGS+=(--lan)
+  fi
+  if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
+    EXPO_ARGS+=(--clear)
+  fi
+}
+
+expo_start_args
 
 if ! npx expo "${EXPO_ARGS[@]}"; then
   if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
     echo "Tunnel failed, falling back to LAN mode..."
-    EXPO_ARGS=(start "--go" "--lan" "--port" "${FRONTEND_PORT}")
-    if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
-      EXPO_ARGS+=(--clear)
-    fi
+    EXPO_TUNNEL=0
+    expo_start_args
     npx expo "${EXPO_ARGS[@]}"
   else
     exit 1

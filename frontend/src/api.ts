@@ -59,6 +59,9 @@ export type User = {
   phone: string;
   name: string;
   role: Role;
+  email?: string | null;
+  google_sub?: string | null;
+  auth_provider?: 'phone' | 'google' | null;
   vehicle_preset?: string | null;
   vehicle_type?: string | null;
   vehicle_number?: string | null;
@@ -89,6 +92,24 @@ export type ApiRootResponse = {
   message: string;
   schema: number;
   demo_mode: boolean;
+};
+
+export type GoogleVerifyResponse = {
+  ok: boolean;
+  user: User | null;
+  token: string | null;
+  profile: {
+    email: string;
+    google_sub: string;
+    name: string;
+    picture?: string | null;
+  } | null;
+};
+
+export type AuthResponse = {
+  ok: boolean;
+  user: User | null;
+  token: string | null;
 };
 
 export type Vehicle = {
@@ -164,7 +185,11 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
     try {
       res = await fetch(url, {
         ...opts,
-        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(AUTH_TOKEN ? { Authorization: `Bearer ${AUTH_TOKEN}` } : {}),
+          ...(opts.headers || {}),
+        },
       });
       break;
     } catch (error: unknown) {
@@ -187,6 +212,11 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+let AUTH_TOKEN = '';
+export function setApiToken(token: string | null) {
+  AUTH_TOKEN = token || '';
+}
+
 export const api = {
   /** Health + flags (`demo_mode` mirrors backend `ENABLE_DEMO_MODE`). */
   getApiRoot: () => req<ApiRootResponse>('/'),
@@ -195,21 +225,26 @@ export const api = {
   requestOtp: (phone: string) => req<{ ok: boolean; message: string }>(`/auth/request-otp`, {
     method: 'POST', body: JSON.stringify({ phone }),
   }),
-  verifyOtp: (phone: string, otp: string) => req<{ ok: boolean; user: User | null }>(`/auth/verify-otp`, {
+  verifyOtp: (phone: string, otp: string) => req<AuthResponse>(`/auth/verify-otp`, {
     method: 'POST', body: JSON.stringify({ phone, otp }),
   }),
+  verifyGoogle: (id_token: string) =>
+    req<GoogleVerifyResponse>(`/auth/google-verify`, { method: 'POST', body: JSON.stringify({ id_token }) }),
   register: (payload: {
     phone: string;
     name: string;
     role: Role;
+    email?: string;
+    google_sub?: string;
+    auth_provider?: 'phone' | 'google';
     vehicle_preset?: string;
     vehicle_number?: string;
     driving_license?: string;
   }) =>
-    req<User>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
-  me: (phone: string) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`),
+    req<AuthResponse>(`/auth/register`, { method: 'POST', body: JSON.stringify(payload) }),
+  me: () => req<User>(`/auth/me`),
   updateMe: (
-    phone: string,
+    _phone: string,
     payload: {
       name?: string;
       preferred_taxi_stand?: string;
@@ -220,7 +255,7 @@ export const api = {
       notify_booking_updates?: boolean;
       notify_promotions?: boolean;
     },
-  ) => req<User>(`/auth/me?phone=${encodeURIComponent(phone)}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  ) => req<User>(`/auth/me`, { method: 'PATCH', body: JSON.stringify(payload) }),
   demoAccounts: () => req<User[]>(`/demo/accounts`),
   listVehicles: () => req<Vehicle[]>(`/vehicles`),
   updateDriverVehicle: (phone: string, payload: { vehicle_preset: string; vehicle_number: string }) =>
@@ -262,11 +297,11 @@ export const api = {
   cancelRequest: (id: string) => req<BookingRequest>(`/requests/${id}/cancel`, { method: 'POST' }),
 
   // notifications
-  listNotifications: (phone: string) =>
-    req<AppNotification[]>(`/notifications?phone=${encodeURIComponent(phone)}`),
-  unreadCount: (phone: string) =>
-    req<{ count: number }>(`/notifications/unread-count?phone=${encodeURIComponent(phone)}`),
+  listNotifications: (_phone?: string) =>
+    req<AppNotification[]>(`/notifications`),
+  unreadCount: (_phone?: string) =>
+    req<{ count: number }>(`/notifications/unread-count`),
   markRead: (id: string) => req<{ ok: boolean }>(`/notifications/${id}/read`, { method: 'POST' }),
-  markAllRead: (phone: string) =>
-    req<{ ok: boolean }>(`/notifications/read-all?phone=${encodeURIComponent(phone)}`, { method: 'POST' }),
+  markAllRead: (_phone?: string) =>
+    req<{ ok: boolean }>(`/notifications/read-all`, { method: 'POST' }),
 };

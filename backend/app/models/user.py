@@ -11,6 +11,9 @@ class User(BaseModel):
     phone: str
     name: str
     role: Role
+    email: Optional[str] = None
+    google_sub: Optional[str] = None
+    auth_provider: Optional[Literal["phone", "google"]] = "phone"
     vehicle_preset: Optional[str] = None
     vehicle_type: Optional[str] = None
     vehicle_number: Optional[str] = None
@@ -40,6 +43,9 @@ class RegisterIn(BaseModel):
     phone: str
     name: str
     role: Role
+    email: Optional[str] = None
+    google_sub: Optional[str] = None
+    auth_provider: Optional[Literal["phone", "google"]] = "phone"
     vehicle_preset: Optional[str] = None
     vehicle_number: Optional[str] = None
     driving_license: Optional[str] = None
@@ -54,6 +60,16 @@ class UpdateProfileIn(BaseModel):
     preferred_language: Optional[Literal["en", "hi"]] = None
     notify_booking_updates: Optional[bool] = None
     notify_promotions: Optional[bool] = None
+
+
+class GoogleVerifyIn(BaseModel):
+    id_token: str
+
+
+class AuthOut(BaseModel):
+    ok: bool = True
+    user: User
+    token: str
 
 
 class UpdateDriverVehicleIn(BaseModel):
