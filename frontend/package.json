@@ -9,7 +9,8 @@
     "android": "expo start --android --go --lan",
     "ios": "expo start --ios --go --lan",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:apk": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@babel/runtime": "^7.20.6",

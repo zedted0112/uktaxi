@@ -125,9 +125,14 @@ export default function Auth() {
         }
       } catch {
         if (!cancelled) {
-          // Root unreachable (tunnel/LAN blips): keep quick picks; cannot know backend demo flag.
-          setDemoUiEnabled(true);
-          setDemoAccts([...LOCAL_DEMOS]);
+          // Only fall back to local demo picks when env forces demo / local demo mode — not for production APKs.
+          if (forceDemoOtp) {
+            setDemoUiEnabled(true);
+            setDemoAccts([...LOCAL_DEMOS]);
+          } else {
+            setDemoUiEnabled(false);
+            setDemoAccts([]);
+          }
         }
       }
     })();

@@ -3,8 +3,8 @@
 # Usage from repo root: ./scripts/quick-start.sh
 # Optional overrides:
 #   BACKEND_PORT=8000 FRONTEND_PORT=8081 ./scripts/quick-start.sh
-#   EXPO_TUNNEL=0 ./scripts/quick-start.sh   # force LAN mode
 #   EXPO_CLEAR=1 ./scripts/quick-start.sh    # clear Metro cache on startup
+# This script is LAN-only (--lan, no ngrok tunnel). For tunneling, run Expo manually from frontend/.
 # Exports for local API (see frontend/src/api.ts): EXPO_PUBLIC_DEMO_MODE=true (default),
 # EXPO_PUBLIC_BACKEND_PORT, EXPO_PUBLIC_BACKEND_URL=http://<LAN-IP>:PORT for device builds.
 #   USE_DEV_CLIENT=1 ./scripts/quick-start.sh   # QR for custom dev build (default is --go = Expo Go)
@@ -111,7 +111,26 @@ else
   echo "Could not detect LAN IP (en0/en1); EXPO_PUBLIC_BACKEND_URL unchanged — simulator may use localhost/10.0.2.2 via app."
 fi
 
-EXPO_TUNNEL="${EXPO_TUNNEL:-0}"
+echo "┌────────────────────────────────────────────────────────────────────────────┐"
+echo "│ Open in Expo Go (LAN only):                                                │"
+echo "│                                                                            │"
+echo "│  BEST — skip the browser: Expo Go → \"Enter URL\" and paste exactly:        │"
+if [[ -n "${LOCAL_IP}" ]]; then
+  echo "│    exp://${LOCAL_IP}:${FRONTEND_PORT}                                        │"
+else
+  echo "│    exp://<this-computer-LAN-IP>:${FRONTEND_PORT}   (set LAN IP in Expo UI)  │"
+fi
+echo "│                                                                            │"
+echo "│  OR — Expo Go → \"Scan QR code\" (do NOT use the system Camera app).        │"
+echo "│                                                                            │"
+echo "│  This repo includes expo-dev-client: QR / links may show Expo Go vs       │"
+echo "│  dev build in a browser — choose Expo Go, or use \"Enter URL\" above.      │"
+echo "│  Metro terminal: press ? for shortcuts.                                    │"
+echo "└────────────────────────────────────────────────────────────────────────────┘"
+echo ""
+
+# LAN-only: do not inherit EXPO_TUNNEL=1 from the shell (avoids ngrok / "remote gone away").
+export EXPO_TUNNEL=0
 EXPO_CLEAR="${EXPO_CLEAR:-1}"
 USE_DEV_CLIENT="${USE_DEV_CLIENT:-0}"
 
@@ -122,11 +141,7 @@ expo_start_args() {
   else
     EXPO_ARGS+=(--go)
   fi
-  if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
-    EXPO_ARGS+=(--tunnel)
-  else
-    EXPO_ARGS+=(--lan)
-  fi
+  EXPO_ARGS+=(--lan)
   if [[ "${EXPO_CLEAR}" == "1" ]] || [[ "${EXPO_CLEAR}" == "true" ]]; then
     EXPO_ARGS+=(--clear)
   fi
@@ -135,12 +150,5 @@ expo_start_args() {
 expo_start_args
 
 if ! npx expo "${EXPO_ARGS[@]}"; then
-  if [[ "${EXPO_TUNNEL}" == "1" ]] || [[ "${EXPO_TUNNEL}" == "true" ]]; then
-    echo "Tunnel failed, falling back to LAN mode..."
-    EXPO_TUNNEL=0
-    expo_start_args
-    npx expo "${EXPO_ARGS[@]}"
-  else
-    exit 1
-  fi
+  exit 1
 fi
