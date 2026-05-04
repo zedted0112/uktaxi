@@ -9,7 +9,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/expo-env.d.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_expo_env_d_ts",
-      "community": 29,
+      "community": 30,
       "norm_label": "expo-env.d.ts"
     },
     {
@@ -18,8 +18,17 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/metro.config.js",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_metro_config_js",
-      "community": 30,
+      "community": 31,
       "norm_label": "metro.config.js"
+    },
+    {
+      "label": "babel.config.js",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/babel.config.js",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_babel_config_js",
+      "community": 32,
+      "norm_label": "babel.config.js"
     },
     {
       "label": "eslint.config.js",
@@ -27,7 +36,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/eslint.config.js",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_eslint_config_js",
-      "community": 31,
+      "community": 33,
       "norm_label": "eslint.config.js"
     },
     {
@@ -43,25 +52,43 @@
       "label": "formattedPhone()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L113",
+      "source_location": "L148",
       "id": "auth_formattedphone",
       "community": 6,
       "norm_label": "formattedphone()"
     },
     {
+      "label": "onSelectRole()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L161",
+      "id": "auth_onselectrole",
+      "community": 6,
+      "norm_label": "onselectrole()"
+    },
+    {
       "label": "quickSignIn()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L126",
+      "source_location": "L170",
       "id": "auth_quicksignin",
       "community": 6,
       "norm_label": "quicksignin()"
     },
     {
+      "label": "signInWithGoogle()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L186",
+      "id": "auth_signinwithgoogle",
+      "community": 6,
+      "norm_label": "signinwithgoogle()"
+    },
+    {
       "label": "sendOtp()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L144",
+      "source_location": "L221",
       "id": "auth_sendotp",
       "community": 6,
       "norm_label": "sendotp()"
@@ -70,7 +97,7 @@
       "label": "verifyOtp()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L157",
+      "source_location": "L247",
       "id": "auth_verifyotp",
       "community": 6,
       "norm_label": "verifyotp()"
@@ -79,7 +106,7 @@
       "label": "registerDriver()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L185",
+      "source_location": "L274",
       "id": "auth_registerdriver",
       "community": 6,
       "norm_label": "registerdriver()"
@@ -88,7 +115,7 @@
       "label": "registerPassenger()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L199",
+      "source_location": "L293",
       "id": "auth_registerpassenger",
       "community": 6,
       "norm_label": "registerpassenger()"
@@ -99,7 +126,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/_layout.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_layout_tsx",
-      "community": 32,
+      "community": 34,
       "norm_label": "_layout.tsx"
     },
     {
@@ -108,7 +135,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/+html.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_html_tsx",
-      "community": 33,
+      "community": 35,
       "norm_label": "+html.tsx"
     },
     {
@@ -117,62 +144,17 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "community": 7,
+      "community": 20,
       "norm_label": "index.tsx"
-    },
-    {
-      "label": "hasRoute()",
-      "file_type": "code",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L41",
-      "id": "index_hasroute",
-      "community": 7,
-      "norm_label": "hasroute()"
-    },
-    {
-      "label": "syncChipIndex()",
-      "file_type": "code",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L44",
-      "id": "index_syncchipindex",
-      "community": 7,
-      "norm_label": "syncchipindex()"
-    },
-    {
-      "label": "applyFrom()",
-      "file_type": "code",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L49",
-      "id": "index_applyfrom",
-      "community": 7,
-      "norm_label": "applyfrom()"
-    },
-    {
-      "label": "applyTo()",
-      "file_type": "code",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L62",
-      "id": "index_applyto",
-      "community": 7,
-      "norm_label": "applyto()"
     },
     {
       "label": "onChipSelect()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L75",
+      "source_location": "L34",
       "id": "index_onchipselect",
-      "community": 7,
+      "community": 20,
       "norm_label": "onchipselect()"
-    },
-    {
-      "label": "reverseRoute()",
-      "file_type": "code",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L83",
-      "id": "index_reverseroute",
-      "community": 7,
-      "norm_label": "reverseroute()"
     },
     {
       "label": "bookings.tsx",
@@ -180,7 +162,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/bookings.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_bookings_tsx",
-      "community": 20,
+      "community": 21,
       "norm_label": "bookings.tsx"
     },
     {
@@ -189,7 +171,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/bookings.tsx",
       "source_location": "L22",
       "id": "bookings_cancel",
-      "community": 20,
+      "community": 21,
       "norm_label": "cancel()"
     },
     {
@@ -198,7 +180,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/notifications.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_notifications_tsx",
-      "community": 5,
+      "community": 7,
       "norm_label": "notifications.tsx"
     },
     {
@@ -207,7 +189,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/notifications.tsx",
       "source_location": "L4",
       "id": "notifications_passengernotifications",
-      "community": 5,
+      "community": 7,
       "norm_label": "passengernotifications()"
     },
     {
@@ -216,17 +198,35 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/profile.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
-      "community": 15,
+      "community": 12,
       "norm_label": "profile.tsx"
     },
     {
       "label": "confirmLogout()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
-      "source_location": "L12",
+      "source_location": "L23",
       "id": "profile_confirmlogout",
-      "community": 15,
+      "community": 12,
       "norm_label": "confirmlogout()"
+    },
+    {
+      "label": "comingSoon()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
+      "source_location": "L29",
+      "id": "profile_comingsoon",
+      "community": 12,
+      "norm_label": "comingsoon()"
+    },
+    {
+      "label": "savePersonal()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
+      "source_location": "L32",
+      "id": "profile_savepersonal",
+      "community": 12,
+      "norm_label": "savepersonal()"
     },
     {
       "label": "_layout.tsx",
@@ -234,7 +234,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/_layout.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_layout_tsx",
-      "community": 5,
+      "community": 7,
       "norm_label": "_layout.tsx"
     },
     {
@@ -243,7 +243,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/_layout.tsx",
       "source_location": "L9",
       "id": "layout_bellicon",
-      "community": 5,
+      "community": 7,
       "norm_label": "bellicon()"
     },
     {
@@ -315,7 +315,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/ticket/[id].tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_ticket_id_tsx",
-      "community": 21,
+      "community": 22,
       "norm_label": "[id].tsx"
     },
     {
@@ -324,7 +324,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/ticket/[id].tsx",
       "source_location": "L24",
       "id": "id_cancel",
-      "community": 21,
+      "community": 22,
       "norm_label": "cancel()"
     },
     {
@@ -333,7 +333,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/requests.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_requests_tsx",
-      "community": 13,
+      "community": 14,
       "norm_label": "requests.tsx"
     },
     {
@@ -342,7 +342,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/requests.tsx",
       "source_location": "L33",
       "id": "requests_act",
-      "community": 13,
+      "community": 14,
       "norm_label": "act()"
     },
     {
@@ -351,7 +351,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/requests.tsx",
       "source_location": "L44",
       "id": "requests_confirm",
-      "community": 13,
+      "community": 14,
       "norm_label": "confirm()"
     },
     {
@@ -360,7 +360,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/requests.tsx",
       "source_location": "L50",
       "id": "requests_reject",
-      "community": 13,
+      "community": 14,
       "norm_label": "reject()"
     },
     {
@@ -369,7 +369,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/notifications.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_notifications_tsx",
-      "community": 5,
+      "community": 7,
       "norm_label": "notifications.tsx"
     },
     {
@@ -378,7 +378,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/notifications.tsx",
       "source_location": "L4",
       "id": "notifications_drivernotifications",
-      "community": 5,
+      "community": 7,
       "norm_label": "drivernotifications()"
     },
     {
@@ -387,7 +387,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/rides.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_rides_tsx",
-      "community": 34,
+      "community": 36,
       "norm_label": "rides.tsx"
     },
     {
@@ -396,7 +396,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
-      "community": 15,
+      "community": 12,
       "norm_label": "profile.tsx"
     },
     {
@@ -405,7 +405,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/_layout.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_layout_tsx",
-      "community": 5,
+      "community": 7,
       "norm_label": "_layout.tsx"
     },
     {
@@ -414,53 +414,206 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
-      "community": 9,
+      "community": 3,
       "norm_label": "publish.tsx"
     },
     {
       "label": "next7()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "id": "publish_next7",
-      "community": 9,
+      "community": 3,
       "norm_label": "next7()"
     },
     {
       "label": "parseSlotDateTime()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L44",
+      "source_location": "L39",
       "id": "publish_parseslotdatetime",
-      "community": 9,
+      "community": 3,
       "norm_label": "parseslotdatetime()"
+    },
+    {
+      "label": "formatDuration()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L53",
+      "id": "publish_formatduration",
+      "community": 3,
+      "norm_label": "formatduration()"
+    },
+    {
+      "label": "formatTimeLabel()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L61",
+      "id": "publish_formattimelabel",
+      "community": 3,
+      "norm_label": "formattimelabel()"
     },
     {
       "label": "statusOf()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L70",
+      "source_location": "L87",
       "id": "publish_statusof",
-      "community": 9,
+      "community": 3,
       "norm_label": "statusof()"
     },
     {
       "label": "toggleOffline()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L71",
+      "source_location": "L88",
       "id": "publish_toggleoffline",
-      "community": 9,
+      "community": 3,
       "norm_label": "toggleoffline()"
+    },
+    {
+      "label": "onPickCustomDep()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L129",
+      "id": "publish_onpickcustomdep",
+      "community": 3,
+      "norm_label": "onpickcustomdep()"
+    },
+    {
+      "label": "onPickCustomArr()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L134",
+      "id": "publish_onpickcustomarr",
+      "community": 3,
+      "norm_label": "onpickcustomarr()"
     },
     {
       "label": "onPublish()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L82",
+      "source_location": "L140",
       "id": "publish_onpublish",
-      "community": 9,
+      "community": 3,
       "norm_label": "onpublish()"
+    },
+    {
+      "label": "MainActivity.kt",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainactivity_kt",
+      "community": 10,
+      "norm_label": "mainactivity.kt"
+    },
+    {
+      "label": "MainActivity",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L14",
+      "id": "mainactivity_mainactivity",
+      "community": 10,
+      "norm_label": "mainactivity"
+    },
+    {
+      "label": ".onCreate()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L15",
+      "id": "mainactivity_mainactivity_oncreate",
+      "community": 10,
+      "norm_label": ".oncreate()"
+    },
+    {
+      "label": ".getMainComponentName()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L30",
+      "id": "mainactivity_mainactivity_getmaincomponentname",
+      "community": 10,
+      "norm_label": ".getmaincomponentname()"
+    },
+    {
+      "label": ".createReactActivityDelegate()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L36",
+      "id": "mainactivity_mainactivity_createreactactivitydelegate",
+      "community": 10,
+      "norm_label": ".createreactactivitydelegate()"
+    },
+    {
+      "label": ".invokeDefaultOnBackPressed()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L52",
+      "id": "mainactivity_mainactivity_invokedefaultonbackpressed",
+      "community": 10,
+      "norm_label": ".invokedefaultonbackpressed()"
+    },
+    {
+      "label": "MainApplication.kt",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "community": 9,
+      "norm_label": "mainapplication.kt"
+    },
+    {
+      "label": "MainApplication",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L19",
+      "id": "mainapplication_mainapplication",
+      "community": 9,
+      "norm_label": "mainapplication"
+    },
+    {
+      "label": "getPackages()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L24",
+      "id": "mainapplication_getpackages",
+      "community": 9,
+      "norm_label": "getpackages()"
+    },
+    {
+      "label": "getJSMainModuleName()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L30",
+      "id": "mainapplication_getjsmainmodulename",
+      "community": 9,
+      "norm_label": "getjsmainmodulename()"
+    },
+    {
+      "label": "getUseDeveloperSupport()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L32",
+      "id": "mainapplication_getusedevelopersupport",
+      "community": 9,
+      "norm_label": "getusedevelopersupport()"
+    },
+    {
+      "label": ".onCreate()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L41",
+      "id": "mainapplication_mainapplication_oncreate",
+      "community": 9,
+      "norm_label": ".oncreate()"
+    },
+    {
+      "label": ".onConfigurationChanged()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L52",
+      "id": "mainapplication_mainapplication_onconfigurationchanged",
+      "community": 9,
+      "norm_label": ".onconfigurationchanged()"
     },
     {
       "label": "reset-project.js",
@@ -468,7 +621,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/scripts/reset-project.js",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_scripts_reset_project_js",
-      "community": 22,
+      "community": 23,
       "norm_label": "reset-project.js"
     },
     {
@@ -477,7 +630,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/scripts/reset-project.js",
       "source_location": "L48",
       "id": "reset_project_movedirectories",
-      "community": 22,
+      "community": 23,
       "norm_label": "movedirectories()"
     },
     {
@@ -486,25 +639,25 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/auth.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_auth_tsx",
-      "community": 5,
+      "community": 7,
       "norm_label": "auth.tsx"
     },
     {
       "label": "AuthProvider()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/auth.tsx",
-      "source_location": "L23",
+      "source_location": "L26",
       "id": "auth_authprovider",
-      "community": 5,
+      "community": 7,
       "norm_label": "authprovider()"
     },
     {
       "label": "useAuth()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/auth.tsx",
-      "source_location": "L68",
+      "source_location": "L83",
       "id": "auth_useauth",
-      "community": 5,
+      "community": 7,
       "norm_label": "useauth()"
     },
     {
@@ -574,10 +727,19 @@
       "label": "req()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/api.ts",
-      "source_location": "L128",
+      "source_location": "L157",
       "id": "api_req",
       "community": 11,
       "norm_label": "req()"
+    },
+    {
+      "label": "setApiToken()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/api.ts",
+      "source_location": "L195",
+      "id": "api_setapitoken",
+      "community": 11,
+      "norm_label": "setapitoken()"
     },
     {
       "label": "theme.ts",
@@ -585,8 +747,26 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/theme.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_theme_ts",
-      "community": 35,
+      "community": 37,
       "norm_label": "theme.ts"
+    },
+    {
+      "label": "googleSignInNative.ts",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/googleSignInNative.ts",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_googlesigninnative_ts",
+      "community": 6,
+      "norm_label": "googlesigninnative.ts"
+    },
+    {
+      "label": "loadGoogleSignInNative()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/googleSignInNative.ts",
+      "source_location": "L10",
+      "id": "googlesigninnative_loadgooglesigninnative",
+      "community": 6,
+      "norm_label": "loadgooglesigninnative()"
     },
     {
       "label": "date.ts",
@@ -594,7 +774,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/date.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_utils_date_ts",
-      "community": 12,
+      "community": 13,
       "norm_label": "date.ts"
     },
     {
@@ -603,7 +783,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/date.ts",
       "source_location": "L4",
       "id": "date_formatdate",
-      "community": 12,
+      "community": 13,
       "norm_label": "formatdate()"
     },
     {
@@ -612,7 +792,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/date.ts",
       "source_location": "L12",
       "id": "date_formatdatelong",
-      "community": 12,
+      "community": 13,
       "norm_label": "formatdatelong()"
     },
     {
@@ -621,7 +801,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/date.ts",
       "source_location": "L20",
       "id": "date_next7days",
-      "community": 12,
+      "community": 13,
       "norm_label": "next7days()"
     },
     {
@@ -630,7 +810,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/date.ts",
       "source_location": "L34",
       "id": "date_todayiso",
-      "community": 12,
+      "community": 13,
       "norm_label": "todayiso()"
     },
     {
@@ -639,7 +819,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/seat.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_utils_seat_ts",
-      "community": 14,
+      "community": 15,
       "norm_label": "seat.ts"
     },
     {
@@ -648,7 +828,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/seat.ts",
       "source_location": "L4",
       "id": "seat_allseats",
-      "community": 14,
+      "community": 15,
       "norm_label": "allseats()"
     },
     {
@@ -657,7 +837,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/seat.ts",
       "source_location": "L11",
       "id": "seat_seatsleft",
-      "community": 14,
+      "community": 15,
       "norm_label": "seatsleft()"
     },
     {
@@ -666,7 +846,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/utils/seat.ts",
       "source_location": "L18",
       "id": "seat_seatstatuslabel",
-      "community": 14,
+      "community": 15,
       "norm_label": "seatstatuslabel()"
     },
     {
@@ -702,7 +882,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/Card.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_card_tsx",
-      "community": 23,
+      "community": 24,
       "norm_label": "card.tsx"
     },
     {
@@ -711,8 +891,71 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/Card.tsx",
       "source_location": "L9",
       "id": "card_card",
-      "community": 23,
+      "community": 24,
       "norm_label": "card()"
+    },
+    {
+      "label": "RoutePickerCard.tsx",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "community": 3,
+      "norm_label": "routepickercard.tsx"
+    },
+    {
+      "label": "tid()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L25",
+      "id": "routepickercard_tid",
+      "community": 3,
+      "norm_label": "tid()"
+    },
+    {
+      "label": "closePickers()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L36",
+      "id": "routepickercard_closepickers",
+      "community": 3,
+      "norm_label": "closepickers()"
+    },
+    {
+      "label": "applyRoute()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L42",
+      "id": "routepickercard_applyroute",
+      "community": 3,
+      "norm_label": "applyroute()"
+    },
+    {
+      "label": "openFromPicker()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L55",
+      "id": "routepickercard_openfrompicker",
+      "community": 3,
+      "norm_label": "openfrompicker()"
+    },
+    {
+      "label": "openToPicker()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L59",
+      "id": "routepickercard_opentopicker",
+      "community": 3,
+      "norm_label": "opentopicker()"
+    },
+    {
+      "label": "reverseRoute()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L98",
+      "id": "routepickercard_reverseroute",
+      "community": 3,
+      "norm_label": "reverseroute()"
     },
     {
       "label": "NotificationsScreen.tsx",
@@ -720,7 +963,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/NotificationsScreen.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_notificationsscreen_tsx",
-      "community": 24,
+      "community": 25,
       "norm_label": "notificationsscreen.tsx"
     },
     {
@@ -729,7 +972,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/NotificationsScreen.tsx",
       "source_location": "L19",
       "id": "notificationsscreen_timeago",
-      "community": 24,
+      "community": 25,
       "norm_label": "timeago()"
     },
     {
@@ -738,7 +981,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/LoadingSpinner.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_loadingspinner_tsx",
-      "community": 25,
+      "community": 26,
       "norm_label": "loadingspinner.tsx"
     },
     {
@@ -747,7 +990,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/LoadingSpinner.tsx",
       "source_location": "L9",
       "id": "loadingspinner_loadingspinner",
-      "community": 25,
+      "community": 26,
       "norm_label": "loadingspinner()"
     },
     {
@@ -756,7 +999,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/Badge.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_badge_tsx",
-      "community": 36,
+      "community": 38,
       "norm_label": "badge.tsx"
     },
     {
@@ -765,7 +1008,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/Button.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_button_tsx",
-      "community": 26,
+      "community": 27,
       "norm_label": "button.tsx"
     },
     {
@@ -774,7 +1017,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/Button.tsx",
       "source_location": "L23",
       "id": "button_button",
-      "community": 26,
+      "community": 27,
       "norm_label": "button()"
     },
     {
@@ -783,7 +1026,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/EmptyState.tsx",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_emptystate_tsx",
-      "community": 27,
+      "community": 28,
       "norm_label": "emptystate.tsx"
     },
     {
@@ -792,7 +1035,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/EmptyState.tsx",
       "source_location": "L13",
       "id": "emptystate_emptystate",
-      "community": 27,
+      "community": 28,
       "norm_label": "emptystate()"
     },
     {
@@ -828,16 +1071,16 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/hooks/useNotifications.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_hooks_usenotifications_ts",
-      "community": 5,
+      "community": 7,
       "norm_label": "usenotifications.ts"
     },
     {
       "label": "useNotifications()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/hooks/useNotifications.ts",
-      "source_location": "L4",
+      "source_location": "L9",
       "id": "usenotifications_usenotifications",
-      "community": 5,
+      "community": 7,
       "norm_label": "usenotifications()"
     },
     {
@@ -873,7 +1116,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/hooks/useVehicles.ts",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_hooks_usevehicles_ts",
-      "community": 28,
+      "community": 29,
       "norm_label": "usevehicles.ts"
     },
     {
@@ -882,8 +1125,44 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/hooks/useVehicles.ts",
       "source_location": "L10",
       "id": "usevehicles_usevehicles",
-      "community": 28,
+      "community": 29,
       "norm_label": "usevehicles()"
+    },
+    {
+      "label": "unionRoutes.ts",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "community": 3,
+      "norm_label": "unionroutes.ts"
+    },
+    {
+      "label": "expandBidirectional()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L58",
+      "id": "unionroutes_expandbidirectional",
+      "community": 3,
+      "norm_label": "expandbidirectional()"
+    },
+    {
+      "label": "hasRouteLeg()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L76",
+      "id": "unionroutes_hasrouteleg",
+      "community": 3,
+      "norm_label": "hasrouteleg()"
+    },
+    {
+      "label": "defaultStandForCity()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L121",
+      "id": "unionroutes_defaultstandforcity",
+      "community": 3,
+      "norm_label": "defaultstandforcity()"
     },
     {
       "label": "__init__.py",
@@ -891,7 +1170,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/tests/__init__.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_tests_init_py",
-      "community": 37,
+      "community": 39,
       "norm_label": "__init__.py"
     },
     {
@@ -900,7 +1179,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/server.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_server_py",
-      "community": 38,
+      "community": 40,
       "norm_label": "server.py"
     },
     {
@@ -934,7 +1213,7 @@
       "label": "_debug_log()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L15",
+      "source_location": "L17",
       "id": "database_debug_log",
       "community": 1,
       "norm_label": "_debug_log()"
@@ -943,7 +1222,7 @@
       "label": "get_client()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L32",
+      "source_location": "L37",
       "id": "database_get_client",
       "community": 1,
       "norm_label": "get_client()"
@@ -952,16 +1231,16 @@
       "label": "get_db()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L52",
+      "source_location": "L57",
       "id": "database_get_db",
-      "community": 1,
+      "community": 2,
       "norm_label": "get_db()"
     },
     {
       "label": "close_client()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L66",
+      "source_location": "L71",
       "id": "database_close_client",
       "community": 1,
       "norm_label": "close_client()"
@@ -970,7 +1249,7 @@
       "label": "ensure_indexes()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L74",
+      "source_location": "L79",
       "id": "database_ensure_indexes",
       "community": 1,
       "norm_label": "ensure_indexes()"
@@ -979,10 +1258,37 @@
       "label": "Ensure critical indexes exist for booking/ride integrity and query performance.",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L75",
+      "source_location": "L80",
       "community": 1,
       "norm_label": "ensure critical indexes exist for booking/ride integrity and query performance.",
-      "id": "database_rationale_75"
+      "id": "database_rationale_80"
+    },
+    {
+      "label": "security.py",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L1",
+      "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "community": 1,
+      "norm_label": "security.py"
+    },
+    {
+      "label": "create_access_token()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L14",
+      "id": "security_create_access_token",
+      "community": 1,
+      "norm_label": "create_access_token()"
+    },
+    {
+      "label": "get_current_user()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L26",
+      "id": "security_get_current_user",
+      "community": 1,
+      "norm_label": "get_current_user()"
     },
     {
       "label": "__init__.py",
@@ -990,7 +1296,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/__init__.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_init_py",
-      "community": 39,
+      "community": 41,
       "norm_label": "__init__.py"
     },
     {
@@ -1017,7 +1323,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/notifications.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_notifications_py",
-      "community": 4,
+      "community": 2,
       "norm_label": "notifications.py"
     },
     {
@@ -1034,7 +1340,7 @@
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/notifications.py",
       "source_location": "L14",
-      "community": 2,
+      "community": 5,
       "norm_label": "persist a notification to mongodb so the user can read it in the     in-app inbo",
       "id": "notifications_rationale_14"
     },
@@ -1051,7 +1357,7 @@
       "label": "_debug_log()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L21",
+      "source_location": "L24",
       "id": "main_debug_log",
       "community": 1,
       "norm_label": "_debug_log()"
@@ -1060,7 +1366,7 @@
       "label": "root()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L65",
+      "source_location": "L71",
       "id": "main_root",
       "community": 1,
       "norm_label": "root()"
@@ -1069,7 +1375,7 @@
       "label": "startup_event()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L76",
+      "source_location": "L82",
       "id": "main_startup_event",
       "community": 1,
       "norm_label": "startup_event()"
@@ -1078,7 +1384,7 @@
       "label": "shutdown_event()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L116",
+      "source_location": "L122",
       "id": "main_shutdown_event",
       "community": 1,
       "norm_label": "shutdown_event()"
@@ -1213,7 +1519,7 @@
       "label": "request_otp()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L12",
+      "source_location": "L15",
       "id": "auth_request_otp",
       "community": 1,
       "norm_label": "request_otp()"
@@ -1222,7 +1528,7 @@
       "label": "verify_otp()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L20",
+      "source_location": "L25",
       "id": "auth_verify_otp",
       "community": 1,
       "norm_label": "verify_otp()"
@@ -1231,19 +1537,37 @@
       "label": "register_user()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L31",
+      "source_location": "L41",
       "id": "auth_register_user",
       "community": 1,
       "norm_label": "register_user()"
     },
     {
+      "label": "google_verify()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L67",
+      "id": "auth_google_verify",
+      "community": 1,
+      "norm_label": "google_verify()"
+    },
+    {
       "label": "me()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L57",
+      "source_location": "L108",
       "id": "auth_me",
-      "community": 1,
+      "community": 6,
       "norm_label": "me()"
+    },
+    {
+      "label": "update_me()",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L114",
+      "id": "auth_update_me",
+      "community": 1,
+      "norm_label": "update_me()"
     },
     {
       "label": "drivers.py",
@@ -1258,7 +1582,7 @@
       "label": "update_vehicle()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/drivers.py",
-      "source_location": "L10",
+      "source_location": "L11",
       "id": "drivers_update_vehicle",
       "community": 1,
       "norm_label": "update_vehicle()"
@@ -1269,7 +1593,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/__init__.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_init_py",
-      "community": 40,
+      "community": 42,
       "norm_label": "__init__.py"
     },
     {
@@ -1285,7 +1609,7 @@
       "label": "auto_mark_departed_rides()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "rides_auto_mark_departed_rides",
       "community": 2,
       "norm_label": "auto_mark_departed_rides()"
@@ -1294,7 +1618,7 @@
       "label": "publish_ride()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L72",
+      "source_location": "L73",
       "id": "rides_publish_ride",
       "community": 2,
       "norm_label": "publish_ride()"
@@ -1303,7 +1627,7 @@
       "label": "list_rides()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L118",
+      "source_location": "L123",
       "id": "rides_list_rides",
       "community": 2,
       "norm_label": "list_rides()"
@@ -1312,7 +1636,7 @@
       "label": "get_ride()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L143",
+      "source_location": "L151",
       "id": "rides_get_ride",
       "community": 2,
       "norm_label": "get_ride()"
@@ -1321,7 +1645,7 @@
       "label": "update_offline_seats()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L153",
+      "source_location": "L161",
       "id": "rides_update_offline_seats",
       "community": 2,
       "norm_label": "update_offline_seats()"
@@ -1330,19 +1654,19 @@
       "label": "cancel_ride()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L198",
+      "source_location": "L208",
       "id": "rides_cancel_ride",
       "community": 2,
       "norm_label": "cancel_ride()"
     },
     {
-      "label": "Lazily close rides whose departure time has passed.     - ride.status: published",
+      "label": "Lazily advance ride lifecycle by time:     - ride.status: published -> departed",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L12",
-      "community": 3,
-      "norm_label": "lazily close rides whose departure time has passed.     - ride.status: published",
-      "id": "rides_rationale_12"
+      "source_location": "L13",
+      "community": 4,
+      "norm_label": "lazily advance ride lifecycle by time:     - ride.status: published -> departed",
+      "id": "rides_rationale_13"
     },
     {
       "label": "vehicles.py",
@@ -1377,80 +1701,80 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
-      "community": 4,
+      "community": 1,
       "norm_label": "notifications.py"
     },
     {
       "label": "list_notifications()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L10",
+      "source_location": "L11",
       "id": "notifications_list_notifications",
-      "community": 4,
+      "community": 5,
       "norm_label": "list_notifications()"
     },
     {
       "label": "unread_count()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L22",
+      "source_location": "L23",
       "id": "notifications_unread_count",
-      "community": 4,
+      "community": 5,
       "norm_label": "unread_count()"
     },
     {
       "label": "mark_read()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L33",
+      "source_location": "L34",
       "id": "notifications_mark_read",
-      "community": 4,
+      "community": 5,
       "norm_label": "mark_read()"
     },
     {
       "label": "mark_all_read()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L46",
+      "source_location": "L47",
       "id": "notifications_mark_all_read",
-      "community": 4,
+      "community": 5,
       "norm_label": "mark_all_read()"
     },
     {
       "label": "Return all notifications for the given phone, newest first.",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L11",
-      "community": 4,
+      "source_location": "L12",
+      "community": 5,
       "norm_label": "return all notifications for the given phone, newest first.",
-      "id": "notifications_rationale_11"
+      "id": "notifications_rationale_12"
     },
     {
       "label": "Return the number of unread notifications for the given phone.",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L23",
-      "community": 4,
+      "source_location": "L24",
+      "community": 5,
       "norm_label": "return the number of unread notifications for the given phone.",
-      "id": "notifications_rationale_23"
+      "id": "notifications_rationale_24"
     },
     {
       "label": "Mark a single notification as read.",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L34",
-      "community": 4,
+      "source_location": "L35",
+      "community": 5,
       "norm_label": "mark a single notification as read.",
-      "id": "notifications_rationale_34"
+      "id": "notifications_rationale_35"
     },
     {
       "label": "Mark all notifications for a phone as read.",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L47",
-      "community": 4,
+      "source_location": "L48",
+      "community": 5,
       "norm_label": "mark all notifications for a phone as read.",
-      "id": "notifications_rationale_47"
+      "id": "notifications_rationale_48"
     },
     {
       "label": "requests.py",
@@ -1465,7 +1789,7 @@
       "label": "_parse_utc()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "requests_parse_utc",
       "community": 2,
       "norm_label": "_parse_utc()"
@@ -1474,7 +1798,7 @@
       "label": "_is_active_hold()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "requests_is_active_hold",
       "community": 2,
       "norm_label": "_is_active_hold()"
@@ -1483,7 +1807,7 @@
       "label": "create_request()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L28",
+      "source_location": "L29",
       "id": "requests_create_request",
       "community": 2,
       "norm_label": "create_request()"
@@ -1492,7 +1816,7 @@
       "label": "list_requests()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L149",
+      "source_location": "L154",
       "id": "requests_list_requests",
       "community": 2,
       "norm_label": "list_requests()"
@@ -1501,7 +1825,7 @@
       "label": "get_request()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L162",
+      "source_location": "L177",
       "id": "requests_get_request",
       "community": 2,
       "norm_label": "get_request()"
@@ -1510,7 +1834,7 @@
       "label": "confirm_request()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L172",
+      "source_location": "L189",
       "id": "requests_confirm_request",
       "community": 2,
       "norm_label": "confirm_request()"
@@ -1519,7 +1843,7 @@
       "label": "reject_request()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L253",
+      "source_location": "L274",
       "id": "requests_reject_request",
       "community": 2,
       "norm_label": "reject_request()"
@@ -1528,7 +1852,7 @@
       "label": "cancel_request()",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L276",
+      "source_location": "L299",
       "id": "requests_cancel_request",
       "community": 2,
       "norm_label": "cancel_request()"
@@ -1566,7 +1890,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "user.py"
     },
     {
@@ -1584,43 +1908,70 @@
       "source_file": "",
       "source_location": "",
       "id": "basemodel",
-      "community": 3,
+      "community": 4,
       "norm_label": "basemodel"
     },
     {
       "label": "OtpRequest",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L22",
+      "source_location": "L33",
       "id": "user_otprequest",
-      "community": 3,
+      "community": 4,
       "norm_label": "otprequest"
     },
     {
       "label": "OtpVerify",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L26",
+      "source_location": "L37",
       "id": "user_otpverify",
-      "community": 3,
+      "community": 4,
       "norm_label": "otpverify"
     },
     {
       "label": "RegisterIn",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L31",
+      "source_location": "L42",
       "id": "user_registerin",
-      "community": 3,
+      "community": 4,
       "norm_label": "registerin"
+    },
+    {
+      "label": "UpdateProfileIn",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L54",
+      "id": "user_updateprofilein",
+      "community": 4,
+      "norm_label": "updateprofilein"
+    },
+    {
+      "label": "GoogleVerifyIn",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L65",
+      "id": "user_googleverifyin",
+      "community": 4,
+      "norm_label": "googleverifyin"
+    },
+    {
+      "label": "AuthOut",
+      "file_type": "code",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L69",
+      "id": "user_authout",
+      "community": 4,
+      "norm_label": "authout"
     },
     {
       "label": "UpdateDriverVehicleIn",
       "file_type": "code",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L39",
+      "source_location": "L75",
       "id": "user_updatedrivervehiclein",
-      "community": 3,
+      "community": 4,
       "norm_label": "updatedrivervehiclein"
     },
     {
@@ -1629,7 +1980,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/notification.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_notification_py",
-      "community": 4,
+      "community": 5,
       "norm_label": "notification.py"
     },
     {
@@ -1638,7 +1989,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/notification.py",
       "source_location": "L7",
       "id": "notification_notification",
-      "community": 4,
+      "community": 5,
       "norm_label": "notification"
     },
     {
@@ -1647,7 +1998,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/request.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_request_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "request.py"
     },
     {
@@ -1656,7 +2007,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/request.py",
       "source_location": "L9",
       "id": "request_guestpassenger",
-      "community": 3,
+      "community": 4,
       "norm_label": "guestpassenger"
     },
     {
@@ -1674,7 +2025,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/request.py",
       "source_location": "L45",
       "id": "request_createrequestin",
-      "community": 3,
+      "community": 4,
       "norm_label": "createrequestin"
     },
     {
@@ -1692,7 +2043,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/__init__.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_init_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "__init__.py"
     },
     {
@@ -1701,7 +2052,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/ride.py",
       "source_location": "L1",
       "id": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_ride_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "ride.py"
     },
     {
@@ -1710,7 +2061,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/ride.py",
       "source_location": "L7",
       "id": "ride_ride",
-      "community": 3,
+      "community": 4,
       "norm_label": "ride"
     },
     {
@@ -1719,7 +2070,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/ride.py",
       "source_location": "L31",
       "id": "ride_ridepublic",
-      "community": 3,
+      "community": 4,
       "norm_label": "ridepublic"
     },
     {
@@ -1728,7 +2079,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/ride.py",
       "source_location": "L35",
       "id": "ride_publishridein",
-      "community": 3,
+      "community": 4,
       "norm_label": "publishridein"
     },
     {
@@ -1737,7 +2088,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/ride.py",
       "source_location": "L49",
       "id": "ride_offlineseatsin",
-      "community": 3,
+      "community": 4,
       "norm_label": "offlineseatsin"
     },
     {
@@ -1827,7 +2178,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L85",
       "id": "test_taxi_api_testauthregister",
-      "community": 10,
+      "community": 0,
       "norm_label": "testauthregister"
     },
     {
@@ -1836,7 +2187,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L86",
       "id": "test_taxi_api_testauthregister_test_request_and_verify_otp_existing",
-      "community": 10,
+      "community": 0,
       "norm_label": ".test_request_and_verify_otp_existing()"
     },
     {
@@ -1845,7 +2196,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L97",
       "id": "test_taxi_api_testauthregister_test_verify_otp_invalid",
-      "community": 10,
+      "community": 0,
       "norm_label": ".test_verify_otp_invalid()"
     },
     {
@@ -1854,7 +2205,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L102",
       "id": "test_taxi_api_testauthregister_test_register_driver_bolero_populates_layout",
-      "community": 10,
+      "community": 0,
       "norm_label": ".test_register_driver_bolero_populates_layout()"
     },
     {
@@ -1863,7 +2214,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L121",
       "id": "test_taxi_api_testauthregister_test_register_driver_invalid_preset_400",
-      "community": 10,
+      "community": 0,
       "norm_label": ".test_register_driver_invalid_preset_400()"
     },
     {
@@ -1872,7 +2223,7 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/tests/test_taxi_api.py",
       "source_location": "L129",
       "id": "test_taxi_api_testauthregister_test_update_driver_vehicle",
-      "community": 10,
+      "community": 0,
       "norm_label": ".test_update_driver_vehicle()"
     },
     {
@@ -2110,11 +2461,65 @@
       "id": "test_taxi_api_rationale_1"
     },
     {
+      "label": "Ensure critical indexes exist for booking/ride integrity and query performance.",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
+      "source_location": "L75",
+      "community": 43,
+      "norm_label": "ensure critical indexes exist for booking/ride integrity and query performance.",
+      "id": "database_rationale_75"
+    },
+    {
+      "label": "Lazily close rides whose departure time has passed.     - ride.status: published",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
+      "source_location": "L12",
+      "community": 4,
+      "norm_label": "lazily close rides whose departure time has passed.     - ride.status: published",
+      "id": "rides_rationale_12"
+    },
+    {
+      "label": "Return all notifications for the given phone, newest first.",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L11",
+      "community": 5,
+      "norm_label": "return all notifications for the given phone, newest first.",
+      "id": "notifications_rationale_11"
+    },
+    {
+      "label": "Return the number of unread notifications for the given phone.",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L23",
+      "community": 5,
+      "norm_label": "return the number of unread notifications for the given phone.",
+      "id": "notifications_rationale_23"
+    },
+    {
+      "label": "Mark a single notification as read.",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L34",
+      "community": 5,
+      "norm_label": "mark a single notification as read.",
+      "id": "notifications_rationale_34"
+    },
+    {
+      "label": "Mark all notifications for a phone as read.",
+      "file_type": "rationale",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L47",
+      "community": 5,
+      "norm_label": "mark all notifications for a phone as read.",
+      "id": "notifications_rationale_47"
+    },
+    {
       "label": "Returns True when departure is more than 30 minutes away (IST).",
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/helpers.py",
       "source_location": "L18",
-      "community": 41,
+      "community": 44,
       "norm_label": "returns true when departure is more than 30 minutes away (ist).",
       "id": "helpers_rationale_18"
     },
@@ -2123,7 +2528,7 @@
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L21",
-      "community": 4,
+      "community": 5,
       "norm_label": "return the number of unread notifications for the given phone.",
       "id": "notifications_rationale_21"
     },
@@ -2132,7 +2537,7 @@
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L31",
-      "community": 4,
+      "community": 5,
       "norm_label": "mark a single notification as read.",
       "id": "notifications_rationale_31"
     },
@@ -2141,7 +2546,7 @@
       "file_type": "rationale",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L43",
-      "community": 4,
+      "community": 5,
       "norm_label": "mark all notifications for a phone as read.",
       "id": "notifications_rationale_43"
     },
@@ -2160,7 +2565,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L113",
+      "source_location": "L148",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_formattedphone",
@@ -2172,7 +2577,19 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L126",
+      "source_location": "L161",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
+      "_tgt": "auth_onselectrole",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
+      "target": "auth_onselectrole",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L170",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_quicksignin",
@@ -2184,7 +2601,19 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L144",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
+      "_tgt": "auth_signinwithgoogle",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
+      "target": "auth_signinwithgoogle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L221",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_sendotp",
@@ -2196,7 +2625,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L157",
+      "source_location": "L247",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_verifyotp",
@@ -2208,7 +2637,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L185",
+      "source_location": "L274",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_registerdriver",
@@ -2220,7 +2649,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L199",
+      "source_location": "L293",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_auth_tsx",
       "_tgt": "auth_registerpassenger",
@@ -2232,12 +2661,24 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
-      "source_location": "L145",
+      "source_location": "L222",
       "weight": 1.0,
       "_src": "auth_sendotp",
       "_tgt": "auth_formattedphone",
       "source": "auth_formattedphone",
       "target": "auth_sendotp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L167",
+      "weight": 1.0,
+      "_src": "auth_onselectrole",
+      "_tgt": "auth_signinwithgoogle",
+      "source": "auth_onselectrole",
+      "target": "auth_signinwithgoogle",
       "confidence_score": 1.0
     },
     {
@@ -2253,135 +2694,51 @@
       "target": "auth_me"
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L41",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L187",
       "weight": 1.0,
-      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "_tgt": "index_hasroute",
-      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "target": "index_hasroute",
-      "confidence_score": 1.0
+      "_src": "auth_signinwithgoogle",
+      "_tgt": "googlesigninnative_loadgooglesigninnative",
+      "source": "auth_signinwithgoogle",
+      "target": "googlesigninnative_loadgooglesigninnative"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L215",
+      "weight": 1.0,
+      "_src": "auth_sendotp",
+      "_tgt": "auth_me",
+      "source": "auth_sendotp",
+      "target": "auth_me"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/auth.tsx",
+      "source_location": "L239",
+      "weight": 1.0,
+      "_src": "auth_verifyotp",
+      "_tgt": "auth_me",
+      "source": "auth_verifyotp",
+      "target": "auth_me"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L44",
-      "weight": 1.0,
-      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "_tgt": "index_syncchipindex",
-      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "target": "index_syncchipindex",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L49",
-      "weight": 1.0,
-      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "_tgt": "index_applyfrom",
-      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "target": "index_applyfrom",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L62",
-      "weight": 1.0,
-      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "_tgt": "index_applyto",
-      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "target": "index_applyto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L75",
+      "source_location": "L34",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
       "_tgt": "index_onchipselect",
       "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
       "target": "index_onchipselect",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L83",
-      "weight": 1.0,
-      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "_tgt": "index_reverseroute",
-      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_index_tsx",
-      "target": "index_reverseroute",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L67",
-      "weight": 1.0,
-      "_src": "index_applyto",
-      "_tgt": "index_hasroute",
-      "source": "index_hasroute",
-      "target": "index_applyto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L88",
-      "weight": 1.0,
-      "_src": "index_reverseroute",
-      "_tgt": "index_hasroute",
-      "source": "index_hasroute",
-      "target": "index_reverseroute",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L59",
-      "weight": 1.0,
-      "_src": "index_applyfrom",
-      "_tgt": "index_syncchipindex",
-      "source": "index_syncchipindex",
-      "target": "index_applyfrom",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L72",
-      "weight": 1.0,
-      "_src": "index_applyto",
-      "_tgt": "index_syncchipindex",
-      "source": "index_syncchipindex",
-      "target": "index_applyto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/index.tsx",
-      "source_location": "L96",
-      "weight": 1.0,
-      "_src": "index_reverseroute",
-      "_tgt": "index_syncchipindex",
-      "source": "index_syncchipindex",
-      "target": "index_reverseroute",
       "confidence_score": 1.0
     },
     {
@@ -2424,7 +2781,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/profile.tsx",
-      "source_location": "L11",
+      "source_location": "L23",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
       "_tgt": "profile_confirmlogout",
@@ -2435,12 +2792,60 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/profile.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
+      "_tgt": "profile_comingsoon",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
+      "target": "profile_comingsoon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(tabs)/profile.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
+      "_tgt": "profile_savepersonal",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_tabs_profile_tsx",
+      "target": "profile_savepersonal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
-      "source_location": "L12",
+      "source_location": "L23",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
       "_tgt": "profile_confirmlogout",
       "source": "profile_confirmlogout",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
+      "_tgt": "profile_comingsoon",
+      "source": "profile_comingsoon",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/profile.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
+      "_tgt": "profile_savepersonal",
+      "source": "profile_savepersonal",
       "target": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_profile_tsx",
       "confidence_score": 1.0
     },
@@ -2664,7 +3069,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "_tgt": "publish_next7",
@@ -2676,7 +3081,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L44",
+      "source_location": "L39",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "_tgt": "publish_parseslotdatetime",
@@ -2688,7 +3093,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L70",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "_tgt": "publish_formatduration",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "target": "publish_formatduration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "_tgt": "publish_formattimelabel",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "target": "publish_formattimelabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L87",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "_tgt": "publish_statusof",
@@ -2700,7 +3129,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L71",
+      "source_location": "L88",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "_tgt": "publish_toggleoffline",
@@ -2712,12 +3141,228 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
-      "source_location": "L82",
+      "source_location": "L129",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "_tgt": "publish_onpickcustomdep",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "target": "publish_onpickcustomdep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L134",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "_tgt": "publish_onpickcustomarr",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
+      "target": "publish_onpickcustomarr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L140",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "_tgt": "publish_onpublish",
       "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_app_driver_publish_tsx",
       "target": "publish_onpublish",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L152",
+      "weight": 1.0,
+      "_src": "publish_onpublish",
+      "_tgt": "publish_parseslotdatetime",
+      "source": "publish_parseslotdatetime",
+      "target": "publish_onpublish",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L132",
+      "weight": 1.0,
+      "_src": "publish_onpickcustomdep",
+      "_tgt": "publish_formattimelabel",
+      "source": "publish_formattimelabel",
+      "target": "publish_onpickcustomdep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L137",
+      "weight": 1.0,
+      "_src": "publish_onpickcustomarr",
+      "_tgt": "publish_formattimelabel",
+      "source": "publish_formattimelabel",
+      "target": "publish_onpickcustomarr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L143",
+      "weight": 1.0,
+      "_src": "publish_onpublish",
+      "_tgt": "unionroutes_hasrouteleg",
+      "source": "publish_onpublish",
+      "target": "unionroutes_hasrouteleg"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/app/(driver)/publish.tsx",
+      "source_location": "L172",
+      "weight": 1.0,
+      "_src": "publish_onpublish",
+      "_tgt": "unionroutes_defaultstandforcity",
+      "source": "publish_onpublish",
+      "target": "unionroutes_defaultstandforcity"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainactivity_kt",
+      "_tgt": "mainactivity_mainactivity",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainactivity_kt",
+      "target": "mainactivity_mainactivity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "mainactivity_mainactivity",
+      "_tgt": "mainactivity_mainactivity_oncreate",
+      "source": "mainactivity_mainactivity",
+      "target": "mainactivity_mainactivity_oncreate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "mainactivity_mainactivity",
+      "_tgt": "mainactivity_mainactivity_getmaincomponentname",
+      "source": "mainactivity_mainactivity",
+      "target": "mainactivity_mainactivity_getmaincomponentname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "mainactivity_mainactivity",
+      "_tgt": "mainactivity_mainactivity_createreactactivitydelegate",
+      "source": "mainactivity_mainactivity",
+      "target": "mainactivity_mainactivity_createreactactivitydelegate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainActivity.kt",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "mainactivity_mainactivity",
+      "_tgt": "mainactivity_mainactivity_invokedefaultonbackpressed",
+      "source": "mainactivity_mainactivity",
+      "target": "mainactivity_mainactivity_invokedefaultonbackpressed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "_tgt": "mainapplication_mainapplication",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "target": "mainapplication_mainapplication",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "_tgt": "mainapplication_getpackages",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "target": "mainapplication_getpackages",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "_tgt": "mainapplication_getjsmainmodulename",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "target": "mainapplication_getjsmainmodulename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "_tgt": "mainapplication_getusedevelopersupport",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_android_app_src_main_java_com_ukparivahan_app_mainapplication_kt",
+      "target": "mainapplication_getusedevelopersupport",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_src": "mainapplication_mainapplication",
+      "_tgt": "mainapplication_mainapplication_oncreate",
+      "source": "mainapplication_mainapplication",
+      "target": "mainapplication_mainapplication_oncreate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/android/app/src/main/java/com/ukparivahan/app/MainApplication.kt",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "mainapplication_mainapplication",
+      "_tgt": "mainapplication_mainapplication_onconfigurationchanged",
+      "source": "mainapplication_mainapplication",
+      "target": "mainapplication_mainapplication_onconfigurationchanged",
       "confidence_score": 1.0
     },
     {
@@ -2736,7 +3381,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/auth.tsx",
-      "source_location": "L23",
+      "source_location": "L26",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_auth_tsx",
       "_tgt": "auth_authprovider",
@@ -2748,7 +3393,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/auth.tsx",
-      "source_location": "L68",
+      "source_location": "L83",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_auth_tsx",
       "_tgt": "auth_useauth",
@@ -2820,12 +3465,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/api.ts",
-      "source_location": "L128",
+      "source_location": "L157",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_api_ts",
       "_tgt": "api_req",
       "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_api_ts",
       "target": "api_req",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/api.ts",
+      "source_location": "L195",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_api_ts",
+      "_tgt": "api_setapitoken",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_api_ts",
+      "target": "api_setapitoken",
       "confidence_score": 1.0
     },
     {
@@ -2856,12 +3513,24 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/api.ts",
-      "source_location": "L129",
+      "source_location": "L158",
       "weight": 1.0,
       "_src": "api_req",
       "_tgt": "api_buildbasecandidates",
       "source": "api_buildbasecandidates",
       "target": "api_req",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/googleSignInNative.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_googlesigninnative_ts",
+      "_tgt": "googlesigninnative_loadgooglesigninnative",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_googlesigninnative_ts",
+      "target": "googlesigninnative_loadgooglesigninnative",
       "confidence_score": 1.0
     },
     {
@@ -2987,6 +3656,126 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_tid",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_tid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_closepickers",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_closepickers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_applyroute",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_applyroute",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_openfrompicker",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_openfrompicker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_opentopicker",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_opentopicker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L98",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "_tgt": "routepickercard_reverseroute",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_components_routepickercard_tsx",
+      "target": "routepickercard_reverseroute",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "routepickercard_applyroute",
+      "_tgt": "routepickercard_closepickers",
+      "source": "routepickercard_closepickers",
+      "target": "routepickercard_applyroute",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L108",
+      "weight": 1.0,
+      "_src": "routepickercard_reverseroute",
+      "_tgt": "routepickercard_closepickers",
+      "source": "routepickercard_closepickers",
+      "target": "routepickercard_reverseroute",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_src": "routepickercard_applyroute",
+      "_tgt": "unionroutes_hasrouteleg",
+      "source": "routepickercard_applyroute",
+      "target": "unionroutes_hasrouteleg"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/RoutePickerCard.tsx",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_src": "routepickercard_reverseroute",
+      "_tgt": "unionroutes_hasrouteleg",
+      "source": "routepickercard_reverseroute",
+      "target": "unionroutes_hasrouteleg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/components/NotificationsScreen.tsx",
       "source_location": "L19",
       "weight": 1.0,
@@ -3060,7 +3849,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/hooks/useNotifications.ts",
-      "source_location": "L4",
+      "source_location": "L9",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_hooks_usenotifications_ts",
       "_tgt": "usenotifications_usenotifications",
@@ -3107,6 +3896,42 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "_tgt": "unionroutes_expandbidirectional",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "target": "unionroutes_expandbidirectional",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L76",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "_tgt": "unionroutes_hasrouteleg",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "target": "unionroutes_hasrouteleg",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/frontend/src/data/unionRoutes.ts",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "_tgt": "unionroutes_defaultstandforcity",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_frontend_src_data_unionroutes_ts",
+      "target": "unionroutes_defaultstandforcity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/config.py",
       "source_location": "L10",
       "weight": 1.0,
@@ -3131,6 +3956,18 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_config_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_config_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/seed.py",
       "source_location": "L5",
       "weight": 1.0,
@@ -3144,7 +3981,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_config_py",
@@ -3153,10 +3990,22 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_config_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_config_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L15",
+      "source_location": "L17",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "_tgt": "database_debug_log",
@@ -3168,7 +4017,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L32",
+      "source_location": "L37",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "_tgt": "database_get_client",
@@ -3180,7 +4029,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L52",
+      "source_location": "L57",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "_tgt": "database_get_db",
@@ -3192,7 +4041,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L66",
+      "source_location": "L71",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "_tgt": "database_close_client",
@@ -3204,12 +4053,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L74",
+      "source_location": "L79",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "_tgt": "database_ensure_indexes",
       "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
       "target": "database_ensure_indexes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
       "confidence_score": 1.0
     },
     {
@@ -3228,7 +4089,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
@@ -3240,7 +4101,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_database_py",
@@ -3312,7 +4173,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L38",
+      "source_location": "L43",
       "weight": 1.0,
       "_src": "database_get_client",
       "_tgt": "database_debug_log",
@@ -3324,7 +4185,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L56",
+      "source_location": "L61",
       "weight": 1.0,
       "_src": "database_get_db",
       "_tgt": "database_debug_log",
@@ -3336,7 +4197,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L63",
+      "source_location": "L68",
       "weight": 1.0,
       "_src": "database_get_db",
       "_tgt": "database_get_client",
@@ -3348,13 +4209,25 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L79",
+      "source_location": "L84",
       "weight": 1.0,
       "_src": "database_ensure_indexes",
       "_tgt": "database_get_db",
       "source": "database_get_db",
       "target": "database_ensure_indexes",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_src": "database_get_db",
+      "_tgt": "security_get_current_user",
+      "source": "database_get_db",
+      "target": "security_get_current_user"
     },
     {
       "relation": "calls",
@@ -3409,12 +4282,24 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L50",
+      "source_location": "L81",
       "weight": 1.0,
       "_src": "database_get_db",
-      "_tgt": "auth_me",
+      "_tgt": "auth_google_verify",
       "source": "database_get_db",
-      "target": "auth_me"
+      "target": "auth_google_verify"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_src": "database_get_db",
+      "_tgt": "auth_update_me",
+      "source": "database_get_db",
+      "target": "auth_update_me"
     },
     {
       "relation": "calls",
@@ -3636,6 +4521,18 @@
       "relation": "calls",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "database_get_db",
+      "_tgt": "auth_me",
+      "source": "database_get_db",
+      "target": "auth_me"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
       "source_location": "L90",
       "weight": 1.0,
@@ -3648,12 +4545,12 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/database.py",
-      "source_location": "L75",
+      "source_location": "L80",
       "weight": 1.0,
-      "_src": "database_rationale_75",
+      "_src": "database_rationale_80",
       "_tgt": "database_ensure_indexes",
       "source": "database_ensure_indexes",
-      "target": "database_rationale_75",
+      "target": "database_rationale_80",
       "confidence_score": 1.0
     },
     {
@@ -3667,6 +4564,126 @@
       "_tgt": "main_startup_event",
       "source": "database_ensure_indexes",
       "target": "main_startup_event"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "_tgt": "security_create_access_token",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "security_create_access_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/security.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "_tgt": "security_get_current_user",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "security_get_current_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/drivers.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_drivers_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_drivers_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
+      "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_security_py",
+      "target": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "security_create_access_token",
+      "_tgt": "auth_verify_otp",
+      "source": "security_create_access_token",
+      "target": "auth_verify_otp"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_src": "security_create_access_token",
+      "_tgt": "auth_register_user",
+      "source": "security_create_access_token",
+      "target": "auth_register_user"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L96",
+      "weight": 1.0,
+      "_src": "security_create_access_token",
+      "_tgt": "auth_google_verify",
+      "source": "security_create_access_token",
+      "target": "auth_google_verify"
     },
     {
       "relation": "imports_from",
@@ -3720,7 +4737,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_seed_py",
@@ -3924,7 +4941,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "main_debug_log",
@@ -3936,7 +4953,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L65",
+      "source_location": "L71",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "main_root",
@@ -3948,7 +4965,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L76",
+      "source_location": "L82",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "main_startup_event",
@@ -3960,7 +4977,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L116",
+      "source_location": "L122",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_main_py",
       "_tgt": "main_shutdown_event",
@@ -3972,7 +4989,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/main.py",
-      "source_location": "L79",
+      "source_location": "L85",
       "weight": 1.0,
       "_src": "main_startup_event",
       "_tgt": "main_debug_log",
@@ -4296,7 +5313,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
@@ -4308,7 +5325,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_vehicle_py",
@@ -4320,7 +5337,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L12",
+      "source_location": "L15",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "auth_request_otp",
@@ -4332,7 +5349,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L20",
+      "source_location": "L25",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "auth_verify_otp",
@@ -4344,7 +5361,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L31",
+      "source_location": "L41",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "auth_register_user",
@@ -4356,13 +5373,49 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
-      "source_location": "L57",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "_tgt": "auth_google_verify",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "target": "auth_google_verify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L108",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "_tgt": "auth_me",
       "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
       "target": "auth_me",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L114",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "_tgt": "auth_update_me",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_auth_py",
+      "target": "auth_update_me",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_src": "auth_register_user",
+      "_tgt": "user_authout",
+      "source": "auth_register_user",
+      "target": "user_authout"
     },
     {
       "relation": "calls",
@@ -4381,11 +5434,35 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_src": "auth_google_verify",
+      "_tgt": "user_user",
+      "source": "auth_google_verify",
+      "target": "user_user"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
       "source_location": "L54",
       "weight": 1.0,
       "_src": "auth_me",
       "_tgt": "user_user",
       "source": "auth_me",
+      "target": "user_user"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/auth.py",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_src": "auth_update_me",
+      "_tgt": "user_user",
+      "source": "auth_update_me",
       "target": "user_user"
     },
     {
@@ -4416,7 +5493,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/drivers.py",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_drivers_py",
       "_tgt": "drivers_update_vehicle",
@@ -4452,7 +5529,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_auto_mark_departed_rides",
@@ -4464,7 +5541,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_publish_ride",
@@ -4476,7 +5553,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L118",
+      "source_location": "L123",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_list_rides",
@@ -4488,7 +5565,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L143",
+      "source_location": "L151",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_get_ride",
@@ -4500,7 +5577,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L153",
+      "source_location": "L161",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_update_offline_seats",
@@ -4512,7 +5589,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L198",
+      "source_location": "L208",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_rides_py",
       "_tgt": "rides_cancel_ride",
@@ -4536,7 +5613,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L76",
+      "source_location": "L77",
       "weight": 1.0,
       "_src": "rides_publish_ride",
       "_tgt": "rides_auto_mark_departed_rides",
@@ -4548,7 +5625,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L127",
+      "source_location": "L133",
       "weight": 1.0,
       "_src": "rides_list_rides",
       "_tgt": "rides_auto_mark_departed_rides",
@@ -4560,7 +5637,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L144",
+      "source_location": "L152",
       "weight": 1.0,
       "_src": "rides_get_ride",
       "_tgt": "rides_auto_mark_departed_rides",
@@ -4572,12 +5649,12 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
-      "_src": "rides_rationale_12",
+      "_src": "rides_rationale_13",
       "_tgt": "rides_auto_mark_departed_rides",
       "source": "rides_auto_mark_departed_rides",
-      "target": "rides_rationale_12",
+      "target": "rides_rationale_13",
       "confidence_score": 1.0
     },
     {
@@ -4634,10 +5711,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "rides_rationale_12",
+      "_src": "rides_rationale_13",
       "_tgt": "ride_ride",
       "confidence_score": 0.5,
-      "source": "rides_rationale_12",
+      "source": "rides_rationale_13",
       "target": "ride_ride"
     },
     {
@@ -4646,10 +5723,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "rides_rationale_12",
+      "_src": "rides_rationale_13",
       "_tgt": "ride_publishridein",
       "confidence_score": 0.5,
-      "source": "rides_rationale_12",
+      "source": "rides_rationale_13",
       "target": "ride_publishridein"
     },
     {
@@ -4658,10 +5735,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "rides_rationale_12",
+      "_src": "rides_rationale_13",
       "_tgt": "ride_offlineseatsin",
       "confidence_score": 0.5,
-      "source": "rides_rationale_12",
+      "source": "rides_rationale_13",
       "target": "ride_offlineseatsin"
     },
     {
@@ -4716,7 +5793,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
       "_tgt": "notifications_list_notifications",
@@ -4728,7 +5805,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
       "_tgt": "notifications_unread_count",
@@ -4740,7 +5817,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
       "_tgt": "notifications_mark_read",
@@ -4752,7 +5829,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L46",
+      "source_location": "L47",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_notifications_py",
       "_tgt": "notifications_mark_all_read",
@@ -4764,12 +5841,12 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
-      "_src": "notifications_rationale_11",
+      "_src": "notifications_rationale_12",
       "_tgt": "notifications_list_notifications",
       "source": "notifications_list_notifications",
-      "target": "notifications_rationale_11",
+      "target": "notifications_rationale_12",
       "confidence_score": 1.0
     },
     {
@@ -4788,36 +5865,36 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0,
-      "_src": "notifications_rationale_23",
+      "_src": "notifications_rationale_24",
       "_tgt": "notifications_unread_count",
       "source": "notifications_unread_count",
-      "target": "notifications_rationale_23",
+      "target": "notifications_rationale_24",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
-      "_src": "notifications_rationale_34",
+      "_src": "notifications_rationale_35",
       "_tgt": "notifications_mark_read",
       "source": "notifications_mark_read",
-      "target": "notifications_rationale_34",
+      "target": "notifications_rationale_35",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
-      "_src": "notifications_rationale_47",
+      "_src": "notifications_rationale_48",
       "_tgt": "notifications_mark_all_read",
       "source": "notifications_mark_all_read",
-      "target": "notifications_rationale_47",
+      "target": "notifications_rationale_48",
       "confidence_score": 1.0
     },
     {
@@ -4826,10 +5903,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "notifications_rationale_11",
+      "_src": "notifications_rationale_12",
       "_tgt": "notification_notification",
       "confidence_score": 0.5,
-      "source": "notifications_rationale_11",
+      "source": "notifications_rationale_12",
       "target": "notification_notification"
     },
     {
@@ -4838,10 +5915,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "notifications_rationale_23",
+      "_src": "notifications_rationale_24",
       "_tgt": "notification_notification",
       "confidence_score": 0.5,
-      "source": "notifications_rationale_23",
+      "source": "notifications_rationale_24",
       "target": "notification_notification"
     },
     {
@@ -4850,10 +5927,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "notifications_rationale_34",
+      "_src": "notifications_rationale_35",
       "_tgt": "notification_notification",
       "confidence_score": 0.5,
-      "source": "notifications_rationale_34",
+      "source": "notifications_rationale_35",
       "target": "notification_notification"
     },
     {
@@ -4862,10 +5939,10 @@
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
       "source_location": "L4",
       "weight": 0.8,
-      "_src": "notifications_rationale_47",
+      "_src": "notifications_rationale_48",
       "_tgt": "notification_notification",
       "confidence_score": 0.5,
-      "source": "notifications_rationale_47",
+      "source": "notifications_rationale_48",
       "target": "notification_notification"
     },
     {
@@ -4884,7 +5961,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_parse_utc",
@@ -4896,7 +5973,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_is_active_hold",
@@ -4908,7 +5985,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_create_request",
@@ -4920,7 +5997,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L149",
+      "source_location": "L154",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_list_requests",
@@ -4932,7 +6009,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L162",
+      "source_location": "L177",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_get_request",
@@ -4944,7 +6021,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L172",
+      "source_location": "L189",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_confirm_request",
@@ -4956,7 +6033,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L253",
+      "source_location": "L274",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_reject_request",
@@ -4968,7 +6045,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L276",
+      "source_location": "L299",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_routers_requests_py",
       "_tgt": "requests_cancel_request",
@@ -4980,7 +6057,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_src": "requests_is_active_hold",
       "_tgt": "requests_parse_utc",
@@ -4992,7 +6069,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/requests.py",
-      "source_location": "L70",
+      "source_location": "L75",
       "weight": 1.0,
       "_src": "requests_create_request",
       "_tgt": "requests_is_active_hold",
@@ -5160,7 +6237,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L22",
+      "source_location": "L33",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
       "_tgt": "user_otprequest",
@@ -5172,7 +6249,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L26",
+      "source_location": "L37",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
       "_tgt": "user_otpverify",
@@ -5184,7 +6261,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L31",
+      "source_location": "L42",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
       "_tgt": "user_registerin",
@@ -5196,7 +6273,43 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L39",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "_tgt": "user_updateprofilein",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "target": "user_updateprofilein",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "_tgt": "user_googleverifyin",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "target": "user_googleverifyin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "_tgt": "user_authout",
+      "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
+      "target": "user_authout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L75",
       "weight": 1.0,
       "_src": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_user_py",
       "_tgt": "user_updatedrivervehiclein",
@@ -5244,7 +6357,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L22",
+      "source_location": "L33",
       "weight": 1.0,
       "_src": "user_otprequest",
       "_tgt": "basemodel",
@@ -5256,7 +6369,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L26",
+      "source_location": "L37",
       "weight": 1.0,
       "_src": "user_otpverify",
       "_tgt": "basemodel",
@@ -5268,7 +6381,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L31",
+      "source_location": "L42",
       "weight": 1.0,
       "_src": "user_registerin",
       "_tgt": "basemodel",
@@ -5280,7 +6393,43 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
-      "source_location": "L39",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "user_updateprofilein",
+      "_tgt": "basemodel",
+      "source": "basemodel",
+      "target": "user_updateprofilein",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_src": "user_googleverifyin",
+      "_tgt": "basemodel",
+      "source": "basemodel",
+      "target": "user_googleverifyin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_src": "user_authout",
+      "_tgt": "basemodel",
+      "source": "basemodel",
+      "target": "user_authout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/models/user.py",
+      "source_location": "L75",
       "weight": 1.0,
       "_src": "user_updatedrivervehiclein",
       "_tgt": "basemodel",
@@ -5383,6 +6532,54 @@
       "source": "users_himalayancoder_downloads_ukparivahan_sync_backend_app_models_notification_py",
       "target": "notification_notification",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "notification_notification",
+      "_tgt": "notifications_rationale_11",
+      "confidence_score": 0.5,
+      "source": "notification_notification",
+      "target": "notifications_rationale_11"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "notification_notification",
+      "_tgt": "notifications_rationale_23",
+      "confidence_score": 0.5,
+      "source": "notification_notification",
+      "target": "notifications_rationale_23"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "notification_notification",
+      "_tgt": "notifications_rationale_34",
+      "confidence_score": 0.5,
+      "source": "notification_notification",
+      "target": "notifications_rationale_34"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/notifications.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "notification_notification",
+      "_tgt": "notifications_rationale_47",
+      "confidence_score": 0.5,
+      "source": "notification_notification",
+      "target": "notifications_rationale_47"
     },
     {
       "relation": "uses",
@@ -5551,6 +6748,42 @@
       "source": "ride_ride",
       "target": "ride_ridepublic",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "ride_ride",
+      "_tgt": "rides_rationale_12",
+      "confidence_score": 0.5,
+      "source": "ride_ride",
+      "target": "rides_rationale_12"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "ride_publishridein",
+      "_tgt": "rides_rationale_12",
+      "confidence_score": 0.5,
+      "source": "ride_publishridein",
+      "target": "rides_rationale_12"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "/Users/himalayancoder/Downloads/UKParivahan-sync/backend/app/routers/rides.py",
+      "source_location": "L4",
+      "weight": 0.8,
+      "_src": "ride_offlineseatsin",
+      "_tgt": "rides_rationale_12",
+      "confidence_score": 0.5,
+      "source": "ride_offlineseatsin",
+      "target": "rides_rationale_12"
     },
     {
       "relation": "contains",

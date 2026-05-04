@@ -1,12 +1,13 @@
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 import uuid
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from ..database import get_db
 from ..models.request import BookingRequest, CreateRequestIn, SEAT_HOLD_MINUTES, GuestPassenger
 from ..helpers import generate_ref, can_cancel
 from ..notifications import send_notification
 from .rides import auto_mark_departed_rides
+from ..security import get_current_user
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
@@ -25,14 +26,18 @@ def _is_active_hold(req: dict, now: datetime) -> bool:
 
 
 @router.post("", response_model=BookingRequest)
-async def create_request(payload: CreateRequestIn):
+async def create_request(payload: CreateRequestIn, current=Depends(get_current_user)):
     # Booking creation validates seat availability against both confirmed seats
     # and pending requests to reduce double-allocation risk.
     db = get_db()
+    if current["role"] != "user":
+        raise HTTPException(status_code=403, detail="Only passengers can create booking requests")
     ride = await db.rides.find_one({"id": payload.ride_id}, {"_id": 0})
     if not ride or ride["status"] != "published":
         raise HTTPException(status_code=404, detail="Ride not available")
-    user = await db.users.find_one({"phone": payload.user_phone}, {"_id": 0})
+    if payload.user_phone != current["phone"]:
+        raise HTTPException(status_code=403, detail="user_phone does not match authenticated user")
+    user = await db.users.find_one({"id": current["id"]}, {"_id": 0})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not payload.seat_numbers:
@@ -146,30 +151,46 @@ async def create_request(payload: CreateRequestIn):
 
 
 @router.get("", response_model=List[BookingRequest])
-async def list_requests(user_phone: Optional[str] = None, driver_phone: Optional[str] = None):
+async def list_requests(
+    user_phone: Optional[str] = None,
+    driver_phone: Optional[str] = None,
+    current=Depends(get_current_user),
+):
     await auto_mark_departed_rides()
     db = get_db()
     q: dict = {}
     if user_phone:
+        if user_phone != current["phone"]:
+            raise HTTPException(status_code=403, detail="You can only view your own passenger requests")
         q["user_phone"] = user_phone
     if driver_phone:
+        if driver_phone != current["phone"]:
+            raise HTTPException(status_code=403, detail="You can only view your own driver requests")
         q["driver_phone"] = driver_phone
+    if not user_phone and not driver_phone:
+        q["user_phone" if current["role"] == "user" else "driver_phone"] = current["phone"]
     items = await db.requests.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
     return [BookingRequest(**b) for b in items]
 
 
 @router.get("/{req_id}", response_model=BookingRequest)
-async def get_request(req_id: str):
+async def get_request(req_id: str, current=Depends(get_current_user)):
     await auto_mark_departed_rides()
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Request not found")
+    if current["phone"] not in (r.get("user_phone"), r.get("driver_phone")):
+        raise HTTPException(status_code=403, detail="You cannot access this request")
     return BookingRequest(**r)
 
 
 @router.post("/{req_id}/confirm", response_model=BookingRequest)
-async def confirm_request(req_id: str, driver_phone: str):
+async def confirm_request(req_id: str, driver_phone: str, current=Depends(get_current_user)):
+    if current["role"] != "driver":
+        raise HTTPException(status_code=403, detail="Only drivers can confirm requests")
+    if driver_phone != current["phone"]:
+        raise HTTPException(status_code=403, detail="driver_phone does not match authenticated user")
     # Confirmation moves seats from "requested" to "booked" on the ride and
     # transitions request state in one handler.
     db = get_db()
@@ -250,12 +271,14 @@ async def confirm_request(req_id: str, driver_phone: str):
 
 
 @router.post("/{req_id}/reject", response_model=BookingRequest)
-async def reject_request(req_id: str):
+async def reject_request(req_id: str, current=Depends(get_current_user)):
     # Rejection is allowed only for pending requests to preserve state integrity.
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Request not found")
+    if current["role"] != "driver" or r.get("driver_phone") != current["phone"]:
+        raise HTTPException(status_code=403, detail="Only this ride's driver can reject the request")
     if r["status"] != "pending":
         raise HTTPException(status_code=400, detail=f"Cannot reject a {r['status']} request")
     await db.requests.update_one({"id": req_id}, {"$set": {"status": "rejected"}})
@@ -273,12 +296,14 @@ async def reject_request(req_id: str):
 
 
 @router.post("/{req_id}/cancel", response_model=BookingRequest)
-async def cancel_request(req_id: str):
+async def cancel_request(req_id: str, current=Depends(get_current_user)):
     # Passenger cancellation respects the same departure cutoff as ride cancel.
     db = get_db()
     r = await db.requests.find_one({"id": req_id}, {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Request not found")
+    if current["phone"] != r.get("user_phone"):
+        raise HTTPException(status_code=403, detail="Only the passenger can cancel this request")
     if r["status"] in ("cancelled", "rejected"):
         raise HTTPException(status_code=400, detail="Already cancelled")
     if not can_cancel(r["date"], r["depart_time"]):

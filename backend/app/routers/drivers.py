@@ -1,16 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from ..database import get_db
 from ..models.user import User, UpdateDriverVehicleIn
 from ..models.vehicle import VEHICLES
+from ..security import get_current_user
 
 router = APIRouter(prefix="/drivers", tags=["drivers"])
 
 
 @router.post("/{phone}/vehicle", response_model=User)
-async def update_vehicle(phone: str, payload: UpdateDriverVehicleIn):
+async def update_vehicle(phone: str, payload: UpdateDriverVehicleIn, current=Depends(get_current_user)):
     # Driver vehicle updates normalize incoming preset IDs against the canonical
     # VEHICLES catalog before writing profile fields.
     db = get_db()
+    if current["role"] != "driver" or current["phone"] != phone:
+        raise HTTPException(status_code=403, detail="You can only update your own vehicle")
     u = await db.users.find_one({"phone": phone, "role": "driver"}, {"_id": 0})
     if not u:
         raise HTTPException(status_code=404, detail="Driver not found")

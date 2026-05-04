@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">= 10.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "http://65.0.246.227",
+        "EXPO_PUBLIC_FORCE_DEMO_OTP": "false",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1011180694798-2sb6bro27s9dfajn17l749hg4e8rt9di.apps.googleusercontent.com"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "http://65.0.246.227",
+        "EXPO_PUBLIC_FORCE_DEMO_OTP": "false",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1011180694798-2sb6bro27s9dfajn17l749hg4e8rt9di.apps.googleusercontent.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "http://65.0.246.227",
+        "EXPO_PUBLIC_FORCE_DEMO_OTP": "false",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1011180694798-2sb6bro27s9dfajn17l749hg4e8rt9di.apps.googleusercontent.com"
+      }
+    }
+  }
+}

@@ -86,7 +86,7 @@ export default function NotificationsScreen({ phone }: { phone: string }) {
               <Feather name="bell-off" size={36} color={colors.textMuted} />
               <Text style={styles.emptyTxt}>No notifications yet</Text>
               <Text style={styles.emptySubTxt}>
-                When a driver accepts or rejects your booking, you'll see it here.
+                When a driver accepts or rejects your booking, you will see it here.
               </Text>
             </View>
           )
