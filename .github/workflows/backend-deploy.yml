@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - development
     paths:
       - "backend/**"
       - ".github/workflows/backend-deploy.yml"
@@ -27,21 +26,11 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             set -e
-            APP_DIR="${{ secrets.APP_DIR || '/opt/uktaxi' }}"
-            if [ ! -d "$APP_DIR" ]; then
-              mkdir -p "$APP_DIR"
-            fi
-
-            if [ ! -d "$APP_DIR/.git" ]; then
-              cd "$APP_DIR"
-              git init
-              git remote add origin ${{ secrets.REPO_URL }}
-            fi
-
+            APP_DIR="${{ secrets.APP_DIR || '/home/ubuntu/uktaxi' }}"
             cd "$APP_DIR"
             git fetch origin
-            git checkout ${{ github.ref_name }}
-            git reset --hard origin/${{ github.ref_name }}
+            git checkout main
+            git reset --hard origin/main
 
             cd backend
             python3 -m venv .venv || true
@@ -49,8 +38,6 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
 
-            # Restart backend service (adjust to your systemd service name)
-            if command -v systemctl >/dev/null 2>&1; then
-              sudo systemctl restart uktaxi-backend || true
-            fi
+            sudo systemctl restart uktaxi-api
+            sudo systemctl status uktaxi-api --no-pager
 
