@@ -20,11 +20,9 @@ export default function DriverProfile() {
   const [notifyBooking, setNotifyBooking] = useState(user?.notify_booking_updates ?? true);
   const [notifyPromos, setNotifyPromos] = useState(user?.notify_promotions ?? false);
 
-  const confirmLogout = () =>
-    Alert.alert('Sign out?', 'You will need to login again.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
-    ]);
+  const confirmLogout = () => {
+    void signOut();
+  };
 
   const comingSoon = (label: string) =>
     Alert.alert('Coming Soon', `${label} will be available in a later update.`);

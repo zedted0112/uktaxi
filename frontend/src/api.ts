@@ -88,6 +88,8 @@ export type AppNotification = {
   created_at: string;
 };
 
+export type PushPlatform = 'android' | 'ios' | 'web' | 'unknown';
+
 export type ApiRootResponse = {
   message: string;
   schema: number;
@@ -304,4 +306,8 @@ export const api = {
   markRead: (id: string) => req<{ ok: boolean }>(`/notifications/${id}/read`, { method: 'POST' }),
   markAllRead: (_phone?: string) =>
     req<{ ok: boolean }>(`/notifications/read-all`, { method: 'POST' }),
+  registerPushToken: (payload: { token: string; platform: PushPlatform; app_version?: string }) =>
+    req<{ ok: boolean }>(`/push/register`, { method: 'POST', body: JSON.stringify(payload) }),
+  unregisterPushToken: (token: string) =>
+    req<{ ok: boolean }>(`/push/unregister`, { method: 'POST', body: JSON.stringify({ token }) }),
 };

@@ -32,11 +32,14 @@ export function useNotifications(phone: string | undefined, options: Notificatio
   }, [phone, includeList]);
 
   const markRead = useCallback(async (id: string) => {
+    let wasUnread = false;
+    setNotifications((prev) => {
+      const target = prev.find((n) => n.id === id);
+      wasUnread = !!(target && !target.read);
+      return prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+    });
     await api.markRead(id).catch(() => {});
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-    setUnreadCount((c) => Math.max(0, c - 1));
+    if (wasUnread) setUnreadCount((c) => Math.max(0, c - 1));
   }, []);
 
   const markAllRead = useCallback(async () => {
@@ -47,10 +50,15 @@ export function useNotifications(phone: string | undefined, options: Notificatio
   }, [phone]);
 
   useEffect(() => {
+    if (!phone) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
     refresh();
     const interval = setInterval(refresh, pollMs);
     return () => clearInterval(interval);
-  }, [refresh, pollMs]);
+  }, [refresh, pollMs, phone]);
 
   return { notifications, unreadCount, loading, refresh, markRead, markAllRead };
 }

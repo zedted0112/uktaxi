@@ -3,12 +3,10 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Platform, View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts } from '../../src/theme';
-import { useAuth } from '../../src/auth';
-import { useNotifications } from '../../src/hooks/useNotifications';
+import { useSharedNotifications } from '../../src/notificationsContext';
 
 function BellIcon({ color, size }: { color: string; size: number }) {
-  const { user } = useAuth();
-  const { unreadCount } = useNotifications(user?.phone, { includeList: false, pollMs: 60_000 });
+  const { unreadCount } = useSharedNotifications();
   return (
     <View>
       <Feather name="bell" size={size} color={color} />
