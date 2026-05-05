@@ -144,3 +144,11 @@ async def ensure_indexes() -> None:
             IndexModel([("recipient_phone", ASCENDING), ("read", ASCENDING), ("created_at", DESCENDING)], name="notifications_recipient_read_created"),
         ]
     )
+
+    await db.push_tokens.create_indexes(
+        [
+            IndexModel([("token", ASCENDING)], name="push_tokens_token_unique", unique=True),
+            IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)], name="push_tokens_user_updated"),
+            IndexModel([("phone", ASCENDING), ("enabled", ASCENDING)], name="push_tokens_phone_enabled"),
+        ]
+    )

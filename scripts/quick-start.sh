@@ -99,7 +99,27 @@ cd "${ROOT}/frontend"
 LOCAL_IP="$(detect_local_ip)"
 # Match frontend api.ts: local-only bases + correct port when EXPO_PUBLIC_DEMO_MODE=true.
 export EXPO_PUBLIC_BACKEND_PORT="${BACKEND_PORT}"
-export EXPO_PUBLIC_DEMO_MODE="${EXPO_PUBLIC_DEMO_MODE:-true}"
+if [[ -z "${EXPO_PUBLIC_DEMO_MODE:-}" ]] && [[ -f "${ROOT}/frontend/.env" ]]; then
+  # Read EXPO_PUBLIC_DEMO_MODE from frontend/.env when not provided in shell.
+  # Keeps toggle behavior aligned with env file edits.
+  env_demo_mode="$(
+    awk -F= '
+      /^[[:space:]]*EXPO_PUBLIC_DEMO_MODE[[:space:]]*=/ {
+        v=$2
+        sub(/^[[:space:]]+/, "", v)
+        sub(/[[:space:]]+$/, "", v)
+        gsub(/^"/, "", v); gsub(/"$/, "", v)
+        gsub(/^'\''/, "", v); gsub(/'\''$/, "", v)
+        print v
+        exit
+      }
+    ' "${ROOT}/frontend/.env"
+  )"
+  if [[ -n "${env_demo_mode}" ]]; then
+    export EXPO_PUBLIC_DEMO_MODE="${env_demo_mode}"
+  fi
+fi
+export EXPO_PUBLIC_DEMO_MODE="${EXPO_PUBLIC_DEMO_MODE:-false}"
 if [[ -n "${LOCAL_IP}" ]]; then
   export EXPO_PUBLIC_BACKEND_URL="http://${LOCAL_IP}:${BACKEND_PORT}"
   # Metro / Expo Go use this so the phone loads JS from your LAN IP (not localhost/tunnel guesswork).

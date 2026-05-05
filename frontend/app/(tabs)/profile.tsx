@@ -21,10 +21,7 @@ export default function Profile() {
   const [notifyPromos, setNotifyPromos] = useState(user?.notify_promotions ?? false);
 
   const confirmLogout = () => {
-    Alert.alert('Sign out?', 'You will need to login again.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
-    ]);
+    void signOut();
   };
 
   const comingSoon = (label: string) =>

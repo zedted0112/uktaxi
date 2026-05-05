@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken, User } from './api';
+import { registerPushForCurrentSession, unregisterPushForCurrentSession } from './push';
 
 const STORAGE_KEY = 'utk_auth_v1';
 const LEGACY_STORAGE_KEY = 'utk_auth_v0';
@@ -58,9 +59,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setApiToken(token);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ user: u, token }));
     setUser(u);
+    await registerPushForCurrentSession().catch(() => {});
   };
 
   const signOut = async () => {
+    await unregisterPushForCurrentSession().catch(() => {});
     await AsyncStorage.removeItem(STORAGE_KEY);
     setApiToken('');
     setUser(null);
@@ -76,6 +79,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ user: fresh, token: cached.token }));
     setUser(fresh);
   };
+
+  useEffect(() => {
+    if (!user) return;
+    // Best-effort registration to keep server token fresh after app restarts.
+    void registerPushForCurrentSession().catch(() => {});
+  }, [user]);
 
   return <Ctx.Provider value={{ user, loading, signIn, signOut, refresh }}>{children}</Ctx.Provider>;
 }

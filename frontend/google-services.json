@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1011180694798",
+    "project_id": "ukparivahan-52c9b",
+    "storage_bucket": "ukparivahan-52c9b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011180694798:android:15fbdd496ccb8810187b5f",
+        "android_client_info": {
+          "package_name": "com.ukparivahan.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011180694798-2sb6bro27s9dfajn17l749hg4e8rt9di.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8-ezSOufIFKoERUArvp_OpmzE5AQThd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1011180694798-2sb6bro27s9dfajn17l749hg4e8rt9di.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

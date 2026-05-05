@@ -1,0 +1,56 @@
+name: Backend Deploy (EC2)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy backend to EC2 and restart
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            APP_DIR="${{ secrets.APP_DIR || '/opt/uktaxi' }}"
+            if [ ! -d "$APP_DIR" ]; then
+              mkdir -p "$APP_DIR"
+            fi
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              cd "$APP_DIR"
+              git init
+              git remote add origin ${{ secrets.REPO_URL }}
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin
+            git checkout ${{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
+
+            cd backend
+            python3 -m venv .venv || true
+            source .venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
+            # Restart backend service (adjust to your systemd service name)
+            if command -v systemctl >/dev/null 2>&1; then
+              sudo systemctl restart uktaxi-backend || true
+            fi
+

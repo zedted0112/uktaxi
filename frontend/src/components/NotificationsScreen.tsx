@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { colors, fonts, radii } from '../theme';
 import { AppNotification } from '../api';
-import { useNotifications } from '../hooks/useNotifications';
+import { useSharedNotifications } from '../notificationsContext';
 
 const TYPE_ICON: Record<string, { name: string; bg: string; color: string }> = {
   new_request:       { name: 'user-plus',    bg: '#EFF6FF', color: '#3B82F6' },
@@ -55,9 +55,9 @@ function NotifRow({
   );
 }
 
-export default function NotificationsScreen({ phone }: { phone: string }) {
+export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
-  const { notifications, unreadCount, loading, refresh, markRead, markAllRead } = useNotifications(phone, { includeList: true, pollMs: 45_000 });
+  const { notifications, unreadCount, loading, refresh, markRead, markAllRead } = useSharedNotifications();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

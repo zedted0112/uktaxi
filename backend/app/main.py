@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from .config import SCHEMA_VERSION, CORS_ORIGINS, ENABLE_DEMO_MODE, DB_NAME
 from .database import get_db, close_client, ensure_indexes
 from .seed import seed_demo
-from .routers import auth, vehicles, drivers, rides, requests, demo, notifications
+from .routers import auth, vehicles, drivers, rides, requests, demo, notifications, push
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,6 +60,7 @@ _api_routers = [
     rides.router,
     requests.router,
     notifications.router,
+    push.router,
 ]
 if ENABLE_DEMO_MODE:
     _api_routers.append(demo.router)

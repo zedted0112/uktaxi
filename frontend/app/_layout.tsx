@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { colors } from '../src/theme';
 import { AuthProvider, useAuth } from '../src/auth';
+import { NotificationsProvider } from '../src/notificationsContext';
 
 function Gate() {
   const { user, loading } = useAuth();
@@ -47,13 +48,15 @@ function Gate() {
     );
   }
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-      <Stack.Screen name="auth" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(driver)" />
-      <Stack.Screen name="ride/[id]" />
-      <Stack.Screen name="ticket/[id]" />
-    </Stack>
+    <NotificationsProvider phone={user?.phone}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(driver)" />
+        <Stack.Screen name="ride/[id]" />
+        <Stack.Screen name="ticket/[id]" />
+      </Stack>
+    </NotificationsProvider>
   );
 }
 

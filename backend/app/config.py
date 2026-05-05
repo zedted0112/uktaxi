@@ -41,3 +41,8 @@ GOOGLE_WEB_CLIENT_ID: str = os.getenv("GOOGLE_WEB_CLIENT_ID", "").strip()
 JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
 JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_HOURS: int = int(os.getenv("JWT_EXPIRE_HOURS", "168"))
+
+# Push delivery (phone tray notifications) is optional and additive to DB inbox.
+# Keep false by default so demo/local environments behave exactly as before.
+ENABLE_PUSH_NOTIFICATIONS: bool = _env_bool("ENABLE_PUSH_NOTIFICATIONS", False)
+EXPO_PUSH_URL: str = os.getenv("EXPO_PUSH_URL", "https://exp.host/--/api/v2/push/send").strip()
