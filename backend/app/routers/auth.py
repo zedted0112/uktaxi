@@ -33,6 +33,8 @@ async def verify_otp(payload: OtpVerify):
     user = await db.users.find_one({"phone": payload.phone}, {"_id": 0})
     if not user:
         return {"ok": True, "user": None, "token": None}
+    from ..config import ADMIN_EMAIL_WHITELIST
+    user["is_admin"] = (user.get("email") or "").strip().lower() in ADMIN_EMAIL_WHITELIST
     token = create_access_token(user)
     return {"ok": True, "user": user, "token": token}
 
@@ -59,8 +61,11 @@ async def register_user(payload: RegisterIn):
             "seat_layout": preset["seat_layout"],
         })
     u = User(**data)
-    await db.users.insert_one(u.dict())
-    return AuthOut(user=u, token=create_access_token(u.dict()))
+    user_dict = u.dict()
+    from ..config import ADMIN_EMAIL_WHITELIST
+    user_dict["is_admin"] = (user_dict.get("email") or "").strip().lower() in ADMIN_EMAIL_WHITELIST
+    await db.users.insert_one(user_dict)
+    return AuthOut(user=User(**user_dict), token=create_access_token(user_dict))
 
 
 @router.post("/google-verify")
@@ -93,6 +98,8 @@ async def google_verify(payload: GoogleVerifyIn):
         {"_id": 0},
     )
     if existing:
+        from ..config import ADMIN_EMAIL_WHITELIST
+        existing["is_admin"] = email in ADMIN_EMAIL_WHITELIST
         return {"ok": True, "user": User(**existing), "token": create_access_token(existing), "profile": None}
 
     profile = {

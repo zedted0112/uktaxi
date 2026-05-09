@@ -26,6 +26,7 @@ type DemoAccount = {
   vehicle_number?: string | null;
   driving_license?: string | null;
   total_seats?: number | null;
+  email?: string | null;
 };
 
 // ─── Local demo accounts (shown offline) ─────────────────────────────────────
@@ -48,6 +49,7 @@ const LOCAL_DEMOS: DemoAccount[] = [
   },
   { phone: '+91 98765 00001', name: 'Aarav Sharma', role: 'user' },
   { phone: '+91 98765 00002', name: 'Priya Nautiyal', role: 'user' },
+  { phone: '+91 99999 99999', name: 'Admin User', role: 'user', email: 'nitinranaofficial456@gmail.com' },
 ];
 
 const HERO_SLIDES = [
@@ -177,6 +179,7 @@ export default function Auth() {
     try {
       const res = await api.register({
         phone: acct.phone, name: acct.name, role: acct.role,
+        email: acct.email ?? undefined,
         vehicle_preset: acct.role === 'driver' ? (acct.vehicle_preset ?? undefined) : undefined,
         vehicle_number: acct.role === 'driver' ? (acct.vehicle_number ?? undefined) : undefined,
         driving_license: acct.role === 'driver' ? (acct.driving_license ?? undefined) : undefined,

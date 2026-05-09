@@ -75,6 +75,7 @@ export type User = {
   notify_promotions?: boolean | null;
   total_seats?: number | null;
   seat_layout?: number[][] | null;
+  is_admin?: boolean;
 };
 
 export type AppNotification = {
@@ -310,4 +311,35 @@ export const api = {
     req<{ ok: boolean }>(`/push/register`, { method: 'POST', body: JSON.stringify(payload) }),
   unregisterPushToken: (token: string) =>
     req<{ ok: boolean }>(`/push/unregister`, { method: 'POST', body: JSON.stringify({ token }) }),
+
+  // admin
+  adminStats: () =>
+    req<{
+      completed_rides_today: number;
+      total_online_seats_today: number;
+      total_offline_seats_today: number;
+    }>('/admin/stats'),
+
+  adminRides: (date?: string) => {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    return req<{
+      rides: Array<{
+        ride_id: string;
+        vehicle_number: string;
+        driver_name: string;
+        driver_phone: string;
+        depart_time: string;
+        arrive_time: string;
+        status: string;
+        online_seats_count: number;
+        offline_seats_count: number;
+        passengers: Array<{
+          seat_number: number;
+          name: string;
+          phone: string;
+          is_online: boolean;
+        }>;
+      }>;
+    }>(`/admin/rides${query}`);
+  },
 };

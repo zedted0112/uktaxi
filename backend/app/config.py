@@ -42,6 +42,12 @@ JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
 JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_HOURS: int = int(os.getenv("JWT_EXPIRE_HOURS", "168"))
 
+ADMIN_EMAIL_WHITELIST: list[str] = [
+    email.strip().lower() 
+    for email in os.getenv("ADMIN_EMAIL_WHITELIST", "nitinranaofficial456@gmail.com").split(",") 
+    if email.strip()
+]
+
 # Push delivery (phone tray notifications) is optional and additive to DB inbox.
 # Keep false by default so demo/local environments behave exactly as before.
 ENABLE_PUSH_NOTIFICATIONS: bool = _env_bool("ENABLE_PUSH_NOTIFICATIONS", False)

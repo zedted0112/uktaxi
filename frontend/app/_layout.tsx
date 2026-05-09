@@ -28,14 +28,17 @@ function Gate() {
     const inAuth = segments[0] === 'auth';
     const inUser = segments[0] === '(tabs)';
     const inDriver = segments[0] === '(driver)';
+    const inAdmin = segments[0] === '(admin)';
 
     if (!user && !inAuth) {
       router.replace('/auth');
-    } else if (user && inAuth) {
+    } else if (user && user.is_admin && !inAdmin) {
+      router.replace('/(admin)/dashboard');
+    } else if (user && !user.is_admin && inAuth) {
       router.replace(user.role === 'driver' ? '/(driver)/publish' : '/(tabs)');
-    } else if (user && user.role === 'driver' && inUser) {
+    } else if (user && !user.is_admin && user.role === 'driver' && inUser) {
       router.replace('/(driver)/publish');
-    } else if (user && user.role === 'user' && inDriver) {
+    } else if (user && !user.is_admin && user.role === 'user' && inDriver) {
       router.replace('/(tabs)');
     }
   }, [user, loading, segments, router]);
@@ -53,6 +56,7 @@ function Gate() {
         <Stack.Screen name="auth" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(driver)" />
+        <Stack.Screen name="(admin)" />
         <Stack.Screen name="ride/[id]" />
         <Stack.Screen name="ticket/[id]" />
       </Stack>

@@ -27,6 +27,7 @@ class User(BaseModel):
     notify_promotions: Optional[bool] = False
     total_seats: Optional[int] = None
     seat_layout: Optional[List[List[int]]] = None
+    is_admin: bool = False
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

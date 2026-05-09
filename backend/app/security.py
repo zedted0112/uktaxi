@@ -41,4 +41,14 @@ async def get_current_user(
     user = await db.users.find_one({"id": sub}, {"_id": 0})
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found for token")
+    
+    from .config import ADMIN_EMAIL_WHITELIST
+    user_email = user.get("email") or ""
+    user["is_admin"] = user_email.strip().lower() in ADMIN_EMAIL_WHITELIST
+
     return user
+
+async def get_admin_user(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+    if not current_user.get("is_admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return current_user
